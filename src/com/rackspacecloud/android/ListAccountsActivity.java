@@ -64,7 +64,8 @@ public class ListAccountsActivity extends ListActivity{
         onRestoreInstanceState(savedInstanceState);
         registerForContextMenu(getListView());
         context = getApplicationContext();
-        tabViewIntent = new Intent(this, TabViewActivity.class);
+//        tabViewIntent = new Intent(this, TabViewActivity.class);
+        tabViewIntent = new Intent(this, ActivityChooser.class);
         verifyPassword();
     }
 
