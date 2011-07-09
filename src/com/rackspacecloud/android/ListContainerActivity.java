@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,8 +17,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.rackspace.cloud.files.api.client.Container;
@@ -43,11 +47,13 @@ public class ListContainerActivity extends ListActivity {
 	public int kbConver = 1024;
 	private Context context;
 	private boolean loading;
+	ProgressDialog pDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = getApplicationContext();
+		setContentView(R.layout.list_containers);
 		restoreState(savedInstanceState);
 	}
 
@@ -62,7 +68,7 @@ public class ListContainerActivity extends ListActivity {
 		if (state != null && state.containsKey("container") && state.getSerializable("container") != null) {
 			containers = (Container[]) state.getSerializable("container");
 			if (containers.length == 0) {
-				displayNoServersCell();
+				displayNoContainersCell();
 			} else {
 				getListView().setDividerHeight(1); // restore divider lines
 				setListAdapter(new FileAdapter());
@@ -82,31 +88,31 @@ public class ListContainerActivity extends ListActivity {
 	}
 
 	private void loadContainers() {
-		displayLoadingCell();
+		showProgressDialog();
 		new LoadContainersTask().execute((Void[]) null);
 	}
 
 	private void setContainerList() {
 		if (containerNames.length == 0) {
-			displayNoServersCell();
+			displayNoContainersCell();
 		} else {
 			getListView().setDividerHeight(1); // restore divider lines
 			setListAdapter(new FileAdapter());
 		}
 	}
 
-	private void displayLoadingCell() {
-		String a[] = new String[1];
-		a[0] = "Loading...";
-		setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell,
-				R.id.loading_label, a));
-		getListView().setTextFilterEnabled(true);
-		getListView().setDividerHeight(0); // hide the dividers so it won't look
-											// like a list row
-		getListView().setItemsCanFocus(false);
-	}
+//	private void displayLoadingCell() {
+//		String a[] = new String[1];
+//		a[0] = "Loading...";
+//		setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell,
+//				R.id.loading_label, a));
+//		getListView().setTextFilterEnabled(true);
+//		getListView().setDividerHeight(0); // hide the dividers so it won't look
+//											// like a list row
+//		getListView().setItemsCanFocus(false);
+//	}
 
-	private void displayNoServersCell() {
+	private void displayNoContainersCell() {
 		String a[] = new String[1];
 		a[0] = "No Files";
 		setListAdapter(new ArrayAdapter<String>(this,
@@ -115,6 +121,17 @@ public class ListContainerActivity extends ListActivity {
 		getListView().setDividerHeight(0); // hide the dividers so it won't look
 											// like a list row
 		getListView().setItemsCanFocus(false);
+	}
+	
+	protected void showProgressDialog() {
+		pDialog = new ProgressDialog(this, R.style.NewDialog);
+		// // Set blur to background
+		WindowManager.LayoutParams lp = pDialog.getWindow().getAttributes();
+		lp.dimAmount = 0.0f;
+		pDialog.getWindow().setAttributes(lp);
+		pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+		pDialog.show();
+		pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	}
 
 	private void showAlert(String title, String message) {
@@ -185,6 +202,7 @@ public class ListContainerActivity extends ListActivity {
 
 		@Override
 		protected void onPreExecute(){
+			showProgressDialog();
 			loading = true;
 		}
 		
@@ -203,6 +221,7 @@ public class ListContainerActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(ArrayList<Container> result) {
 			Log.v("listcontainerActivity", "onPostExecute loadCDNcontainerTask");
+			pDialog.dismiss();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());
 			}

@@ -50,9 +50,11 @@ public class ActivityChooser extends Activity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			case R.id.serverbutton:
-				//
+				Intent loadServersActivityIntent = new Intent(context, ListServersActivity.class);
+				startActivity(loadServersActivityIntent);
 			case R.id.filesbutton:
-				//
+				Intent loadFilesActivityIntent = new Intent(context, ListContainerActivity.class);
+				startActivity(loadFilesActivityIntent);
 			case R.id.loadbalancersbutton:
 				Intent loadBalancersActivityIntent = new Intent(context, LoadBalancersActivity.class);
 				startActivity(loadBalancersActivityIntent);
