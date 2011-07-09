@@ -17,7 +17,6 @@ public class LoadBalancersActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loadbalancers_activity);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		// Set up buttons
         //Others will be other options
@@ -34,7 +33,7 @@ public class LoadBalancersActivity extends Activity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			case R.id.lbbuttonmed:
-				Intent listLoadBalancersIntent = new Intent(LoadBalancersActivity.this, ListLoadBalancersActivity.class);
+				Intent listLoadBalancersIntent = new Intent(getApplicationContext(), ListLoadBalancersActivity.class);
 				startActivity(listLoadBalancersIntent);
 			case R.id.filesbutton:
 				//add for configuration i.e default datacenter, other info.

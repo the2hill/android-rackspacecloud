@@ -32,8 +32,6 @@ public class ListLoadBalancersActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_loadbalancers);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		restoreState(savedInstanceState);
 	}
 
@@ -178,10 +176,6 @@ public class ListLoadBalancersActivity extends ListActivity {
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Log.i("LISTLOADBALANCERS: ", loadBalancers[position].getAlgorithm()
-					+ "," + loadBalancers[position].getProtocol() + ","
-					+ loadBalancers[position].getStatus() +"vips: "+ loadBalancers[position].getVirtualIps().toString());
-
 			LoadBalancer loadBalancer = loadBalancers[position];
 			LayoutInflater inflater = getLayoutInflater();
 			View row = inflater.inflate(R.layout.list_loadbalancer_item,

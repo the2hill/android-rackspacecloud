@@ -28,11 +28,6 @@ import com.rackspace.cloud.files.api.client.Container;
 import com.rackspace.cloud.files.api.client.ContainerManager;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 
-/**
- * 
- * @author Phillip Toohill
- * 
- */
 public class ListContainerActivity extends ListActivity {
 
 	protected static final int DELETE_ID = 0;
@@ -88,7 +83,7 @@ public class ListContainerActivity extends ListActivity {
 	}
 
 	private void loadContainers() {
-		showProgressDialog();
+//		displayNoContainersCell();
 		new LoadContainersTask().execute((Void[]) null);
 	}
 
@@ -160,18 +155,19 @@ public class ListContainerActivity extends ListActivity {
 
 		@Override
 		protected void onPreExecute(){
+			showProgressDialog();
 			loading = true;
 		}
 			
 		@Override
 		protected ArrayList<Container> doInBackground(Void... arg0) {
 			ArrayList<Container> containers = null;
-
 			try {
 				containers = (new ContainerManager(context)).createList(true);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
+			pDialog.dismiss();   
 			return containers;
 		}
 
@@ -190,6 +186,7 @@ public class ListContainerActivity extends ListActivity {
 					containerNames[i] = container.getName();
 				}
 			}
+			pDialog.dismiss();
 			loading = false;
 			new LoadCDNContainersTask().execute((Void[]) null);
 		}
@@ -209,19 +206,18 @@ public class ListContainerActivity extends ListActivity {
 		@Override
 		protected ArrayList<Container> doInBackground(Void... arg0) {
 			ArrayList<Container> cdnContainers = null;
-
 			try {
 				cdnContainers = (new ContainerManager(context)).createCDNList(true);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
+			pDialog.dismiss();
 			return cdnContainers;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<Container> result) {
 			Log.v("listcontainerActivity", "onPostExecute loadCDNcontainerTask");
-			pDialog.dismiss();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());
 			}
@@ -239,6 +235,7 @@ public class ListContainerActivity extends ListActivity {
 					}
 				}
 			}
+			pDialog.dismiss();
 			setContainerList();
 			loading = false;
 		}

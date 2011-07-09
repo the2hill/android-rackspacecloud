@@ -35,15 +35,15 @@ public class ActivityChooser extends Activity {
 		setContentView(R.layout.activity_choser);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		context = this;
+		context = getApplicationContext();
 		// Set up buttons
-		ImageButton button1 = (ImageButton) findViewById(R.id.serverbutton);
-		ImageButton button2 = (ImageButton) findViewById(R.id.filesbutton);
-		ImageButton button3 = (ImageButton) findViewById(R.id.loadbalancersbutton);
+		ImageButton serversButton = (ImageButton) findViewById(R.id.serverbutton);
+		ImageButton filesButton = (ImageButton) findViewById(R.id.filesbutton);
+		ImageButton loadBalancersButton = (ImageButton) findViewById(R.id.loadbalancersbutton);
 		
-		button1.setOnClickListener(myListener);
-		button2.setOnClickListener(myListener);
-		button3.setOnClickListener(myListener);
+		serversButton.setOnClickListener(myListener);
+		filesButton.setOnClickListener(myListener);
+		loadBalancersButton.setOnClickListener(myListener);
 	}
 
 	View.OnClickListener myListener = new View.OnClickListener() {
@@ -52,27 +52,18 @@ public class ActivityChooser extends Activity {
 			case R.id.serverbutton:
 				Intent loadServersActivityIntent = new Intent(context, ListServersActivity.class);
 				startActivity(loadServersActivityIntent);
+				break;
 			case R.id.filesbutton:
 				Intent loadFilesActivityIntent = new Intent(context, ListContainerActivity.class);
 				startActivity(loadFilesActivityIntent);
+				break;
 			case R.id.loadbalancersbutton:
-				Intent loadBalancersActivityIntent = new Intent(context, LoadBalancersActivity.class);
+				Intent loadBalancersActivityIntent = new Intent(context, ListLoadBalancersActivity.class);
 				startActivity(loadBalancersActivityIntent);
+				break;
 			default:
-				// Nothing
 				break;
 			}
 		}
 	};
-	
-	protected void showDialog() {
-    	pDialog = new ProgressDialog(context, R.style.NewDialog);
-//		// Set blur to background
-		WindowManager.LayoutParams lp = pDialog.getWindow().getAttributes();
-		lp.dimAmount = 0.0f;
-		pDialog.getWindow().setAttributes(lp);
-		pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-        pDialog.show();
-        pDialog.setContentView(new ProgressBar(context), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));    
-    }
 }
