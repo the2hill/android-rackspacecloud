@@ -13,3 +13,5 @@
 	<ImageView android:id="@+id/headerimage"
 		android:layout_width="wrap_content" android:layout_height="25dip"></ImageView>
 </LinearLayout>
+
+  

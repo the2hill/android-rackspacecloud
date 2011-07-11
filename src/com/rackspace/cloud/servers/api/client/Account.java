@@ -3,6 +3,8 @@
  */
 package com.rackspace.cloud.servers.api.client;
 
+import com.rackspace.cloud.utils.StringUtils;
+
 
 
 /**
@@ -17,10 +19,14 @@ public class Account implements java.io.Serializable{
 	private static final long serialVersionUID = 2180740077014156769L;
 	private String username;
 	private String apiKey;
+	private String accountId;
 	private transient String authToken;
 	private String authServer;
 	private transient String serverUrl;
 	private transient String storageUrl;
+	private String loadBalancerDFWUrl;
+	private String loadBalancerORDUrl;
+	private String loadBalancerUKUrl;
 	private transient String storageToken;
 	private transient String cdnManagementUrl;
 	private transient static Account currentAccount;
@@ -108,8 +114,60 @@ public class Account implements java.io.Serializable{
 	public void setAuthServer(String authServer) {
 		this.authServer = authServer;
 	}
-
 	
+	//auth v1.1 should return loadbalancer endpoints and return account id ....
+	public String getAccountId() {
+		String delemiter = "v1.0/";
+		int indexToReturn = 1;
+		accountId = StringUtils.splitByDelemiter(getServerUrl(), delemiter, indexToReturn);
+		return accountId;
+	}
+
+	/**
+	 * @return the loadBalancerDFWUrl
+	 */
+	public String getLoadBalancerDFWUrl() {
+		loadBalancerDFWUrl = "https://dfw.loadbalancers.api.rackspacecloud.com/v1.0/";
+		return loadBalancerDFWUrl;
+	}
+
+	/**
+	 * @param loadBalancerDFWUrl the loadBalancerDFWUrl to set
+	 */
+	public void setLoadBalancerDFWUrl(String loadBalancerDFWUrl) {
+		this.loadBalancerDFWUrl = loadBalancerDFWUrl;
+	}
+
+	/**
+	 * @return the loadBalancerORDUrl
+	 */
+	public String getLoadBalancerORDUrl() {
+		loadBalancerORDUrl = "https://ord.loadbalancers.api.rackspacecloud.com/v1.0/";
+		return loadBalancerORDUrl;
+	}
+
+	/**
+	 * @param loadBalancerORDUrl the loadBalancerORDUrl to set
+	 */
+	public void setLoadBalancerORDUrl(String loadBalancerORDUrl) {
+		this.loadBalancerORDUrl = loadBalancerORDUrl;
+	}
+
+	/**
+	 * @return the loadBalancerUKUrl
+	 */
+	public String getLoadBalancerUKUrl() {
+		loadBalancerUKUrl = "https://lon.loadbalancers.api.rackspacecloud.com/v1.0/";
+		return loadBalancerUKUrl;
+	}
+
+	/**
+	 * @param loadBalancerUKUrl the loadBalancerUKUrl to set
+	 */
+	public void setLoadBalancerUKUrl(String loadBalancerUKUrl) {
+		this.loadBalancerUKUrl = loadBalancerUKUrl;
+	}
+
 	/**
 	 * @return the username
 	 */

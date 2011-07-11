@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,9 +19,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.rackspace.cloud.servers.api.client.CloudServersException;
@@ -35,11 +39,13 @@ public class ListServersActivity extends ListActivity {
 
 	private Server[] servers;
 	private Context context;
+	ProgressDialog pDialog;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
+        setContentView(R.layout.list_servers);
         restoreState(savedInstanceState);
     }
 	
@@ -72,7 +78,7 @@ public class ListServersActivity extends ListActivity {
     }
     
     private void loadServers() {
-    	displayLoadingCell();
+//    	displayLoadingCell();
     	new LoadServersTask().execute((Void[]) null);
     }
     
@@ -99,14 +105,25 @@ public class ListServersActivity extends ListActivity {
 		}
     }
     
-    private void displayLoadingCell() {
-    	String a[] = new String[1];
-    	a[0] = "Loading...";
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell, R.id.loading_label, a));
-        getListView().setTextFilterEnabled(true);
-        getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
-        getListView().setItemsCanFocus(false);
-    }
+//    private void displayLoadingCell() {
+//    	String a[] = new String[1];
+//    	a[0] = "Loading...";
+//        setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell, R.id.loading_label, a));
+//        getListView().setTextFilterEnabled(true);
+//        getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
+//        getListView().setItemsCanFocus(false);
+//    }
+    
+    protected void showProgressDialog() {
+		pDialog = new ProgressDialog(this, R.style.NewDialog);
+		// // Set blur to background
+		WindowManager.LayoutParams lp = pDialog.getWindow().getAttributes();
+		lp.dimAmount = 0.0f;
+		pDialog.getWindow().setAttributes(lp);
+		pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+		pDialog.show();
+		pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+	}
     
     private void displayNoServersCell() {
     	String a[] = new String[1];
@@ -136,8 +153,12 @@ public class ListServersActivity extends ListActivity {
     
     
     private class LoadServersTask extends AsyncTask<Void, Void, ArrayList<Server>> {
-    	
     	private CloudServersException exception;
+    	
+    	@Override
+		protected void onPreExecute(){
+			showProgressDialog();
+		}
     	
 		@Override
 		protected ArrayList<Server> doInBackground(Void... arg0) {
@@ -147,6 +168,7 @@ public class ListServersActivity extends ListActivity {
 			} catch (CloudServersException e) {
 				exception = e;				
 			}
+			pDialog.dismiss();
 			return servers;
 		}
     	
