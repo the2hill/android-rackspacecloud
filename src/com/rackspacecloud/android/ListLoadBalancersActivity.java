@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -25,7 +26,9 @@ import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 
 public class ListLoadBalancersActivity extends ListActivity {
+	
 	private LoadBalancer[] loadBalancers;
+	private Context context;
 	ProgressDialog pDialog;
 	
 	@Override
@@ -42,6 +45,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 	}
 
 	private void restoreState(Bundle state) {
+		context = getApplicationContext();
 		if (state != null && state.containsKey("loadBalancers")) {
 			loadBalancers = (LoadBalancer[]) state
 					.getSerializable("loadBalancers");
@@ -137,7 +141,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 		protected ArrayList<LoadBalancer> doInBackground(Void... arg0) {
 			ArrayList<LoadBalancer> loadBalancers = null;
 			try {
-				loadBalancers = (new LoadBalancerManager()).createList();
+				loadBalancers = (new LoadBalancerManager(context)).createList();
 			} catch (LoadBalancersException e) {
 				exception = e;
 			}

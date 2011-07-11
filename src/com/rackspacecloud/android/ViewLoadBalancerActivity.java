@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,10 +21,12 @@ import android.widget.TextView;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.servers.api.client.Account;
 
 public class ViewLoadBalancerActivity extends Activity {
 	private LoadBalancer loadBalancer;
 	private LoadBalancer returnLoadBalancer;
+	private Context context;
 	ProgressDialog pDialog;
 	
     @Override
@@ -43,6 +46,7 @@ public class ViewLoadBalancerActivity extends Activity {
 	}
 
     private void restoreState(Bundle state) {
+    	context = getApplicationContext();
     	if (state != null && state.containsKey("loadBalancer")) {
     		loadBalancer = (LoadBalancer) state.getSerializable("loadBalancer");
     	}
@@ -114,7 +118,7 @@ public class ViewLoadBalancerActivity extends Activity {
 		@Override
 		protected LoadBalancer doInBackground(Void... arg0) {
 			try {
-				returnLoadBalancer = (new LoadBalancerManager()).getLoadBalncerById(Integer.parseInt(loadBalancer.getId()));
+				returnLoadBalancer = (new LoadBalancerManager(context)).getLoadBalancerById(Integer.parseInt(loadBalancer.getId()));
 			} catch (NumberFormatException e) {
 				// we're polling, so need to show exceptions
 			} catch (LoadBalancersException e) {
@@ -141,7 +145,7 @@ public class ViewLoadBalancerActivity extends Activity {
 		@Override
 		protected LoadBalancer doInBackground(Void... arg0) {
 			try {
-				returnLoadBalancer = (new LoadBalancerManager()).getLoadBalncerById(Integer.parseInt(loadBalancer.getId()));
+				returnLoadBalancer = (new LoadBalancerManager(context)).getLoadBalancerById(Integer.parseInt(loadBalancer.getId()));
 			} catch (LoadBalancersException e) {
 				exception = e;
 			}
