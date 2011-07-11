@@ -5,6 +5,7 @@ package com.rackspace.cloud.loadbalancer.api.client;
 
 import java.util.ArrayList;
 
+
 public class LoadBalancer extends Entity {
 
 	private static final long serialVersionUID = 5994739895998309675L;
@@ -146,5 +147,4 @@ public class LoadBalancer extends Entity {
 				+ getName() + "\" id=\"" + getId() + "</loadBalancer>";
 		return xml;
 	}
-
 }

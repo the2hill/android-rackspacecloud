@@ -10,6 +10,8 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.FlavorManager;
@@ -65,7 +67,6 @@ public class ListAccountsActivity extends ListActivity{
         onRestoreInstanceState(savedInstanceState);
         registerForContextMenu(getListView());
         context = getApplicationContext();
-//        tabViewIntent = new Intent(this, TabViewActivity.class);
         tabViewIntent = new Intent(this, ActivityChooser.class);
         verifyPassword();
     }
@@ -446,6 +447,48 @@ public class ListAccountsActivity extends ListActivity{
 		}
     }
 
+    private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
+    	
+		@Override
+		protected ArrayList<Image> doInBackground(Void... arg0) {
+			return (new ImageManager()).createList(true, context);
+		}
+    	
+		@Override
+		protected void onPostExecute(ArrayList<Image> result) {
+			if (result != null && result.size() > 0) {
+				TreeMap<String, Image> imageMap = new TreeMap<String, Image>();
+				for (int i = 0; i < result.size(); i++) {
+					Image image = result.get(i);
+					imageMap.put(image.getId(), image);
+				}
+				Image.setImages(imageMap);
+				new LoadProtocolsTask().execute((Void[]) null);
+			} else {
+				hideDialog();
+				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+			}
+		}
+    }
+    
+    private class LoadProtocolsTask extends AsyncTask<Void, Void, ArrayList<Protocol>> {
+
+		@Override
+		protected ArrayList<Protocol> doInBackground(Void... arg0) {
+			return (new ProtocolManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Protocol> result) {
+			if (result != null && result.size() > 0) {
+				Protocol.setProtocols(result);
+				new LoadFlavorsTask().execute((Void[]) null);
+			} else {
+				showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+			}
+		}
+	}
+    
     private class LoadFlavorsTask extends AsyncTask<Void, Void, ArrayList<Flavor>> {
     	
 		@Override
@@ -467,31 +510,6 @@ public class ListAccountsActivity extends ListActivity{
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
-			}
-		}
-    }
-
-    private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
-    	
-		@Override
-		protected ArrayList<Image> doInBackground(Void... arg0) {
-			return (new ImageManager()).createList(true, context);
-		}
-    	
-		@Override
-		protected void onPostExecute(ArrayList<Image> result) {
-			if (result != null && result.size() > 0) {
-				TreeMap<String, Image> imageMap = new TreeMap<String, Image>();
-				for (int i = 0; i < result.size(); i++) {
-					Image image = result.get(i);
-					imageMap.put(image.getId(), image);
-				}
-				Image.setImages(imageMap);
-				new LoadFlavorsTask().execute((Void[]) null);
-				//startActivity(tabViewIntent);
-			} else {
-				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
 			}
 		}
     }

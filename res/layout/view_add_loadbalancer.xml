@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/view_loadbalncer_layout" android:orientation="vertical"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:background="@drawable/rack_bg_transparent">
+	<ImageView android:id="@+id/headerimage"
+		android:layout_width="wrap_content" android:layout_height="80dip" />
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:layout_weight="1">
+		<TableLayout android:layout_height="wrap_content" android:background="@drawable/itemsbox" android:layout_width="fill_parent" android:paddingLeft="5dip" android:id="@+id/view_loadbalancer_layout" android:paddingBottom="30dip">
+			<TextView android:text="LoadBalancer" android:textSize="20.0sp" android:gravity="fill_horizontal" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:scrollHorizontally="true" android:textColor="#fff" android:layout_marginRight="30dip" android:layout_width="fill_parent" android:layout_marginTop="30dip" android:paddingTop="10dip" android:layout_marginBottom="10dip"></TextView>
+			<TableRow android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/edit_lb_name_layout">
+				<TextView android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip" android:text="Name"></TextView>
+				<EditText android:layout_weight="1" android:layout_marginRight="20dip" android:id="@+id/edit_lb_name_text" android:layout_height="wrap_content" android:layout_width="wrap_content">
+					<requestFocus></requestFocus>
+				</EditText>
+			</TableRow>
+			<TableRow android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/edit_protocol_layout">
+				<TextView android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip" android:text="Protocol"></TextView>
+				<Spinner android:id="@+id/edit_protocol_spinner" android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="wrap_content" android:layout_marginRight="20dip"></Spinner>
+			</TableRow>
+			<TableRow android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/edit_port_layout">
+				<TextView android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip" android:text="Port"></TextView>
+				<EditText android:layout_weight="1" android:layout_marginRight="20dip" android:id="@+id/edit_port_text" android:layout_height="wrap_content" android:layout_width="wrap_content"></EditText>
+			</TableRow>
+			<TableRow android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/edit_vip_layout">
+				<TextView android:text="@string/virtual_ip_type" android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip"></TextView>
+				<Spinner android:id="@+id/edit_vip_spinner" android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="wrap_content" android:layout_marginRight="20dip"></Spinner>
+			</TableRow>
+			<TableRow android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/edit_algorithm_layout">
+				<TextView android:text="Algorithm" android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip"></TextView>
+				<Spinner android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="wrap_content" android:layout_marginRight="20dip" android:id="@+id/edit_algorithm_spinner"></Spinner>
+			</TableRow>
+			<TableRow android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/edit_region_layout">
+				<TextView android:singleLine="false" android:layout_gravity="center_vertical" android:layout_marginLeft="22dip" android:textColor="#333" android:textStyle="bold" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingLeft="5dip" android:text="Region"></TextView>
+				<Spinner android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="wrap_content" android:layout_marginRight="20dip" android:id="@+id/edit_region_spinner"></Spinner>
+			</TableRow>
+		</TableLayout>
+	</ScrollView>
+	<ImageView android:id="@+id/footerimage"
+		android:layout_width="wrap_content" android:layout_height="25dip" />
+</LinearLayout>

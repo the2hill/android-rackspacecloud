@@ -12,6 +12,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,10 +26,13 @@ import android.widget.TextView;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 
 public class ListLoadBalancersActivity extends ListActivity {
 	
+	private final int ADD_LOAD_BALANCER_CODE = 22;
 	private LoadBalancer[] loadBalancers;
 	private Context context;
 	ProgressDialog pDialog;
@@ -97,6 +103,29 @@ public class ListLoadBalancersActivity extends ListActivity {
 			getListView().setDividerHeight(1); // restore divider lines
 			setListAdapter(new LoadBalancerAdapter());
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.loadbalancers_list_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.add_loadbalancer:
+			startActivityForResult(
+					new Intent(this, AddLoadBalancerActivity.class), ADD_LOAD_BALANCER_CODE); // arbitrary number never used again
+			return true;
+		case R.id.refresh:
+			loadBalancers = null;
+			loadLoadBalancers();
+			return true;
+		}
+		return false;
 	}
 
 	protected void showDialog() {

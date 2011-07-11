@@ -3,27 +3,30 @@
  */
 package com.rackspacecloud.android;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
-import com.rackspace.cloud.servers.api.client.Account;
 
 public class ViewLoadBalancerActivity extends Activity {
+	
+	private final int EDIT_LOAD_BALANCER_CODE = 23;
 	private LoadBalancer loadBalancer;
 	private LoadBalancer returnLoadBalancer;
 	private Context context;
@@ -51,6 +54,21 @@ public class ViewLoadBalancerActivity extends Activity {
     		loadBalancer = (LoadBalancer) state.getSerializable("loadBalancer");
     	}
     	new LoadLoadBalancerTask().execute((Void[]) null);   
+    	setUpButtons();
+    }
+    
+    private void setUpButtons(){
+    	Button editLoadBalancer = (Button)findViewById(R.id.edit_loadbalancer_button);
+    	editLoadBalancer.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//Intent editLoadBalancerIntent = new Intent(context, EditLoadBalancerActivity.class);
+				//editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
+				//startActivityForResult(editLoadBalancerIntent, EDIT_LOAD_BALANCER_CODE);
+			}
+			
+		});
     }
     
     private void loadLoadBalancerData() {

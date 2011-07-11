@@ -115,6 +115,7 @@
 				</LinearLayout>
 			</LinearLayout>
 			<!-- VirtualIps -->
+			<Button android:layout_gravity="center" android:id="@+id/edit_loadbalancer_button" android:layout_height="wrap_content" android:text="Edit Load Balancer" android:layout_width="wrap_content"></Button>
 			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				android:id="@+id/view_loadbalancer_layout" android:orientation="vertical"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"

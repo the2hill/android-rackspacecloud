@@ -52,5 +52,6 @@
 <string name="contact_uk">0800-083-3012</string>
 <string name="contact_us">877-934-0407</string>
 <string name="confirm_resize">Confirming the resize will destroy the saved copy of your original server.</string>
+<string name="virtual_ip_type">Virtual\nIp Type</string>
 
 </resources>
