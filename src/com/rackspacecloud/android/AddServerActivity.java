@@ -11,6 +11,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -46,17 +49,23 @@ public class AddServerActivity extends Activity implements OnItemSelectedListene
 	private Server server;
 	private SeekBar numberBar;
 	private TextView numberDisplay;
+	private String extension;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.createserver);
-        serverName = (EditText) findViewById(R.id.server_name);
         ((Button) findViewById(R.id.save_button)).setOnClickListener(this);
+        ((TextView)findViewById(R.id.names_number)).setText("        ");
+        setUpNameText();
         loadImageSpinner();
         loadFlavorSpinner();
         loadServerCount();
+     }
+    
+    private void setUpNameText(){
+        serverName = (EditText) findViewById(R.id.server_name);
     }
     
     private void loadServerCount(){
@@ -81,6 +90,16 @@ public class AddServerActivity extends Activity implements OnItemSelectedListene
 					boolean fromUser) {
 				// TODO Auto-generated method stub
 				numberDisplay.setText(getCountText(progress));
+				if(progress == 0){
+					extension = "        ";
+				}
+				else if(progress == 9){
+					extension = "[1.." + (progress + 1) + "]";
+				}
+				else{
+					extension = "[1.." + (progress + 1) + "] ";
+				}
+				((TextView)findViewById(R.id.names_number)).setText(extension);
 			}
 			
 			private String getCountText(int i){

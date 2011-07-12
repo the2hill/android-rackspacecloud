@@ -1,121 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-    <RelativeLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/RelativeLayout1">
-        <TextView android:id="@+id/TextView1" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:text="Number of Servers" android:layout_height="wrap_content" android:layout_marginTop="5dip" android:layout_marginLeft="22dip" android:layout_width="wrap_content"></TextView>
-        <TextView android:layout_toRightOf="@+id/TextView1" android:layout_alignBaseline="@+id/TextView1" android:layout_alignParentTop="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dip" android:layout_alignParentRight="true" android:gravity="right" android:layout_marginRight="30dip" android:id="@+id/server_count_text" android:text="1 Server"></TextView>
-    </RelativeLayout>
-    <SeekBar android:layout_height="wrap_content" android:id="@+id/number_of_servers" android:max="9" android:layout_gravity="center" android:layout_width="fill_parent" android:layout_marginLeft="12dip" android:layout_marginRight="20dip" android:paddingRight="10dip" android:paddingLeft="15dip"></SeekBar>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:layout_width="fill_parent"
+		android:id="@+id/linearLayout1" android:orientation="vertical"
+		android:layout_height="324dp" android:paddingBottom="20dip">
+		<RelativeLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:id="@+id/RelativeLayout1">
+			<TextView android:layout_alignParentTop="true"
+				android:layout_marginLeft="22dip" android:layout_alignParentLeft="true"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:text="Number of Servers" android:id="@+id/TextView1"
+				android:layout_marginTop="5dip"></TextView>
+			<TextView android:layout_alignParentTop="true"
+				android:layout_alignParentRight="true" android:gravity="right"
+				android:layout_width="wrap_content" android:layout_alignBaseline="@+id/TextView1"
+				android:layout_marginRight="30dip" android:layout_height="wrap_content"
+				android:text="1 Server" android:id="@+id/server_count_text"
+				android:layout_toRightOf="@+id/TextView1" android:layout_marginTop="5dip"></TextView>
+		</RelativeLayout>
+		<SeekBar android:paddingRight="10dip" android:layout_width="fill_parent"
+			android:paddingLeft="15dip" android:layout_height="wrap_content"
+			android:layout_gravity="center" android:id="@+id/number_of_servers"
+			android:layout_marginLeft="12dip" android:layout_marginRight="20dip"
+			android:max="9"></SeekBar>
+		<TextView android:layout_width="fill_parent"
+			android:layout_marginLeft="22dip" android:text="Server Name"
+			android:layout_height="wrap_content"></TextView>
+		<RelativeLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:id="@+id/RelativeLayout1">
+			<EditText android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true" android:textAppearance="?android:attr/textAppearanceMedium"
+				android:autoText="false" android:singleLine="true"
+				android:layout_weight="1" android:imeOptions="actionNext"
+				android:scrollHorizontally="true" android:id="@+id/server_name"
+				android:capitalize="none" android:layout_height="wrap_content"
+				android:inputType="textNoSuggestions" android:layout_marginLeft="22dip"
+				android:layout_width="fill_parent" android:paddingRight="55dip"
+				android:layout_marginRight="30dip" android:gravity="center_vertical|fill_horizontal"></EditText>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="       "
+				android:id="@+id/names_number" android:layout_alignRight="@+id/server_name"
+				android:layout_marginRight="10dip" android:layout_centerVertical="true"></TextView>
+		</RelativeLayout>
+		<TextView android:layout_width="fill_parent"
+			android:layout_marginLeft="22dip" android:text="Image"
+			android:layout_height="wrap_content"></TextView>
+		<Spinner android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:id="@+id/image_spinner"
+			android:layout_marginLeft="22dip" android:layout_marginRight="30dip"></Spinner>
+		<TextView android:layout_width="fill_parent"
+			android:layout_marginLeft="22dip" android:text="Flavor"
+			android:layout_height="wrap_content"></TextView>
+		<Spinner android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:id="@+id/flavor_spinner"
+			android:layout_marginLeft="22dip" android:layout_marginRight="30dip"></Spinner>
+		<Button android:layout_marginTop="10dip" android:layout_width="100dip"
+			android:layout_gravity="left" android:layout_marginLeft="20dip"
+			android:id="@+id/save_button" android:layout_height="wrap_content"
+			android:text="Save"></Button>
+		<ProgressBar android:layout_marginTop="-42dip"
+			android:layout_width="30dip" android:layout_height="30dip"
+			android:visibility="invisible" android:layout_marginLeft="130dip"
+			android:id="@+id/save_server_progress_bar"></ProgressBar>
+		<TextView android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_marginTop="-28dip" android:layout_width="fill_parent"
+			android:visibility="invisible" android:layout_marginLeft="172dip"
+			android:text="Saving..." android:id="@+id/saving_server_label"
+			android:layout_height="wrap_content"></TextView>
+	</LinearLayout>
+	<!-- <TextView android:layout_width="fill_parent" android:layout_height="wrap_content" 
+		android:layout_marginLeft="22dip" android:text="@string/apikey" /> <EditText 
+		android:id="@+id/login_apikey" android:layout_height="wrap_content" android:layout_width="fill_parent" 
+		android:layout_marginLeft="22dip" android:layout_marginRight="30dip" android:scrollHorizontally="true" 
+		android:autoText="false" android:capitalize="none" android:gravity="fill_horizontal" 
+		android:singleLine="true" android:imeOptions="actionGo" android:inputType="textNoSuggestions|textPassword" 
+		android:textAppearance="?android:attr/textAppearanceMedium" /> <Spinner xmlns:android="http://schemas.android.com/apk/res/android" 
+		android:id="@+id/flavor_spinner" /> -->
+</ScrollView>
 
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="22dip" 
-    android:text="Server Name"
-    />
-<EditText android:id="@+id/server_name"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent"
-    android:layout_marginLeft="22dip"
-    android:layout_marginRight="30dip"
-    android:scrollHorizontally="true"
-    android:autoText="false"
-    android:capitalize="none"
-    android:gravity="fill_horizontal"
-    android:singleLine="true"
-    android:inputType="textNoSuggestions"
-    android:imeOptions="actionNext"
-    android:textAppearance="?android:attr/textAppearanceMedium" 
-    />
-<!--           
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="22dip" 
-    android:text="@string/apikey"
-    />
-<EditText android:id="@+id/login_apikey"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent"
-    android:layout_marginLeft="22dip"
-    android:layout_marginRight="30dip"
-    android:scrollHorizontally="true"
-    android:autoText="false"
-    android:capitalize="none"
-    android:gravity="fill_horizontal"
-    android:singleLine="true"
-    android:imeOptions="actionGo"
-    android:inputType="textNoSuggestions|textPassword"
-    android:textAppearance="?android:attr/textAppearanceMedium" 
-    />
-
-<Spinner xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/flavor_spinner"
-    />
---> 
-
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="22dip" 
-    android:text="Image"
-    />
-<Spinner xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/image_spinner"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent" 
-    android:drawSelectorOnTop="true"
-    android:layout_marginLeft="22dip"
-    android:layout_marginRight="30dip"
-    />
-
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="22dip" 
-    android:text="Flavor"
-    />
-<Spinner xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/flavor_spinner"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent" 
-    android:drawSelectorOnTop="true"
-    android:layout_marginLeft="22dip"
-    android:layout_marginRight="30dip"
-    />
-
-<Button xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/save_button"
-    android:text="Save"
-    android:layout_width="100dip"
-    android:layout_height="wrap_content"
-    android:layout_gravity="left"
-    android:layout_marginLeft="20dip"
-    android:layout_marginTop="10dip"
-    />
-
-<ProgressBar android:id="@+id/save_server_progress_bar" 
-    android:layout_width="30dip" 
-    android:layout_height="30dip"
-    android:layout_marginLeft="130dip"
-    android:layout_marginTop="-42dip"
-    android:visibility="invisible"
-    />
-    
-<TextView android:id="@+id/saving_server_label"
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="172dip"
-    android:layout_marginTop="-28dip"
-    android:visibility="invisible"
-    android:textAppearance="?android:attr/textAppearanceMedium"
-    android:text="Saving..."
-    />
-</LinearLayout>
-
-<!--
-    android:layout_height="wrap_content"
- -->
+<!-- android:layout_height="wrap_content" -->
