@@ -1,7 +1,6 @@
 package com.rackspace.cloud.loadbalancer.api.client;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 public class Protocol extends Entity{
 

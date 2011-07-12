@@ -10,6 +10,8 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
 import com.rackspace.cloud.loadbalancer.api.client.Protocol;
 import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.servers.api.client.Account;
@@ -482,9 +484,27 @@ public class ListAccountsActivity extends ListActivity{
 		protected void onPostExecute(ArrayList<Protocol> result) {
 			if (result != null && result.size() > 0) {
 				Protocol.setProtocols(result);
-				new LoadFlavorsTask().execute((Void[]) null);
+				new LoadAlgorithmsTask().execute((Void[]) null);
 			} else {
 				showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+			}
+		}
+	}
+    
+    private class LoadAlgorithmsTask extends AsyncTask<Void, Void, ArrayList<Algorithm>> {
+
+		@Override
+		protected ArrayList<Algorithm> doInBackground(Void... arg0) {
+			return (new AlgorithmManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Algorithm> result) {
+			if (result != null && result.size() > 0) {
+				Algorithm.setAlgorithms(result);
+				new LoadFlavorsTask().execute((Void[]) null);
+			} else {
+				showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
 			}
 		}
 	}

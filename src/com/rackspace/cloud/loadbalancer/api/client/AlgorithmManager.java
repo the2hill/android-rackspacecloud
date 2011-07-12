@@ -21,18 +21,17 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
-import com.rackspace.cloud.loadbalancer.api.parsers.ProtocolsXMLParser;
+import com.rackspace.cloud.loadbalancer.api.parsers.AlgorithmsXMLParser;
 import com.rackspace.cloud.servers.api.client.Account;
 
-public class ProtocolManager extends EntityManager {
+public class AlgorithmManager extends EntityManager {
 
-	public ArrayList<Protocol> createList(Context context) {
+	public ArrayList<Algorithm> createList(Context context) {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(Account.getAccount().getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml");
-		ArrayList<Protocol> protocols = new ArrayList<Protocol>();
+		HttpGet get = new HttpGet(Account.getAccount().getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml");
+		ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		try {			
@@ -41,12 +40,12 @@ public class ProtocolManager extends EntityManager {
 		    String body = responseHandler.handleResponse(resp);
 		    
 		    if (resp.getStatusLine().getStatusCode() == 200) {		    	
-		    	ProtocolsXMLParser protocolsXMLParser = new ProtocolsXMLParser();
+		    	AlgorithmsXMLParser algorithmsXMLParser = new AlgorithmsXMLParser();
 		    	SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 		    	XMLReader xmlReader = saxParser.getXMLReader();
-		    	xmlReader.setContentHandler(protocolsXMLParser);
+		    	xmlReader.setContentHandler(algorithmsXMLParser);
 		    	xmlReader.parse(new InputSource(new StringReader(body)));	
-		    	protocols = protocolsXMLParser.getProtocols();	
+		    	algorithms = algorithmsXMLParser.getAlgorithms();	
 		    }
 		} catch (ClientProtocolException cpe) {
 			cpe.printStackTrace();
@@ -65,7 +64,7 @@ public class ProtocolManager extends EntityManager {
 			// we'll end up with an empty list; that's good enough
 		}
 		
-		return protocols;
+		return algorithms;
 	}
 
 }

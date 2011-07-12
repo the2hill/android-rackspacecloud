@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.Protocol;
 import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
@@ -26,9 +27,11 @@ import android.widget.Spinner;
 public class AddLoadBalancerActivity extends Activity implements OnItemSelectedListener {
 
 	private Protocol[] protocols;
+	private Algorithm[] algorithms;
 	private LoadBalancer loadBalancer;
 	private Context context;
 	private Spinner protocolSpinner;
+	private Spinner algorithmSpinner;
 	private EditText portText;
 	private Protocol selectedProtocol;
 
@@ -43,8 +46,9 @@ public class AddLoadBalancerActivity extends Activity implements OnItemSelectedL
 		context = getApplicationContext();
 		portText = (EditText)findViewById(R.id.edit_port_text);
 		loadProtocolSpinner();
+		loadAlgorithmSpinner();
 	}
-	
+
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		if (parent == protocolSpinner) {
 			selectedProtocol = protocols[position];
@@ -53,24 +57,40 @@ public class AddLoadBalancerActivity extends Activity implements OnItemSelectedL
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
-		
+
+	}
+
+	private void loadProtocolSpinner() {
+		protocolSpinner = (Spinner) findViewById(R.id.edit_protocol_spinner);
+		protocolSpinner.setOnItemSelectedListener(this);
+		String protocolNames[] = new String[Protocol.getProtocols().size()]; 
+		protocols = new Protocol[Protocol.getProtocols().size()];
+
+		for(int i = 0; i < Protocol.getProtocols().size(); i++){
+			protocols[i] = Protocol.getProtocols().get(i);
+			protocolNames[i] = Protocol.getProtocols().get(i).getName();
+		}
+
+		ArrayAdapter<String> protocolAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, protocolNames);
+		protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		protocolSpinner.setAdapter(protocolAdapter);
 	}
 	
-	 private void loadProtocolSpinner() {
-			protocolSpinner = (Spinner) findViewById(R.id.edit_protocol_spinner);
-			protocolSpinner.setOnItemSelectedListener(this);
-			String protocolNames[] = new String[Protocol.getProtocols().size()]; 
-			protocols = new Protocol[Protocol.getProtocols().size()];
-			
-			for(int i = 0; i < Protocol.getProtocols().size(); i++){
-				protocols[i] = Protocol.getProtocols().get(i);
-				protocolNames[i] = Protocol.getProtocols().get(i).getName();
-			}
-			
-			ArrayAdapter<String> imageAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, protocolNames);
-			imageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			protocolSpinner.setAdapter(imageAdapter);
-	    }
+	private void loadAlgorithmSpinner() {
+		algorithmSpinner = (Spinner) findViewById(R.id.edit_algorithm_spinner);
+		algorithmSpinner.setOnItemSelectedListener(this);
+		String algorithmNames[] = new String[Algorithm.getAlgorithms().size()]; 
+		algorithms = new Algorithm[Algorithm.getAlgorithms().size()];
+		
+		for(int i = 0; i < Algorithm.getAlgorithms().size(); i++){
+			algorithms[i] = Algorithm.getAlgorithms().get(i);
+			algorithmNames[i] = Algorithm.getAlgorithms().get(i).getName();
+		}
+
+		ArrayAdapter<String> algorithmAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, algorithmNames);
+		algorithmAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		algorithmSpinner.setAdapter(algorithmAdapter);
+	}
 
 	private void showAlert(String title, String message) {
 		AlertDialog alert = new AlertDialog.Builder(this).create();
