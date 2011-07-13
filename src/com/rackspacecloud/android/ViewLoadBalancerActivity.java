@@ -8,7 +8,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,7 +25,6 @@ import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 
 public class ViewLoadBalancerActivity extends Activity {
 	
-	private final int EDIT_LOAD_BALANCER_CODE = 23;
 	private LoadBalancer loadBalancer;
 	private LoadBalancer returnLoadBalancer;
 	private Context context;

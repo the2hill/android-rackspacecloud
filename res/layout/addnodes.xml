@@ -5,11 +5,10 @@
 	<ImageView android:id="@+id/headerimage"
 		android:layout_width="wrap_content" android:layout_height="80dip"></ImageView>
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical" android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
 		<ListView android:id="@+id/android:list"
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:cacheColorHint="@android:color/transparent" />
+			android:layout_width="fill_parent" android:cacheColorHint="@android:color/transparent"
+			android:layout_height="417dp" />
 	</LinearLayout>
 	<ImageView android:id="@+id/headerimage"
 		android:layout_width="wrap_content" android:layout_height="25dip"></ImageView>

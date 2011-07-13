@@ -97,7 +97,6 @@ public class ListAccountsActivity extends ListActivity{
 			loggedIn = false;
 		}
 		if (state != null && state.containsKey("authenticating") && state.getBoolean("authenticating")) {
-			Log.d("info", "captin on restore show");
     		showDialog();
     	} else {
     		hideDialog();
@@ -127,7 +126,6 @@ public class ListAccountsActivity extends ListActivity{
 	protected void onStop(){
 		super.onStop();
 		if(authenticating){
-			Log.d("info", "captin onstop called");
 			hideDialog();
 			authenticating = true;
 		}
@@ -232,6 +230,7 @@ public class ListAccountsActivity extends ListActivity{
 		try {
 			fis = openFileInput(FILENAME);
 			in = new ObjectInputStream(fis);
+			@SuppressWarnings("unchecked")
 			ArrayList<Account> file = (ArrayList<Account>)in.readObject();
 			in.close();
 			return file;
@@ -427,7 +426,6 @@ public class ListAccountsActivity extends ListActivity{
     	
 		@Override
 		protected void onPreExecute(){
-			Log.d("info", "auth show called");
 			showDialog();
 		}
 		

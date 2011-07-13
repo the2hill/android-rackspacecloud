@@ -1,6 +1,8 @@
 package com.rackspace.cloud.files.api.client;
 
 import android.content.Context;
+
+import org.apache.http.HttpVersion;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -8,6 +10,9 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 
 import com.rackspacecloud.android.R;
 
@@ -26,11 +31,17 @@ import java.security.KeyStore;
 public class CustomHttpClient extends DefaultHttpClient {
 
 	final Context context;
-
-	public CustomHttpClient(Context context) {
+/*
+	public CustomHttpClient(Context context, HttpParams params) {
+		super(params);
 		this.context = context;
 	}
-
+	*/
+	public CustomHttpClient(Context context) {
+		super();
+		this.context = context;
+	}
+	
 	@Override
 	protected ClientConnectionManager createClientConnectionManager() {
 		SchemeRegistry registry = new SchemeRegistry();

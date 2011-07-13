@@ -144,6 +144,7 @@
 			android:theme="@android:style/Theme.Dialog"></activity>
 		<activity android:name=".AddLoadBalancerActivity"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
+		<activity android:name=".AddNodesActivity"></activity>
 
 
 
