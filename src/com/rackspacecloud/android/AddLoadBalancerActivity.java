@@ -2,6 +2,7 @@ package com.rackspacecloud.android;
 
 import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
 import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.servers.api.client.Server;
 
 import android.app.Activity;
 import android.app.AlertDialog;

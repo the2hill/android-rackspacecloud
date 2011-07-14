@@ -115,6 +115,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.add_loadbalancer:
+			Log.d("info", "click add lb");
 			startActivityForResult(
 					new Intent(this, AddLoadBalancerActivity.class), ADD_LOAD_BALANCER_CODE); // arbitrary number never used again
 			return true;

@@ -431,7 +431,11 @@ public class ListAccountsActivity extends ListActivity{
 		
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			return new Boolean(Authentication.authenticate(context));
+			long startTime = System.currentTimeMillis();
+			boolean b =  new Boolean(Authentication.authenticate(context));
+			long endTime = System.currentTimeMillis();
+			Log.d("info", "it took " + (endTime - startTime) + " millis");
+			return b;
 			//return true;
 		}
     	
