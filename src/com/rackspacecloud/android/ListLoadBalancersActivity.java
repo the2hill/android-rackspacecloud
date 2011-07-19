@@ -29,12 +29,12 @@ import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 
 public class ListLoadBalancersActivity extends ListActivity {
-	
+
 	private final int ADD_LOAD_BALANCER_CODE = 22;
 	private LoadBalancer[] loadBalancers;
 	private Context context;
 	ProgressDialog pDialog;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,7 +52,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 		context = getApplicationContext();
 		if (state != null && state.containsKey("loadBalancers")) {
 			loadBalancers = (LoadBalancer[]) state
-					.getSerializable("loadBalancers");
+			.getSerializable("loadBalancers");
 			if (loadBalancers.length == 0) {
 				// displayNoServersCell();
 			} else {
@@ -72,7 +72,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 					+ "," + loadBalancers[position].getProtocol() + ","
 					+ loadBalancers[position].getStatus());
 			startActivityForResult(viewIntent, 55); // arbitrary number; never
-													// used again
+			// used again
 		}
 	}
 
@@ -102,7 +102,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 			setListAdapter(new LoadBalancerAdapter());
 		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -115,7 +115,6 @@ public class ListLoadBalancersActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.add_loadbalancer:
-			Log.d("info", "click add lb");
 			startActivityForResult(
 					new Intent(this, AddLoadBalancerActivity.class), ADD_LOAD_BALANCER_CODE); // arbitrary number never used again
 			return true;
@@ -161,10 +160,9 @@ public class ListLoadBalancersActivity extends ListActivity {
 		private LoadBalancersException exception;
 
 		protected void onPreExecute() {
-	        Log.d("rscloudactivity", " pre execute async");
-	        showDialog();
-	    }
-		
+			showDialog();
+		}
+
 		@Override
 		protected ArrayList<LoadBalancer> doInBackground(Void... arg0) {
 			ArrayList<LoadBalancer> loadBalancers = null;
@@ -187,7 +185,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 			setLoadBalancersList(result);
 		}
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

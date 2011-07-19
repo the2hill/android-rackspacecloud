@@ -18,8 +18,6 @@ import android.widget.EditText;
 
 public class AddNodeActivity extends Activity{
 
-	private static final int NODE_ADDED_RESULT_CODE = 111;
-	private static final int CANCEL_RESULT_CODE = 112;
 	private final String[] CONDITIONS = {"Enabled", "Disabled", "Draining"};
 	private String[] ipAddresses;
 	private Spinner conditionSpinner;
@@ -58,7 +56,7 @@ public class AddNodeActivity extends Activity{
 					data.putExtra("nodeIp", selectedIp);
 					data.putExtra("nodePort", selectedPort);
 					data.putExtra("nodeCondition", selectedCondition);
-					setResult(NODE_ADDED_RESULT_CODE, data);
+					setResult(RESULT_OK, data);
 					finish();
 				}
 				
@@ -67,7 +65,7 @@ public class AddNodeActivity extends Activity{
 	}
 	
 	public void onBackPressed(){
-		setResult(CANCEL_RESULT_CODE);
+		setResult(RESULT_CANCELED);
 		finish();
 	}
 	

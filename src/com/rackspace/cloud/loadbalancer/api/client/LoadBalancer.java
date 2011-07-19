@@ -5,6 +5,10 @@ package com.rackspace.cloud.loadbalancer.api.client;
 
 import java.util.ArrayList;
 
+import com.rackspace.cloud.servers.api.client.Account;
+
+import android.util.Log;
+
 
 public class LoadBalancer extends Entity {
 
@@ -20,11 +24,24 @@ public class LoadBalancer extends Entity {
 	private String updated;
 	private String sessionPersistence;
 	private String clusterName;
+	private String virtualIpType;
+	private String region;
 	private ConnectionThrottle connectionThrottle;
 	private ArrayList<VirtualIp> virtualIps;
 	private ArrayList<Node> nodes;
 	
-
+	public static String getRegionUrl(String region){
+		if(region.equals("ORD")){
+			return Account.getAccount().getLoadBalancerORDUrl();
+		}
+		else if(region.equals("DFW")){
+			return Account.getAccount().getLoadBalancerDFWUrl();
+		}
+		else{
+			return "";
+		}
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -46,7 +63,7 @@ public class LoadBalancer extends Entity {
 	}
 
 	public void setProtocol(String protocol) {
-		this.protocol = protocol;
+		this.protocol = protocol.toUpperCase();
 	}
 
 	public String getPort() {
@@ -136,6 +153,22 @@ public class LoadBalancer extends Entity {
 	public void setNodes(ArrayList<Node> nodes) {
 		this.nodes = nodes;
 	}
+	
+	public String getVirtualIpType(){
+		return virtualIpType;
+	}
+	
+	public String setVirtualIpType(String virtualIpType){
+		return this.virtualIpType = virtualIpType.toUpperCase();
+	}
+	
+	public String getRegion(){
+		return region;
+	}
+	
+	public String setRegion(String region){
+		return this.region = region;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -145,6 +178,26 @@ public class LoadBalancer extends Entity {
 		String xml = "";
 		xml = "<loadBalancer xmlns=\"http://docs.rackspacecloud.com/loadbalancers/api/v1.0\" name=\""
 				+ getName() + "\" id=\"" + getId() + "</loadBalancer>";
+		return xml;
+	}
+	
+	public String toDetailedXML(){
+		String xml = "<loadBalancer xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\"" + 
+						" name=\"" + getName() + "\"" + 
+						" port=\"" + getPort() + "\"" + 
+						" protocol=\"" + getProtocol() + "\"" + 
+						" algorithm=\"" + getAlgorithm() + "\"" + ">" +
+						" <virtualIps>" +
+							"<virtualIp type=\"" + getVirtualIpType() + "\"" +  "/>" + 
+						" </virtualIps>" + 
+						" <nodes>";
+						for(Node node : getNodes()){
+							xml += "<node address=\"" + node.getAddress() + "\"" +  " port=\"" + node.getPort() + "\"" + 
+									" condition=\"" + node.getCondition() + "\"" +  "/>";
+						}
+				xml +=  " </nodes>" +
+						" </loadBalancer>";
+		Log.d("info", xml);
 		return xml;
 	}
 }

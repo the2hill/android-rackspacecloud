@@ -32,7 +32,7 @@ public class ProtocolsXMLParser extends DefaultHandler {
 		} else if ("protocol".equals(name)) {
 			protocol = new Protocol();
 			protocol.setName(atts.getValue("name"));
-			protocol.setPort(atts.getValue("port"));
+			protocol.setDefaultPort(atts.getValue("port"));
 		}
 	}
 

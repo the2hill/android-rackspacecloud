@@ -1,14 +1,33 @@
 package com.rackspacecloud.android;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.Node;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.ServerManager;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
+import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -35,20 +54,22 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class AddNodesActivity extends ListActivity {
+public class AddMoreNodesActivity extends ListActivity {
 
 	private static final int ADD_NODE_CODE = 178;
-
 	private Server[] servers;
 	private Context context;
 	private int lastCheckedPos;
 	private ArrayList<Node> nodes;
+	private ArrayList<Node> nodesToAdd;
+	private LoadBalancer loadBalancer;
 	ProgressDialog pDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		nodes = (ArrayList<Node>) this.getIntent().getExtras().get("nodes");
+		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
 		setContentView(R.layout.addnodes);
 		restoreState(savedInstanceState);
 	}
@@ -57,27 +78,26 @@ public class AddNodesActivity extends ListActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putSerializable("nodes", nodes);
-	}
-	
-	private void print(ArrayList<Node> nodes){
-		for(Node n : nodes){
-			Log.d("info", "the node is " + n.getName());
-		}
+		outState.putSerializable("loadBalancer", loadBalancer);
+		outState.putSerializable("nodesToAdd", nodesToAdd);
 	}
 
 	private void restoreState(Bundle state) {
-	
+
 		context = getApplicationContext();
-		
-		if(nodes != null){
-			print(nodes);
-		}
-		
+
 		if (state != null && state.containsKey("nodes")){
 			nodes = (ArrayList<Node>) state.getSerializable("nodes");
 			if(nodes == null){
 				nodes = new ArrayList<Node>();
 			}
+		}
+		
+		if (state != null && state.containsKey("nodesToAdd")){
+			nodesToAdd = (ArrayList<Node>) state.getSerializable("nodesToAdd");
+		}
+		else{
+			nodesToAdd = new ArrayList<Node>();
 		}
 
 		if (state != null && state.containsKey("server")) {
@@ -97,10 +117,7 @@ public class AddNodesActivity extends ListActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent viewIntent = new Intent();
-				viewIntent.putExtra("nodes", nodes);
-				setResult(RESULT_OK, viewIntent);
-				finish();
+				new AddNodesTask().execute();
 			}
 		});
 	}
@@ -124,23 +141,63 @@ public class AddNodesActivity extends ListActivity {
 		if (servers == null) {
 			servers = new ArrayList<Server>();
 		}
+		
+		for(int i = 0; i < servers.size(); i++) {
+			/*
+			 * if all the IP's of a server are
+			 * already used as nodes, we do not 
+			 * need to display that server 
+			 */
+			if(!notAllIpsNodes(servers.get(i))){
+				servers.remove(i);
+			}
+		}
+		
 		String[] serverNames = new String[servers.size()];
 		this.servers = new Server[servers.size()];
 
-		if (servers != null) {
-			for (int i = 0; i < servers.size(); i++) {
-				Server server = servers.get(i);
-				this.servers[i] = server;
-				serverNames[i] = server.getName();
-			}
+		for(int i = 0; i < servers.size(); i++){
+			serverNames[i] = servers.get(i).getName();
+			this.servers[i] = servers.get(i);
 		}
-
+		
 		if (serverNames.length == 0) {
 			displayNoServersCell();
 		} else {
 			getListView().setDividerHeight(1); // restore divider lines 
 			setListAdapter(new ServerAdapter());
 		}
+	}
+
+	/*
+	 * determine if all the IP's of a server are
+	 * already used as nodes
+	 */
+	private boolean notAllIpsNodes(Server server){
+		for(String address : server.getPrivateIpAddresses()){
+			if(!nodeHasAddress(address)){
+				return true;
+			}
+		}
+		for(String address : server.getPublicIpAddresses()){
+			if(!nodeHasAddress(address)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * determine is an existing node has IP Address,
+	 * address
+	 */
+	private boolean nodeHasAddress(String address){
+		for(Node n : nodes){
+			if(n.getAddress().equals(address)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void loadServers() {
@@ -169,39 +226,10 @@ public class AddNodesActivity extends ListActivity {
 		alert.show();
 	}
 
-	private class LoadServersTask extends AsyncTask<Void, Void, ArrayList<Server>> {
-		private CloudServersException exception;
-
-		@Override
-		protected void onPreExecute(){
-			showDialog();
-		}
-
-		@Override
-		protected ArrayList<Server> doInBackground(Void... arg0) {
-			ArrayList<Server> servers = null;
-			try {
-				servers = (new ServerManager()).createList(true, context);
-			} catch (CloudServersException e) {
-				exception = e;				
-			}
-			pDialog.dismiss();
-			return servers;
-		}
-
-		@Override
-		protected void onPostExecute(ArrayList<Server> result) {
-			if (exception != null) {
-				showAlert("Error", exception.getMessage());
-			}
-			setServerList(result);
-		}
-	}
-
 	// * Adapter/
 	class ServerAdapter extends ArrayAdapter<Server> {
 		ServerAdapter() {
-			super(AddNodesActivity.this, R.layout.listservernodecell, servers);
+			super(AddMoreNodesActivity.this, R.layout.listservernodecell, servers);
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
@@ -222,21 +250,21 @@ public class AddNodesActivity extends ListActivity {
 			String[] publicIp = server.getPublicIpAddresses();
 			String[] privateIp = server.getPrivateIpAddresses();
 
-
-			final String[] ipAddresses = new String[privateIp.length + publicIp.length];
+			ArrayList<String> ipAddressList = new ArrayList<String>();
 			for(int i = 0; i < privateIp.length; i++){
-				ipAddresses[i] = privateIp[i];
+				if(!nodeHasAddress(privateIp[i])){
+					ipAddressList.add(privateIp[i]);
+				}
 			}
 			for(int i = 0; i < publicIp.length; i++){
-				ipAddresses[i+privateIp.length] = publicIp[i];
+				if(!nodeHasAddress(publicIp[i])){
+					ipAddressList.add(publicIp[i]);
+				}
 			}
 
+			final String[] ipAddresses = ipAddressList.toArray(new String[ipAddressList.size()]);
 			final int pos = position;
 			CheckBox add = (CheckBox) row.findViewById(R.id.add_node_checkbox);
-			
-			if(inNodeList(server)){
-				add.setChecked(true);
-			}
 			
 			add.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -253,21 +281,9 @@ public class AddNodesActivity extends ListActivity {
 					}
 				}
 			});
-			
+
 			return(row);
 		}
-	}
-	
-	private boolean inNodeList(Server server){
-		Log.d("info", "the server is " + server.getName());
-		for(Node node : nodes){
-			Log.d("info", "the node is " + node.getName());
-			String nodeIp = node.getAddress();
-			if(serverHasIp(server, nodeIp)){
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/*
@@ -299,6 +315,117 @@ public class AddNodesActivity extends ListActivity {
 		}
 		return false;
 	}
+	
+	private void startLoadBalancerError(String message, HttpBundle bundle){
+		Intent viewIntent = new Intent(getApplicationContext(), ServerErrorActivity.class);
+		viewIntent.putExtra("errorMessage", message);
+		viewIntent.putExtra("response", bundle.getResponseText());
+		viewIntent.putExtra("request", bundle.getCurlRequest());
+		startActivity(viewIntent);
+	}
+	
+	//using cloudServersException, it works for us too
+	private CloudServersException parseCloudServersException(HttpResponse response) {
+		CloudServersException cse = new CloudServersException();
+		try {
+		    BasicResponseHandler responseHandler = new BasicResponseHandler();
+		    String body = responseHandler.handleResponse(response);
+	    	CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
+	    	SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+	    	XMLReader xmlReader = saxParser.getXMLReader();
+	    	xmlReader.setContentHandler(parser);
+	    	xmlReader.parse(new InputSource(new StringReader(body)));		    	
+	    	cse = parser.getException();		    	
+		} catch (ClientProtocolException e) {
+			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (IOException e) {
+			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (ParserConfigurationException e) {
+			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (SAXException e) {
+			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (FactoryConfigurationError e) {
+			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		}
+		return cse;
+	}
+	
+	private class AddNodesTask extends AsyncTask<Void, Void, HttpBundle> {
+		private CloudServersException exception;
+
+		protected void onPreExecute(){
+			showDialog();
+		}
+		
+		@Override
+		protected HttpBundle doInBackground(Void... arg0) {
+			HttpBundle bundle = null;
+			try {
+				bundle = (new LoadBalancerManager(context)).addNodes(loadBalancer, nodesToAdd);
+			} catch (CloudServersException e) {
+				exception = e;
+			}
+			return bundle;
+		}
+
+		@Override
+		protected void onPostExecute(HttpBundle bundle) {
+			pDialog.dismiss();
+			HttpResponse response = bundle.getResponse();
+			if (response != null) {
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (statusCode == 202) {
+					setResult(Activity.RESULT_OK);
+					finish();
+				} else {
+					CloudServersException cse = parseCloudServersException(response);
+					if ("".equals(cse.getMessage())) {
+						startLoadBalancerError("There was a problem creating your load balancer.", bundle);
+					} else {
+						//if container with same name already exists
+						startLoadBalancerError("There was a problem creating your load balancer: " + cse.getMessage() + "\n See details for more information", bundle);
+					}
+				}
+			} else if (exception != null) {
+				startLoadBalancerError("There was a problem creating your container: " + exception.getMessage()+"\n See details for more information.", bundle);				
+			}
+			finish();
+		}
+	}
+
+	private class LoadServersTask extends AsyncTask<Void, Void, ArrayList<Server>> {
+		private CloudServersException exception;
+	
+		@Override
+		protected void onPreExecute(){
+			showDialog();
+		}
+	
+		@Override
+		protected ArrayList<Server> doInBackground(Void... arg0) {
+			ArrayList<Server> servers = null;
+			try {
+				servers = (new ServerManager()).createList(true, context);
+			} catch (CloudServersException e) {
+				exception = e;				
+			}
+			pDialog.dismiss();
+			return servers;
+		}
+	
+		@Override
+		protected void onPostExecute(ArrayList<Server> result) {
+			if (exception != null) {
+				showAlert("Error", exception.getMessage());
+			}
+			setServerList(result);
+		}
+	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		int pos = lastCheckedPos;
@@ -308,7 +435,8 @@ public class AddNodesActivity extends ListActivity {
 			node.setCondition(data.getStringExtra("nodeCondition"));
 			node.setName(servers[pos].getName());
 			node.setPort(data.getStringExtra("nodePort"));
-			nodes.add(node);
+			Log.d("info", "nodesToAdd is null? " + Boolean.toString(nodesToAdd == null));
+			nodesToAdd.add(node);
 		}
 		else if(requestCode == ADD_NODE_CODE && resultCode == RESULT_CANCELED){
 			//uncheck the node at lastCheckedPos

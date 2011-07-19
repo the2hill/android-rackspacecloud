@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent"
+	android:layout_height="64dip">
+    <RelativeLayout android:layout_width="wrap_content" android:id="@+id/relativeLayout1" android:paddingBottom="2.5dip" android:layout_height="wrap_content" android:paddingTop="2.5dip">
+        <LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:layout_marginLeft="10dip" android:layout_centerVertical="true">
+            <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/ip_address_layout">
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/textView1" android:text="IP Address: "></TextView>
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/ip_address_text"></TextView>
+            </LinearLayout>
+            <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/condition_layout">
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/TextView02" android:text="Condition: "></TextView>
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/condition_text"></TextView>
+            </LinearLayout>
+            <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/port_layout">
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/TextView03" android:text="Port:"></TextView>
+                <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/port_text"></TextView>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</LinearLayout>

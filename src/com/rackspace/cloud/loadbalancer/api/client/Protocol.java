@@ -28,13 +28,13 @@ public class Protocol extends Entity{
 	/**
 	 * @param port the port to set
 	 */
-	public void setPort(String port) {
+	public void setDefaultPort(String port) {
 		this.port = port;
 	}
 	/**
 	 * @return the port
 	 */
-	public String getPort() {
+	public String getDefaultPort() {
 		return port;
 	}
 	

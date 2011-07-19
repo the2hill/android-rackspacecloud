@@ -29,12 +29,13 @@ import java.security.KeyStore;
 public class CustomHttpClient extends DefaultHttpClient {
 
 	final Context context;
-	
+	static KeyStore trusted;
+
 	public CustomHttpClient(Context context) {
 		super();
 		this.context = context;
 	}
-	
+
 	@Override
 	protected ClientConnectionManager createClientConnectionManager() {
 		SchemeRegistry registry = new SchemeRegistry();
@@ -46,13 +47,15 @@ public class CustomHttpClient extends DefaultHttpClient {
 
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			KeyStore trusted = KeyStore.getInstance("BKS");
-			InputStream in = context.getResources().openRawResource(
-					R.raw.android231);
-			try {
-				trusted.load(in, "changeit".toCharArray());
-			} finally {
-				in.close();
+			if(trusted == null){
+				trusted = KeyStore.getInstance("BKS");
+				InputStream in = context.getResources().openRawResource(
+						R.raw.android231);
+				try {
+					trusted.load(in, "changeit".toCharArray());
+				} finally {
+					in.close();
+				}
 			}
 			return new SSLSocketFactory(trusted);
 		} catch (Exception e) {

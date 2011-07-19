@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_height="fill_parent"
+	android:layout_width="250dip">
+	<LinearLayout android:layout_height="wrap_content"
+		android:id="@+id/linearLayout1" android:layout_width="fill_parent"
+		android:orientation="vertical">
+		<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:text="IP Address:"></TextView>
+		<TextView android:text="TextView" android:layout_height="wrap_content"
+			android:layout_width="fill_parent" android:layout_marginLeft="20dip"
+			android:layout_marginRight="30dip" android:id="@+id/node_ip_text" android:textAppearance="?android:attr/textAppearanceLarge"></TextView>
+		<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:text="Port:"></TextView>
+		<TextView android:layout_marginLeft="20dip" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="TextView" android:layout_marginRight="30dip" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/node_port_text"></TextView>
+		<TextView android:layout_width="wrap_content" android:id="@+id/TextView01"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:text="Condition:"></TextView>
+		<Spinner android:layout_marginLeft="20dip"
+			android:layout_height="wrap_content" android:layout_marginRight="30dip" android:id="@+id/node_condition_spinner" android:layout_width="fill_parent"></Spinner>
+		<TextView android:layout_marginLeft="10dip" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_marginTop="10dip" android:text="Weight:" android:id="@+id/node_weight_label"></TextView>
+		<EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:inputType="number" android:layout_marginLeft="20dip" android:layout_marginRight="30dip" android:id="@+id/node_weight_text"></EditText>
+		<LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayout2" android:layout_width="fill_parent" android:layout_marginTop="10dip" android:gravity="center_horizontal">
+			<Button android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:id="@+id/edit_node_button" android:text="Save Changes" android:layout_width="100dip"></Button>
+			<Button android:layout_height="wrap_content" android:id="@+id/delete_node_button" android:layout_marginBottom="10dip" android:text="Remove Node" android:layout_width="100dip"></Button>
+		</LinearLayout>
+	</LinearLayout>
+
+</ScrollView>

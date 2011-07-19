@@ -78,6 +78,7 @@ public class LoadBalancersXmlParser extends DefaultHandler {
 			node.setPort(atts.getValue("port"));
 			node.setCondition(atts.getValue("condition"));
 			node.setStatus(atts.getValue("status"));
+			node.setWeight(atts.getValue("weight"));
 		} 
 	}
 

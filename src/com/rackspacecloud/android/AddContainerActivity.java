@@ -181,11 +181,11 @@ public class AddContainerActivity extends Activity implements  OnClickListener {
 						startFileError("There was a problem creating your container.", bundle);
 					} else {
 						//if container with same name already exists
-						showToast("There was a problem creating your container: " + cse.getMessage() + " Check container name and try again");
+						showToast("There was a problem creating your container: " + cse.getMessage() + " See details for more information.");
 					}
 				}
 			} else if (exception != null) {
-				startFileError("There was a problem creating your container: " + exception.getMessage()+" Check container name and try again", bundle);				
+				startFileError("There was a problem creating your container: " + exception.getMessage()+" See details for more information.", bundle);				
 			}
 			finish();
 		}

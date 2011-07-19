@@ -115,7 +115,10 @@
 				</LinearLayout>
 			</LinearLayout>
 			<!-- VirtualIps -->
-			<Button android:layout_gravity="center" android:id="@+id/edit_loadbalancer_button" android:layout_height="wrap_content" android:text="Edit Load Balancer" android:layout_width="wrap_content"></Button>
+			<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center" android:id="@+id/load_balancer_buttons">
+				<Button android:layout_height="wrap_content" android:layout_gravity="center" android:layout_width="wrap_content" android:text="Delete Load Balancer" android:id="@+id/delete_loadbalancer_button"></Button>
+				<Button android:id="@+id/edit_loadbalancer_button" android:layout_height="wrap_content" android:text="Edit Load Balancer" android:layout_gravity="center" android:layout_width="wrap_content"></Button>
+			</LinearLayout>
 			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				android:id="@+id/view_loadbalancer_layout" android:orientation="vertical"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
@@ -255,6 +258,9 @@
 						android:layout_marginRight="30dip" android:scrollHorizontally="true"
 						android:gravity="fill_horizontal" android:textColor="#fff" />
 				</LinearLayout>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/node_buttons">
+				<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="center" android:text="Edit Nodes" android:id="@+id/edit_nodes_button"></Button>
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>

@@ -5,6 +5,7 @@ package com.rackspace.cloud.loadbalancer.api.client;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -14,8 +15,13 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.protocol.RequestExpectContinue;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -28,6 +34,8 @@ import com.rackspace.cloud.loadbalancer.api.parsers.CloudLoadBalancersFaultXMLPa
 import com.rackspace.cloud.loadbalancer.api.parsers.LoadBalancersXmlParser;
 import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class LoadBalancerManager extends EntityManager {
 	private Context context;
@@ -37,10 +45,34 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	public LoadBalancer getLoadBalancerById(long id) throws LoadBalancersException {
+		LoadBalancer loadBalancer = null;
+		//First try DFW
+		try{
+			loadBalancer = getLoadBalancerById(id, Account.getAccount().getLoadBalancerDFWUrl());
+			loadBalancer.setRegion("DFW");
+		} catch(LoadBalancersException lbe){
+			//Didn't work
+
+		}
+
+		//Then try ORD
+		if(loadBalancer == null){
+			try{
+				loadBalancer = getLoadBalancerById(id, Account.getAccount().getLoadBalancerORDUrl());
+				loadBalancer.setRegion("ORD");
+			}
+			catch(LoadBalancersException lbe){
+				throw lbe;
+			}
+		}
+		return loadBalancer;
+	}
+
+	private LoadBalancer getLoadBalancerById(long id, String url) throws LoadBalancersException {
 		//TODO:grab from ord and combine list
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 		//TODO: check for uk or us
-		HttpGet get = new HttpGet(Account.getAccount().getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/" + id);
+		HttpGet get = new HttpGet(url + Account.getAccount().getAccountId() + "/loadbalancers/" + id);
 		LoadBalancer loadBalancer = new LoadBalancer();
 
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
@@ -88,13 +120,25 @@ public class LoadBalancerManager extends EntityManager {
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
-
+		if(loadBalancer != null){
+			Log.d("info", "the name is " + loadBalancer.getName());
+		}
+		else{
+			Log.d("info", "the lb is null");
+		}
 		return loadBalancer;
 	}
-	
+
 	public ArrayList<LoadBalancer> createList() throws LoadBalancersException{
 		ArrayList<LoadBalancer> loadBalancers = createSublist(Account.getAccount().getLoadBalancerORDUrl());
-		loadBalancers.addAll(createSublist(Account.getAccount().getLoadBalancerDFWUrl()));
+		for(LoadBalancer loadBalancer: loadBalancers){
+			loadBalancer.setRegion("ORD");
+		}
+		ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getAccount().getLoadBalancerDFWUrl());
+		for(LoadBalancer loadBalancer: DFWloadBalancers){
+			loadBalancer.setRegion("DFW");
+		}
+		loadBalancers.addAll(DFWloadBalancers);
 		return loadBalancers;
 	}
 
@@ -151,5 +195,275 @@ public class LoadBalancerManager extends EntityManager {
 			throw cse;
 		}
 		return loadBalancers;
+	}
+
+	public HttpBundle create(LoadBalancer entity, String regionUrl) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpPost post = new HttpPost(regionUrl + Account.getAccount().getAccountId() + "/loadbalancers");
+		post.addHeader("Content-Type", "application/xml");
+
+		StringEntity tmp = null;
+		try {
+			tmp = new StringEntity(entity.toDetailedXML());
+		} catch (UnsupportedEncodingException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}
+
+		Log.d("info", entity.toDetailedXML());
+
+		post.setEntity(tmp);
+
+		post.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(post);
+		try {
+			resp = httpclient.execute(post);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}
+		return bundle;
+	}
+
+	public HttpBundle delete(LoadBalancer loadBalancer) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpDelete delete = new HttpDelete(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() 
+				+ "/loadbalancers/" + loadBalancer.getId());				
+		delete.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		delete.addHeader("Content-Type", "application/xml");
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(delete);
+
+		try {			
+			resp = httpclient.execute(delete);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}	
+		return bundle;
+	}
+
+	public HttpBundle update(LoadBalancer loadBalancer, String name, String algorithm, String protocol, String port) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId());				
+
+		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		put.addHeader("Content-Type", "application/xml");
+
+		String xml = "<loadBalancer xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" " + 
+		"name=\"" + name + "\" " + 
+		"algorithm=\"" + algorithm.toUpperCase() + "\" " + 
+		"protocol=\"" + protocol.toUpperCase() + "\" " + 
+		"port=\"" + port + "\" />";
+
+		StringEntity tmp = null;
+		try {
+			tmp = new StringEntity(xml);
+		} catch (UnsupportedEncodingException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}
+
+		put.setEntity(tmp);
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(put);
+
+		try {			
+			resp = httpclient.execute(put);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}	
+		return bundle;
+	}
+	
+	public HttpBundle addNodes(LoadBalancer loadBalancer, ArrayList<Node> nodes) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpPost post = new HttpPost(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes");				
+
+		post.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		post.addHeader("Content-Type", "application/xml");
+
+		String xml = "<nodes xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\"> ";
+		for(int i = 0;i < nodes.size(); i++){
+			Node node = nodes.get(i);
+			if(node.getWeight() == null){
+				xml += "<node address=\"" + node.getAddress() + "\" port=\"" + node.getPort() + "\" condition=\"" + node.getCondition() + "\"/>";
+			}
+			else{
+				xml += "<node address=\"" + node.getAddress() + "\" port=\"" + node.getPort() + "\" condition=\"" + node.getCondition() + "\" weight=\"" + node.getWeight() + "\"/>";
+			}
+			xml += " </nodes>";
+		}
+		
+		Log.d("info", xml);
+
+		StringEntity tmp = null;
+		try {
+			tmp = new StringEntity(xml);
+		} catch (UnsupportedEncodingException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}
+
+		post.setEntity(tmp);
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(post);
+
+		try {			
+			resp = httpclient.execute(post);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}	
+		return bundle;
+	}
+
+	public HttpBundle modifyNode(LoadBalancer loadBalancer, Node node, String condition, String weight) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes/" + node.getId());				
+
+		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		put.addHeader("Content-Type", "application/xml");
+
+		String xml;
+		//different request body if the nodes have weight
+		if(weight != null){
+			xml = "<node xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" condition=\"" + condition.toUpperCase() + "\" weight=\"" + weight + "\"" + "/>";
+			Log.d("info", "went to first");
+		}
+		else{
+			xml = "<node xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" condition=\"" + condition.toUpperCase() + "\"/>";
+			Log.d("info", "went to second");
+		}
+
+		StringEntity tmp = null;
+		try {
+			tmp = new StringEntity(xml);
+		} catch (UnsupportedEncodingException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}
+
+		Log.d("info", xml);
+
+		put.setEntity(tmp);
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(put);
+
+		try {			
+			resp = httpclient.execute(put);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}	
+		return bundle;
+	}
+
+	public HttpBundle removeNode(LoadBalancer loadBalancer, Node node) throws CloudServersException {
+		HttpResponse resp = null;
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+
+		HttpDelete delete = new HttpDelete(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes/" + node.getId());				
+
+		delete.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+		
+		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
+
+		HttpBundle bundle = new HttpBundle();
+		bundle.setCurlRequest(delete);
+
+		try {			
+			resp = httpclient.execute(delete);
+			bundle.setHttpResponse(resp);
+		} catch (ClientProtocolException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (IOException e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		} catch (FactoryConfigurationError e) {
+			CloudServersException cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+			throw cse;
+		}	
+		return bundle;
 	}
 }

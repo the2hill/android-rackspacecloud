@@ -146,6 +146,10 @@
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
 		<activity android:name=".AddNodesActivity"></activity>
 		<activity android:name=".AddNodeActivity" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name=".EditNodeActivity" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name=".EditNodesActivity"></activity>
+		<activity android:name=".EditLoadBalancerActivity"></activity>
+		<activity android:name=".AddMoreNodesActivity"></activity>
 
 
 
