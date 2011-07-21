@@ -1,51 +1,31 @@
 package com.rackspacecloud.android;
 
-import java.io.IOException;
-import java.io.StringReader;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.Node;
+import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class EditNodeActivity extends Activity{
+public class EditNodeActivity extends CloudActivity{
 
 	private final String[] CONDITIONS = {"Enabled", "Disabled", "Draining"};
 	private final int NODE_DELETED_CODE = 389;
@@ -55,20 +35,22 @@ public class EditNodeActivity extends Activity{
 	private String selectedCondition;
 	private String selectedWeight;
 	private LoadBalancer loadBalancer;
-	private Context context;
 	private Node node;
-	ProgressDialog pDialog;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.editnode);
-		context = getApplicationContext();
 		node = (Node) this.getIntent().getExtras().get("node");
 		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
+		restoreState(savedInstanceState);
+	} 
+	
+	protected void restoreState(Bundle state){
+		super.restoreState(state);
 		loadData();
 		setUpButtons();
-	} 
+	}
 	
 	private void setUpButtons(){
 		Button submit = (Button) findViewById(R.id.edit_node_button);
@@ -189,55 +171,6 @@ public class EditNodeActivity extends Activity{
 		}
 		return 0;
 	}
-
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
-	}
-	
-	private CloudServersException parseCloudServersException(HttpResponse response) {
-		CloudServersException cse = new CloudServersException();
-		try {
-			BasicResponseHandler responseHandler = new BasicResponseHandler();
-			String body = responseHandler.handleResponse(response);
-			CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-			xmlReader.setContentHandler(parser);
-			xmlReader.parse(new InputSource(new StringReader(body)));		    	
-			cse = parser.getException();		    	
-		} catch (ClientProtocolException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (IOException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (ParserConfigurationException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (SAXException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (FactoryConfigurationError e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		}
-		return cse;
-	}
-	
-	private void startLoadBalancerError(String message, HttpBundle bundle){
-		Intent viewIntent = new Intent(getApplicationContext(), ServerErrorActivity.class);
-		viewIntent.putExtra("errorMessage", message);
-		viewIntent.putExtra("response", bundle.getResponseText());
-		viewIntent.putExtra("request", bundle.getCurlRequest());
-		startActivity(viewIntent);
-	}
 	
 	public class ModifyNodeTask extends AsyncTask<Void, Void, HttpBundle> {
 
@@ -252,7 +185,7 @@ public class EditNodeActivity extends Activity{
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new LoadBalancerManager(context)).modifyNode(loadBalancer, node, selectedCondition, selectedWeight);
+				bundle = (new NodeManager(getContext())).update(loadBalancer, node, selectedCondition, selectedWeight);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -261,7 +194,7 @@ public class EditNodeActivity extends Activity{
 
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
-			pDialog.dismiss();
+			hideDialog();
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
@@ -271,13 +204,13 @@ public class EditNodeActivity extends Activity{
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startLoadBalancerError("There was a problem modifying your load balancer.", bundle);
+						showError("There was a problem modifying your load balancer.", bundle);
 					} else {
-						startLoadBalancerError("There was a problem modifying your load balancer: " + cse.getMessage(), bundle);
+						showError("There was a problem modifying your load balancer: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startLoadBalancerError("There was a problem modifying your load balancer: " + exception.getMessage(), bundle);				
+				showError("There was a problem modifying your load balancer: " + exception.getMessage(), bundle);				
 			}			
 		}
 	}
@@ -295,7 +228,7 @@ public class EditNodeActivity extends Activity{
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new LoadBalancerManager(context)).removeNode(loadBalancer, node);
+				bundle = (new NodeManager(getContext())).remove(loadBalancer, node);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -304,12 +237,11 @@ public class EditNodeActivity extends Activity{
 
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
-			pDialog.dismiss();
+			hideDialog();
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
 				if (statusCode == 202 || statusCode == 200) {
-					//showToast("Delete successful");
 					Intent viewIntent = new Intent();
 					viewIntent.putExtra("deletedNode", node);
 					setResult(NODE_DELETED_CODE, viewIntent);
@@ -317,26 +249,14 @@ public class EditNodeActivity extends Activity{
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startLoadBalancerError("There was a problem modifying your load balancer.", bundle);
+						showError("There was a problem modifying your load balancer.", bundle);
 					} else {
-						startLoadBalancerError("There was a problem modifying your load balancer: " + cse.getMessage(), bundle);
+						showError("There was a problem modifying your load balancer: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startLoadBalancerError("There was a problem modifying your load balancer: " + exception.getMessage(), bundle);				
+				showError("There was a problem modifying your load balancer: " + exception.getMessage(), bundle);				
 			}			
 		}
 	}
-	
-	protected void showDialog() {
-		pDialog = new ProgressDialog(this, R.style.NewDialog);
-		// // Set blur to background
-		WindowManager.LayoutParams lp = pDialog.getWindow().getAttributes();
-		lp.dimAmount = 0.0f;
-		pDialog.getWindow().setAttributes(lp);
-		pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-		pDialog.show();
-		pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-	}
-
 }

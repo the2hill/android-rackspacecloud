@@ -69,7 +69,7 @@ public class ListAccountsActivity extends ListActivity{
         onRestoreInstanceState(savedInstanceState);
         registerForContextMenu(getListView());
         context = getApplicationContext();
-        tabViewIntent = new Intent(this, ActivityChooser.class);
+        tabViewIntent = new Intent(this, TabViewActivity.class);
         verifyPassword();
     }
 
@@ -233,7 +233,7 @@ public class ListAccountsActivity extends ListActivity{
 			@SuppressWarnings("unchecked")
 			ArrayList<Account> file = (ArrayList<Account>)in.readObject();
 			in.close();
-			return file;
+			return file; 
 		} catch (FileNotFoundException e) {
 			//showAlert("Error", "Could not load accounts.");
 			e.printStackTrace();

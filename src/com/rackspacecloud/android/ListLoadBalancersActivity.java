@@ -4,24 +4,19 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
@@ -33,12 +28,11 @@ public class ListLoadBalancersActivity extends ListActivity {
 	private final int ADD_LOAD_BALANCER_CODE = 22;
 	private LoadBalancer[] loadBalancers;
 	private Context context;
-	ProgressDialog pDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.list_loadbalancers);
+		context = getApplicationContext();
 		restoreState(savedInstanceState);
 	}
 
@@ -49,12 +43,10 @@ public class ListLoadBalancersActivity extends ListActivity {
 	}
 
 	private void restoreState(Bundle state) {
-		context = getApplicationContext();
-		if (state != null && state.containsKey("loadBalancers")) {
-			loadBalancers = (LoadBalancer[]) state
-			.getSerializable("loadBalancers");
+		if (state != null && state.containsKey("loadBalancers") && state.getSerializable("loadBalancers") != null) {
+			loadBalancers = (LoadBalancer[]) state.getSerializable("loadBalancers");
 			if (loadBalancers.length == 0) {
-				// displayNoServersCell();
+				displayNoLoadBalancerCell();
 			} else {
 				getListView().setDividerHeight(1); // restore divider lines
 				setListAdapter(new LoadBalancerAdapter());
@@ -63,20 +55,28 @@ public class ListLoadBalancersActivity extends ListActivity {
 			loadLoadBalancers();
 		}
 	}
+	
+	  private void displayNoLoadBalancerCell() {
+	    	String a[] = new String[1];
+	    	a[0] = "No Load Balancers";
+	        setListAdapter(new ArrayAdapter<String>(this, R.layout.noloadbalancerscell, R.id.no_loadbalancers_label, a));
+	        getListView().setTextFilterEnabled(true);
+	        getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
+	        getListView().setItemsCanFocus(false);
+	    }
+	    
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		if (loadBalancers != null && loadBalancers.length > 0) {
 			Intent viewIntent = new Intent(this, ViewLoadBalancerActivity.class);
 			viewIntent.putExtra("loadBalancer", loadBalancers[position]);
-			Log.i("VIEWLOADBALANCERS: ", loadBalancers[position].getAlgorithm()
-					+ "," + loadBalancers[position].getProtocol() + ","
-					+ loadBalancers[position].getStatus());
 			startActivityForResult(viewIntent, 55); // arbitrary number; never
 			// used again
 		}
 	}
 
 	private void loadLoadBalancers() {
+		displayLoadingCell();
 		new LoadLoadBalancersTask().execute((Void[]) null);
 	}
 
@@ -96,7 +96,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 		}
 
 		if (loadBalancerNames.length == 0) {
-			// displayNoServersCell();
+			displayNoLoadBalancerCell();
 		} else {
 			getListView().setDividerHeight(1); // restore divider lines
 			setListAdapter(new LoadBalancerAdapter());
@@ -115,8 +115,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.add_loadbalancer:
-			startActivityForResult(
-					new Intent(this, AddLoadBalancerActivity.class), ADD_LOAD_BALANCER_CODE); // arbitrary number never used again
+			startActivityForResult(new Intent(this, AddLoadBalancerActivity.class), ADD_LOAD_BALANCER_CODE); 
 			return true;
 		case R.id.refresh:
 			loadBalancers = null;
@@ -126,16 +125,38 @@ public class ListLoadBalancersActivity extends ListActivity {
 		return false;
 	}
 
-	protected void showDialog() {
-		pDialog = new ProgressDialog(this, R.style.NewDialog);
-		// // Set blur to background
-		WindowManager.LayoutParams lp = pDialog.getWindow().getAttributes();
-		lp.dimAmount = 0.0f;
-		pDialog.getWindow().setAttributes(lp);
-		pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-		pDialog.show();
-		pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+	 // * Adapter/
+	class LoadBalancerAdapter extends ArrayAdapter<LoadBalancer> {
+	
+		LoadBalancerAdapter() {
+			super(ListLoadBalancersActivity.this,
+					R.layout.list_loadbalancer_item, loadBalancers);
+		}
+	
+		public View getView(int position, View convertView, ViewGroup parent) {
+			LoadBalancer loadBalancer = loadBalancers[position];
+			LayoutInflater inflater = getLayoutInflater();
+			View row = inflater.inflate(R.layout.list_loadbalancer_item,
+					parent, false);
+	
+			TextView label = (TextView) row.findViewById(R.id.label);
+			label.setText(loadBalancer.getName());
+			
+			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
+			sublabel.setText("ID: " + loadBalancer.getId());
+	
+			return (row);
+		}
 	}
+
+	private void displayLoadingCell() {
+	    	String a[] = new String[1];
+	    	a[0] = "Loading...";
+	        setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell, R.id.loading_label, a));
+	        getListView().setTextFilterEnabled(true);
+	        getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
+	        getListView().setItemsCanFocus(false);
+	    }
 
 	private void showAlert(String title, String message) {
 		// Can't create handler inside thread that has not called
@@ -158,11 +179,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 
 	private class LoadLoadBalancersTask extends AsyncTask<Void, Void, ArrayList<LoadBalancer>> {
 		private LoadBalancersException exception;
-
-		protected void onPreExecute() {
-			showDialog();
-		}
-
+	
 		@Override
 		protected ArrayList<LoadBalancer> doInBackground(Void... arg0) {
 			ArrayList<LoadBalancer> loadBalancers = null;
@@ -171,17 +188,14 @@ public class ListLoadBalancersActivity extends ListActivity {
 			} catch (LoadBalancersException e) {
 				exception = e;
 			}
-			pDialog.dismiss();
 			return loadBalancers;
 		}
-
+	
 		@Override
 		protected void onPostExecute(ArrayList<LoadBalancer> result) {
 			if (exception != null) {
-				pDialog.dismiss();
 				showAlert("Error", exception.getMessage());
 			}
-			pDialog.dismiss();
 			setLoadBalancersList(result);
 		}
 	}
@@ -193,33 +207,6 @@ public class ListLoadBalancersActivity extends ListActivity {
 		if (resultCode == RESULT_OK) {
 			// a sub-activity kicked back, so we want to refresh the server list
 			loadLoadBalancers();
-		}
-	}
-
-	// * Adapter/
-	class LoadBalancerAdapter extends ArrayAdapter<LoadBalancer> {
-
-		LoadBalancerAdapter() {
-			super(ListLoadBalancersActivity.this,
-					R.layout.list_loadbalancer_item, loadBalancers);
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {
-			LoadBalancer loadBalancer = loadBalancers[position];
-			LayoutInflater inflater = getLayoutInflater();
-			View row = inflater.inflate(R.layout.list_loadbalancer_item,
-					parent, false);
-
-			TextView label = (TextView) row.findViewById(R.id.label);
-			label.setText(loadBalancer.getName());
-			//
-			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
-			sublabel.setText("ID: " + loadBalancer.getId());
-			//
-			// ImageView icon = (ImageView) row.findViewById(R.id.icon);
-			// icon.setImageResource(server.getImage().iconResourceId());
-
-			return (row);
 		}
 	}
 }

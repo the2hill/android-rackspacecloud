@@ -1,7 +1,6 @@
 package com.rackspace.cloud.files.api.client;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;

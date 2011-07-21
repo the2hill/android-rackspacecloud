@@ -26,7 +26,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.parsers.ContainerObjectXMLparser;
 import com.rackspace.cloud.servers.api.client.Account;

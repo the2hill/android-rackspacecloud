@@ -69,9 +69,7 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	private LoadBalancer getLoadBalancerById(long id, String url) throws LoadBalancersException {
-		//TODO:grab from ord and combine list
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		//TODO: check for uk or us
 		HttpGet get = new HttpGet(url + Account.getAccount().getAccountId() + "/loadbalancers/" + id);
 		LoadBalancer loadBalancer = new LoadBalancer();
 
@@ -82,7 +80,9 @@ public class LoadBalancerManager extends EntityManager {
 			HttpResponse resp = httpclient.execute(get);		    
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
-			Log.i("LB PARSE", body);
+			
+			Log.d("info", "the xml body is " + body);
+			
 			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
 				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -120,12 +120,6 @@ public class LoadBalancerManager extends EntityManager {
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
-		if(loadBalancer != null){
-			Log.d("info", "the name is " + loadBalancer.getName());
-		}
-		else{
-			Log.d("info", "the lb is null");
-		}
 		return loadBalancer;
 	}
 
@@ -156,7 +150,6 @@ public class LoadBalancerManager extends EntityManager {
 			HttpResponse resp = httpclient.execute(get);		    
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
-			Log.i("LB PARSE", body);
 			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
 				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -212,8 +205,6 @@ public class LoadBalancerManager extends EntityManager {
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
-
-		Log.d("info", entity.toDetailedXML());
 
 		post.setEntity(tmp);
 
@@ -322,148 +313,5 @@ public class LoadBalancerManager extends EntityManager {
 		return bundle;
 	}
 	
-	public HttpBundle addNodes(LoadBalancer loadBalancer, ArrayList<Node> nodes) throws CloudServersException {
-		HttpResponse resp = null;
-		CustomHttpClient httpclient = new CustomHttpClient(context);
-
-		HttpPost post = new HttpPost(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes");				
-
-		post.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
-		post.addHeader("Content-Type", "application/xml");
-
-		String xml = "<nodes xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\"> ";
-		for(int i = 0;i < nodes.size(); i++){
-			Node node = nodes.get(i);
-			if(node.getWeight() == null){
-				xml += "<node address=\"" + node.getAddress() + "\" port=\"" + node.getPort() + "\" condition=\"" + node.getCondition() + "\"/>";
-			}
-			else{
-				xml += "<node address=\"" + node.getAddress() + "\" port=\"" + node.getPort() + "\" condition=\"" + node.getCondition() + "\" weight=\"" + node.getWeight() + "\"/>";
-			}
-			xml += " </nodes>";
-		}
-		
-		Log.d("info", xml);
-
-		StringEntity tmp = null;
-		try {
-			tmp = new StringEntity(xml);
-		} catch (UnsupportedEncodingException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		}
-
-		post.setEntity(tmp);
-		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
-
-		HttpBundle bundle = new HttpBundle();
-		bundle.setCurlRequest(post);
-
-		try {			
-			resp = httpclient.execute(post);
-			bundle.setHttpResponse(resp);
-		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		}	
-		return bundle;
-	}
-
-	public HttpBundle modifyNode(LoadBalancer loadBalancer, Node node, String condition, String weight) throws CloudServersException {
-		HttpResponse resp = null;
-		CustomHttpClient httpclient = new CustomHttpClient(context);
-
-		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes/" + node.getId());				
-
-		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
-		put.addHeader("Content-Type", "application/xml");
-
-		String xml;
-		//different request body if the nodes have weight
-		if(weight != null){
-			xml = "<node xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" condition=\"" + condition.toUpperCase() + "\" weight=\"" + weight + "\"" + "/>";
-			Log.d("info", "went to first");
-		}
-		else{
-			xml = "<node xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" condition=\"" + condition.toUpperCase() + "\"/>";
-			Log.d("info", "went to second");
-		}
-
-		StringEntity tmp = null;
-		try {
-			tmp = new StringEntity(xml);
-		} catch (UnsupportedEncodingException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		}
-
-		Log.d("info", xml);
-
-		put.setEntity(tmp);
-		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
-
-		HttpBundle bundle = new HttpBundle();
-		bundle.setCurlRequest(put);
-
-		try {			
-			resp = httpclient.execute(put);
-			bundle.setHttpResponse(resp);
-		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		}	
-		return bundle;
-	}
-
-	public HttpBundle removeNode(LoadBalancer loadBalancer, Node node) throws CloudServersException {
-		HttpResponse resp = null;
-		CustomHttpClient httpclient = new CustomHttpClient(context);
-
-		HttpDelete delete = new HttpDelete(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId() + "/nodes/" + node.getId());				
-
-		delete.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
-		
-		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
-
-		HttpBundle bundle = new HttpBundle();
-		bundle.setCurlRequest(delete);
-
-		try {			
-			resp = httpclient.execute(delete);
-			bundle.setHttpResponse(resp);
-		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-			throw cse;
-		}	
-		return bundle;
-	}
+	
 }

@@ -63,7 +63,16 @@ public class LoadBalancer extends Entity {
 	}
 
 	public void setProtocol(String protocol) {
-		this.protocol = protocol.toUpperCase();
+		/*
+		 * protocol may come in as null if the server
+		 * has been deleted, so need to check if not 
+		 * null
+		 */
+		if(protocol != null){
+			this.protocol = protocol.toUpperCase();
+		} else {
+			this.protocol = "";
+		}
 	}
 
 	public String getPort() {
@@ -158,16 +167,25 @@ public class LoadBalancer extends Entity {
 		return virtualIpType;
 	}
 	
-	public String setVirtualIpType(String virtualIpType){
-		return this.virtualIpType = virtualIpType.toUpperCase();
+	public void setVirtualIpType(String virtualIpType){
+		/*
+		 * protocol may come in as null if the server
+		 * has been deleted, so need to check if not 
+		 * null
+		 */
+		if(virtualIpType != null){
+		    this.virtualIpType = virtualIpType.toUpperCase();
+		} else {
+			this.virtualIpType = "";
+		}
 	}
 	
 	public String getRegion(){
 		return region;
 	}
 	
-	public String setRegion(String region){
-		return this.region = region;
+	public void setRegion(String region){
+		this.region = region;
 	}
 
 	public static long getSerialversionuid() {

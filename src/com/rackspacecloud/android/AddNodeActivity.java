@@ -1,11 +1,8 @@
 package com.rackspacecloud.android;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -15,29 +12,53 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.EditText;
+import android.widget.TextView;
 
-public class AddNodeActivity extends Activity{
+public class AddNodeActivity extends CloudActivity{
 
 	private final String[] CONDITIONS = {"Enabled", "Disabled", "Draining"};
 	private String[] ipAddresses;
-	private Spinner conditionSpinner;
-	private Spinner ipAddressSpinner;
+	private String name;
 	private String selectedPort;
 	private String selectedIp;
+	private String selectedWeight;
+	private boolean weighted;
 	private String selectedCondition;
+	private Spinner conditionSpinner;
+	private Spinner ipAddressSpinner;
+	private EditText weightText;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.addnode);
 		ipAddresses = (String[]) this.getIntent().getExtras().get("ipAddresses");
+		name = (String) this.getIntent().getExtras().get("name");
+		weighted = (Boolean) this.getIntent().getExtras().get("weighted");
 		restoreState(savedInstanceState);
+	} 
+	
+	protected void restoreState(Bundle state) {
+		super.restoreState(state);
+		setupInputs();
+	}
+	
+	private void setupInputs(){
+		
+		((TextView)findViewById(R.id.node_name)).setText(name);
+		
+		weightText = (EditText) findViewById(R.id.node_weight_text);
+		
+		//if algorithm is not weighted then then node's weight will be null
+		if(!weighted){
+			TextView weightLabel = (TextView) findViewById(R.id.node_weight_label);
+			weightLabel.setVisibility(View.GONE);
+			weightText.setVisibility(View.GONE);
+		}
+		
 		loadConditionSpinner();
 		loadIpSpinner();
 		setUpButton();
-	} 
-	
-	private void restoreState(Bundle state) {
 		
 	}
 	
@@ -48,14 +69,20 @@ public class AddNodeActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				selectedPort = ((EditText)findViewById(R.id.node_port_text)).getText().toString();
+				selectedWeight = weightText.getText().toString();
 				if(!validPort()){
 					showAlert("Error", "Must have a protocol port number that is between 1 and 65535.");
+				} else if(!(weightText.getVisibility() == View.GONE || (weightText.getVisibility() != View.GONE && validWeight(selectedWeight)))){
+					showAlert("Error", "Weight must be between 1 and 100.");
 				}
+				
 				else{
 					Intent data = new Intent();
 					data.putExtra("nodeIp", selectedIp);
 					data.putExtra("nodePort", selectedPort);
 					data.putExtra("nodeCondition", selectedCondition);
+					Log.d("info", "saving the weight as " + selectedWeight);
+					data.putExtra("nodeWeight", selectedWeight);
 					setResult(RESULT_OK, data);
 					finish();
 				}
@@ -116,15 +143,14 @@ public class AddNodeActivity extends Activity{
 		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
 	}
 	
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
+	private Boolean validWeight(String weight){
+		if(weight.equals("")){
+			return false;
+		}
+		else{
+			int w = Integer.valueOf(weight);
+			return w >= 1 && w <= 100 ;
+		}
 	}
 
 }

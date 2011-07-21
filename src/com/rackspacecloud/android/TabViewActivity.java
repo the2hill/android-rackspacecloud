@@ -29,6 +29,11 @@ public class TabViewActivity extends TabActivity {
 		spec.setContent(new Intent(this, ListContainerActivity.class));
 		spec.setIndicator("Cloud Files", getResources().getDrawable(R.drawable.cloudfiles));
 		tabs.addTab(spec);
+		
+		spec = tabs.newTabSpec("tab3");
+		spec.setContent(new Intent(this, ListLoadBalancersActivity.class));
+		spec.setIndicator("LoadBalancers", getResources().getDrawable(R.drawable.load_balancers_icon));
+		tabs.addTab(spec);
 	}
 	
 }
