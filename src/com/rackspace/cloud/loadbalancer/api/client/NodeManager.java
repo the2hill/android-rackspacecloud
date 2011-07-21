@@ -27,10 +27,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 import com.rackspace.cloud.loadbalancer.api.parsers.CloudLoadBalancersFaultXMLParser;
 import com.rackspace.cloud.loadbalancer.api.parsers.LoadBalancersXmlParser;
 import com.rackspace.cloud.loadbalancer.api.parsers.NodesXMLParser;
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;

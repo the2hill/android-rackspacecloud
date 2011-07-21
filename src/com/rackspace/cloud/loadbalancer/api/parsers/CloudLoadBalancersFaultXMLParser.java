@@ -6,7 +6,7 @@ package com.rackspace.cloud.loadbalancer.api.parsers;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 import android.util.Log;
 

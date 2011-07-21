@@ -31,7 +31,7 @@ import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.Node;
 import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 

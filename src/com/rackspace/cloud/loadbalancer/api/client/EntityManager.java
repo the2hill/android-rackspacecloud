@@ -5,7 +5,7 @@ package com.rackspace.cloud.loadbalancer.api.client;
 
 import java.util.Calendar;
 
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 public class EntityManager {
 	

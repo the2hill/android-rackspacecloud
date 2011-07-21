@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.Node;
 import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 import android.content.Intent;
 import android.os.AsyncTask;

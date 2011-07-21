@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.rackspace.cloud.loadbalancers.api.client.http;
+package com.rackspace.cloud.loadbalancer.api.client.http;
 
 public class LoadBalancersException extends Exception {
 

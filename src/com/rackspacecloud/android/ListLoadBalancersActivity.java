@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
-import com.rackspace.cloud.loadbalancers.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 public class ListLoadBalancersActivity extends ListActivity {
 
