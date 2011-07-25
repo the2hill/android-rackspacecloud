@@ -134,8 +134,12 @@ public class EditNodeActivity extends CloudActivity{
 			return false;
 		}
 		else{
-			int w = Integer.valueOf(weight);
-			return w >= 1 && w <= 100 ;
+			try{
+				int w = Integer.valueOf(weight);
+				return w >= 1 && w <= 100 ;
+			} catch (NumberFormatException nfe){
+				return false;
+			}
 		}
 	}
 
@@ -258,5 +262,13 @@ public class EditNodeActivity extends CloudActivity{
 				showError("There was a problem modifying your load balancer: " + exception.getMessage(), bundle);				
 			}			
 		}
+	}
+	
+	/*
+	 * For testing
+	 */
+	@SuppressWarnings("unused")
+	private void setSelectedWeight(String s){
+		selectedWeight = s;
 	}
 }

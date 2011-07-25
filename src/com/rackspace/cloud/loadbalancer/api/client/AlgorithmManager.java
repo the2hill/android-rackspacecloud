@@ -30,7 +30,7 @@ public class AlgorithmManager extends EntityManager {
 
 	public ArrayList<Algorithm> createList(Context context) {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(Account.getAccount().getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml");
+		HttpGet get = new HttpGet(Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml");
 		ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());

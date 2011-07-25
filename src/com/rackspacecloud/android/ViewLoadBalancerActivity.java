@@ -47,7 +47,6 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
-		Log.d("info", "the status is " + loadBalancer.getStatus());
 		setContentView(R.layout.view_loadbalancer);
 		restoreState(savedInstanceState);
 	}
@@ -340,6 +339,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		private String loadBalancerId;
 
 		protected void onPreExecute() {
+			Log.d("info", "load called");
 			loadBalancerId = loadBalancer.getId();
 			/*
 			 * set to null, so if config change occurs
@@ -362,6 +362,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 		@Override
 		protected void onPostExecute(LoadBalancer result) {
+			Log.d("info", "in post");
 			hideDialog();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());

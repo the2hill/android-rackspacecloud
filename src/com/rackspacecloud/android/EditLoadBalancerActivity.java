@@ -112,10 +112,17 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 				}
 			}
 		});
+		
 	}
 
 	private boolean validPort(){
-		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+		Log.d("info", "selectedPort is " + selectedPort);
+		try{
+			return (!selectedPort.equals("")) && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+		} catch (NumberFormatException nfe){	
+			Log.d("info", "im returning false");
+			return false;
+		}
 	}
 	
 	private void loadProtocolSpinner() {
@@ -230,4 +237,24 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 
 		}
 	}
+	
+	
+	/*
+	 * for testing purposes
+	 */
+	@SuppressWarnings("unused")
+	private void setSelectedPort(String s){
+		selectedPort = s;
+	}
+	
+	@SuppressWarnings("unused")
+	private String getSelectedProtocol(){
+		return selectedProtocol;
+	}
+	
+	@SuppressWarnings("unused")
+	private String getSelectedAlgorithm(){
+		return selectedAlgorithm;
+	}
+	
 }

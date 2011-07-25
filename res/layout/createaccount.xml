@@ -10,9 +10,8 @@
 	<TextView android:layout_height="wrap_content" android:text="Custom Authentication Server"
 		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
 	<EditText android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:id="@+id/custom_auth_server_edit"
-		android:text="https://" android:layout_marginLeft="22dip"
-		android:layout_marginRight="30dip"></EditText>
+		android:layout_height="wrap_content" android:text="https://" android:layout_marginLeft="22dip"
+		android:layout_marginRight="30dip" android:id="@+id/custom_auth_server_edit"></EditText>
 	<TextView android:layout_height="wrap_content" android:text="Username"
 		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
 	<EditText android:layout_width="fill_parent"
@@ -27,15 +26,13 @@
 		android:autoText="false" android:capitalize="none" android:gravity="fill_horizontal"
 		android:singleLine="true" android:imeOptions="actionGo"
 		android:inputType="textNoSuggestions" android:password="true"
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:id="@+id/addaccount_apikey" />
+		android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/addaccount_apikey"/>
 	<LinearLayout android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:layout_marginTop="10dip">
 		<Button android:layout_marginLeft="22dip"
 			android:layout_height="wrap_content" android:text="Save"
 			android:id="@+id/submit_new_account" android:layout_width="100dip"></Button>
 		<CheckBox android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/show_clear"
-			android:text="Show API Key"></CheckBox>
+			android:layout_height="wrap_content" android:text="Show API Key" android:id="@+id/show_clear"></CheckBox>
 	</LinearLayout>
 </LinearLayout>

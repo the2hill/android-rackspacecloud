@@ -24,8 +24,8 @@ public class Account implements java.io.Serializable{
 	private String authServer;
 	private transient String serverUrl;
 	private transient String storageUrl;
-	private String loadBalancerDFWUrl;
-	private String loadBalancerORDUrl;
+	private static String loadBalancerDFWUrl;
+	private static String loadBalancerORDUrl;
 	private String loadBalancerUKUrl;
 	private transient String storageToken;
 	private transient String cdnManagementUrl;
@@ -126,7 +126,7 @@ public class Account implements java.io.Serializable{
 	/**
 	 * @return the loadBalancerDFWUrl
 	 */
-	public String getLoadBalancerDFWUrl() {
+	public static String getLoadBalancerDFWUrl() {
 		loadBalancerDFWUrl = "https://dfw.loadbalancers.api.rackspacecloud.com/v1.0/";
 		return loadBalancerDFWUrl;
 	}
@@ -134,14 +134,14 @@ public class Account implements java.io.Serializable{
 	/**
 	 * @param loadBalancerDFWUrl the loadBalancerDFWUrl to set
 	 */
-	public void setLoadBalancerDFWUrl(String loadBalancerDFWUrl) {
-		this.loadBalancerDFWUrl = loadBalancerDFWUrl;
+	public static void setLoadBalancerDFWUrl(String dfwUrl) {
+		loadBalancerDFWUrl = dfwUrl;
 	}
 
 	/**
 	 * @return the loadBalancerORDUrl
 	 */
-	public String getLoadBalancerORDUrl() {
+	public static String getLoadBalancerORDUrl() {
 		loadBalancerORDUrl = "https://ord.loadbalancers.api.rackspacecloud.com/v1.0/";
 		return loadBalancerORDUrl;
 	}
@@ -149,8 +149,8 @@ public class Account implements java.io.Serializable{
 	/**
 	 * @param loadBalancerORDUrl the loadBalancerORDUrl to set
 	 */
-	public void setLoadBalancerORDUrl(String loadBalancerORDUrl) {
-		this.loadBalancerORDUrl = loadBalancerORDUrl;
+	public static void setLoadBalancerORDUrl(String ordUrl) {
+		loadBalancerORDUrl = ordUrl;
 	}
 
 	/**

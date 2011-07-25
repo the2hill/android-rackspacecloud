@@ -30,7 +30,7 @@ public class ProtocolManager extends EntityManager {
 
 	public ArrayList<Protocol> createList(Context context) {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(Account.getAccount().getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml");
+		HttpGet get = new HttpGet(Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml");
 		ArrayList<Protocol> protocols = new ArrayList<Protocol>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());

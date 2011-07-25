@@ -45,10 +45,11 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	public LoadBalancer getLoadBalancerById(long id) throws LoadBalancersException {
+		Log.d("info", "the id is " + id);
 		LoadBalancer loadBalancer = null;
 		//First try DFW
 		try{
-			loadBalancer = getLoadBalancerById(id, Account.getAccount().getLoadBalancerDFWUrl());
+			loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerDFWUrl());
 			loadBalancer.setRegion("DFW");
 		} catch(LoadBalancersException lbe){
 			//Didn't work
@@ -58,7 +59,7 @@ public class LoadBalancerManager extends EntityManager {
 		//Then try ORD
 		if(loadBalancer == null){
 			try{
-				loadBalancer = getLoadBalancerById(id, Account.getAccount().getLoadBalancerORDUrl());
+				loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerORDUrl());
 				loadBalancer.setRegion("ORD");
 			}
 			catch(LoadBalancersException lbe){
@@ -124,11 +125,11 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	public ArrayList<LoadBalancer> createList() throws LoadBalancersException{
-		ArrayList<LoadBalancer> loadBalancers = createSublist(Account.getAccount().getLoadBalancerORDUrl());
+		ArrayList<LoadBalancer> loadBalancers = createSublist(Account.getLoadBalancerORDUrl());
 		for(LoadBalancer loadBalancer: loadBalancers){
 			loadBalancer.setRegion("ORD");
 		}
-		ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getAccount().getLoadBalancerDFWUrl());
+		ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getLoadBalancerDFWUrl());
 		for(LoadBalancer loadBalancer: DFWloadBalancers){
 			loadBalancer.setRegion("DFW");
 		}

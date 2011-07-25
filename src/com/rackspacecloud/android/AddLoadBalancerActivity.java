@@ -39,7 +39,6 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	private Spinner algorithmSpinner;
 	private Spinner vipSpinner;
 	private Spinner regionSpinner;
-	private EditText portText;
 	private Protocol selectedProtocol;
 	private Algorithm selectedAlgorithm;
 	private String selectedVipType;
@@ -59,8 +58,6 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	@SuppressWarnings("unchecked")
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
-		
-		portText = (EditText)findViewById(R.id.edit_port_text);
 
 		if(state != null && state.containsKey("nodes")){
 			nodes = (ArrayList<Node>) state.getSerializable("nodes");

@@ -18,11 +18,12 @@ import android.widget.Spinner;
 
 public class AddAccountActivity extends Activity implements OnClickListener{
 	
-	EditText usernameText;
-	EditText apiKeyText;
-	EditText customServer;
-	Spinner providerSpinner;
-	String authServer;
+	private final String[] PROVIDERS = {"Rackspace Cloud (US)", "Rackspace Cloud (UK)", "Custom"};
+	private EditText usernameText;
+	private EditText apiKeyText;
+	private EditText customServer;
+	private Spinner providerSpinner;
+	private String authServer;
 	boolean isHidden;
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -81,8 +82,7 @@ public class AddAccountActivity extends Activity implements OnClickListener{
 		//set the auth server default to us
 		authServer = "https://auth.api.rackspacecloud.com/v1.0";
 		providerSpinner = (Spinner) findViewById(R.id.provider_spinner);
-		String[] providers = {"Rackspace Cloud (US)", "Rackspace Cloud (UK)", "Custom"};
-		ArrayAdapter<String> imageAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, providers);
+		ArrayAdapter<String> imageAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, PROVIDERS);
 		imageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		providerSpinner.setAdapter(imageAdapter);
 		providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){

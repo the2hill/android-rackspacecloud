@@ -32,10 +32,10 @@ public class LoadBalancer extends Entity {
 	
 	public static String getRegionUrl(String region){
 		if(region.equals("ORD")){
-			return Account.getAccount().getLoadBalancerORDUrl();
+			return Account.getLoadBalancerORDUrl();
 		}
 		else if(region.equals("DFW")){
-			return Account.getAccount().getLoadBalancerDFWUrl();
+			return Account.getLoadBalancerDFWUrl();
 		}
 		else{
 			return "";
