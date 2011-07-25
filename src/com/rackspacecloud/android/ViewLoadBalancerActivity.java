@@ -116,7 +116,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 			@Override
 			public void onClick(View v) {
-				showAlert(loadBalancer.getStatus(), "The Load Balancer cannot currently be updated");
+				showAlert(loadBalancer.getStatus(), "The load balancer cannot be updated");
 			}
 
 		});
@@ -126,7 +126,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 			@Override
 			public void onClick(View v) {
-				showAlert(loadBalancer.getStatus(), "The Load Balancer cannot currently be deleted");
+				showAlert(loadBalancer.getStatus(), "The load balancer cannot be deleted");
 			}
 
 		});
@@ -136,7 +136,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 			@Override
 			public void onClick(View v) {
-				showAlert(loadBalancer.getStatus(), "The nodes cannot currently be edited");
+				showAlert(loadBalancer.getStatus(), "The nodes cannot be edited");
 			}
 		});
 
@@ -221,17 +221,6 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			}
 		}
 
-		//TextView vipId = (TextView) findViewById(R.id.view_vip_id);
-		//vipId.setText(loadBalancer.getVirtualIps().get(0).getId());
-
-		//TextView address = (TextView) findViewById(R.id.view_vip_address);
-
-		//TextView ipVersion = (TextView) findViewById(R.id.view_ipversion);
-		//ipVersion.setText(loadBalancer.getVirtualIps().get(0).getIpVersion());
-
-		//TextView type = (TextView) findViewById(R.id.view_vip_type);
-		//type.setText(loadBalancer.getVirtualIps().get(0).getType());
-
 		loadNodeData();
 	}
 
@@ -240,6 +229,9 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		LinearLayout layout = (LinearLayout) this.findViewById(R.id.node_addresses);   
 		layout.removeAllViews();
 		ArrayList<Node> nodeIps = loadBalancer.getNodes();
+		if(nodeIps == null){
+			nodeIps = new ArrayList<Node>();
+		}
 		
 		/*
 		 * need to sort the addresses because during polling
@@ -265,23 +257,6 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				layout.addView(tv, layoutIndex++);
 			}
 		}
-
-		/*
-		TextView nodeID = (TextView) findViewById(R.id.view_node_id);
-		nodeID.setText(loadBalancer.getNodes().get(0).getId());
-
-		TextView address = (TextView) findViewById(R.id.view_node_address);
-		address.setText(loadBalancer.getNodes().get(0).getAddress());
-
-		TextView nodePort = (TextView) findViewById(R.id.view_node_port);
-		nodePort.setText(loadBalancer.getNodes().get(0).getPort());
-
-		TextView condition = (TextView) findViewById(R.id.view_node_condition);
-		condition.setText(loadBalancer.getNodes().get(0).getCondition());
-
-		TextView nodeStatus = (TextView) findViewById(R.id.view_node_status);
-		nodeStatus.setText(loadBalancer.getNodes().get(0).getStatus());
-		 */
 	}
 
 	//setup menu for when menu button is pressed

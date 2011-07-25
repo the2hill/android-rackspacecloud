@@ -33,7 +33,7 @@ public class EditNodesActivity extends CloudListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.addnodes);
+		setContentView(R.layout.editnodes);
 		nodes = (ArrayList<Node>) this.getIntent().getExtras().get("nodes");
 		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
 		displayNodes();

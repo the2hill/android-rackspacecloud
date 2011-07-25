@@ -130,6 +130,7 @@
 		<activity android:name=".EditNodesActivity"></activity>
 		<activity android:name=".EditLoadBalancerActivity"></activity>
 		<activity android:name=".AddMoreNodesActivity"></activity>
+		<activity android:name=".AddExternalNodeActivity"></activity>
 
 
 

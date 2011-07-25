@@ -28,13 +28,13 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class AddMoreNodesActivity extends CloudListActivity {
 
 	private static final int ADD_NODE_CODE = 178;
-	private Server[] servers; 
+	private static final int ADD_EXTERNAL_NODE_CODE = 188;
+	private ArrayList<Server> servers; 
 	private int lastCheckedPos;
 	private ArrayList<Node> nodes;
 	private ArrayList<Node> nodesToAdd;
@@ -53,7 +53,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		
+
 		outState.putSerializable("nodes", nodes);
 		outState.putSerializable("loadBalancer", loadBalancer);
 		outState.putSerializable("nodesToAdd", nodesToAdd);
@@ -70,14 +70,14 @@ public class AddMoreNodesActivity extends CloudListActivity {
 				nodes = new ArrayList<Node>();
 			}
 		}
-		
+
 		if (state != null && state.containsKey("loadBalancer")){
 			loadBalancer = (LoadBalancer) state.getSerializable("loadBalancer");
 			if(loadBalancer == null){
 				loadBalancer = new LoadBalancer();
 			}
 		}
-		
+
 		if (state != null && state.containsKey("nodesToAdd")){
 			nodesToAdd = (ArrayList<Node>) state.getSerializable("nodesToAdd");
 		}
@@ -86,8 +86,8 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		}
 
 		if (state != null && state.containsKey("servers") && state.getSerializable("servers") != null) {
-			servers = (Server[]) state.getSerializable("servers");
-			if (servers.length == 0) {
+			servers = (ArrayList<Server>) state.getSerializable("servers");
+			if (servers.size() == 0) {
 				displayNoServersCell();
 			} else {
 				getListView().setDividerHeight(1); // restore divider lines
@@ -98,12 +98,26 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		}
 
 		Button submitNodes = (Button) findViewById(R.id.submit_nodes_button);
-		submitNodes.setText("Submit");
 		submitNodes.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				new AddNodesTask().execute();
+				if(nodesToAdd.size() == 0){
+					finish();
+				} else {
+					new AddNodesTask().execute();
+				}
+			}
+		});
+
+		Button addExternalNode = (Button) findViewById(R.id.add_external_node);
+		addExternalNode.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
+				viewIntent.putExtra("weighted", false);
+				startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
 			}
 		});
 	}
@@ -127,7 +141,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		if (servers == null) {
 			servers = new ArrayList<Server>();
 		}
-		
+
 		for(int i = 0; i < servers.size(); i++) {
 			/*
 			 * if all the IP's of a server are
@@ -138,15 +152,15 @@ public class AddMoreNodesActivity extends CloudListActivity {
 				servers.remove(i);
 			}
 		}
-		
+
 		String[] serverNames = new String[servers.size()];
-		this.servers = new Server[servers.size()];
+		this.servers = new ArrayList<Server>();
 
 		for(int i = 0; i < servers.size(); i++){
 			serverNames[i] = servers.get(i).getName();
-			this.servers[i] = servers.get(i);
+			this.servers.add(i, servers.get(i));
 		}
-		
+
 		if (serverNames.length == 0) {
 			displayNoServersCell();
 		} else {
@@ -198,7 +212,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			final Server server = servers[position];
+			final Server server = servers.get(position);
 			LayoutInflater inflater = getLayoutInflater();
 			View row = inflater.inflate(R.layout.listservernodecell, parent, false);
 
@@ -206,13 +220,22 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			label.setText(server.getName());
 
 			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
-			sublabel.setText(server.getFlavor().getName() + " - " + server.getImage().getName());
-
-			ImageView icon = (ImageView) row.findViewById(R.id.icon);
-			icon.setImageResource(server.getImage().iconResourceId());
+			if(server.getName().equals("External Node")){
+				sublabel.setText(server.getPrivateIpAddresses()[0]);
+			} else {
+				sublabel.setText(server.getFlavor().getName() + " - " + server.getImage().getName());
+			}
 
 			String[] publicIp = server.getPublicIpAddresses();
 			String[] privateIp = server.getPrivateIpAddresses();
+
+			if(publicIp == null){
+				publicIp = new String[0];
+			}
+
+			if(privateIp == null){
+				privateIp = new String[0];
+			}
 
 			ArrayList<String> ipAddressList = new ArrayList<String>();
 			for(int i = 0; i < privateIp.length; i++){
@@ -229,11 +252,11 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			final String[] ipAddresses = ipAddressList.toArray(new String[ipAddressList.size()]);
 			final int pos = position;
 			CheckBox add = (CheckBox) row.findViewById(R.id.add_node_checkbox);
-			
+
 			if(inToAddList(server)){
 				add.setChecked(true);
 			}
-			
+
 			add.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 				@Override
@@ -247,16 +270,18 @@ public class AddMoreNodesActivity extends CloudListActivity {
 						startActivityForResult(viewIntent, ADD_NODE_CODE);
 					}
 					else{
-						Log.d("info", "before removing node, size is " + nodesToAdd.size());
 						removeNodeFromList(server);
-						Log.d("info", "after removing node, size is " + nodesToAdd.size());
+						if(server.getName().equals("External Node")){
+							servers.remove(server);
+							setServerList(servers);
+						}
 					}
 				}
 			});
 
 			return(row);
 		}
-		
+
 		/*
 		 *  need to remove by id because that is 
 		 *  what is unique
@@ -287,7 +312,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		}
 		return false;
 	}
-	
+
 	private boolean inToAddList(Server server){
 		for(Node node : nodesToAdd){
 			if(serverHasIp(server, node.getAddress())){
@@ -297,14 +322,14 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		return false;
 	}
 
-	
+
 	private class AddNodesTask extends AsyncTask<Void, Void, HttpBundle> {
 		private CloudServersException exception;
 
 		protected void onPreExecute(){
 			showDialog();
 		}
-		
+
 		@Override
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
@@ -343,12 +368,12 @@ public class AddMoreNodesActivity extends CloudListActivity {
 
 	private class LoadServersTask extends AsyncTask<Void, Void, ArrayList<Server>> {
 		private CloudServersException exception;
-	
+
 		@Override
 		protected void onPreExecute(){
 			showDialog();
 		}
-	
+
 		@Override
 		protected ArrayList<Server> doInBackground(Void... arg0) {
 			ArrayList<Server> servers = null;
@@ -359,7 +384,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			} 
 			return servers;
 		}
-	
+
 		@Override
 		protected void onPostExecute(ArrayList<Server> result) {
 			hideDialog();
@@ -370,13 +395,31 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		}
 	}
 
+	private String getNameFromIp(String address){
+		for(Server s: servers){
+			if(serverHasIp(s, address)){
+				return s.getName();
+			}
+		}
+		return "";
+	}
+
+	private boolean isCloudServerIp(String address){
+		for(Server s : servers){
+			if(serverHasIp(s, address)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		int pos = lastCheckedPos;
 		if(requestCode == ADD_NODE_CODE && resultCode == RESULT_OK){
 			Node node = new Node();
 			node.setAddress(data.getStringExtra("nodeIp"));
 			node.setCondition(data.getStringExtra("nodeCondition"));
-			node.setName(servers[pos].getName());
+			node.setName(servers.get(pos).getName());
 			node.setPort(data.getStringExtra("nodePort"));
 			Log.d("info", "setting the weight in addmore to " + data.getStringExtra("nodeWeight"));
 			node.setWeight(data.getStringExtra("nodeWeight"));
@@ -390,7 +433,30 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			CheckBox checkBox = (CheckBox)row.findViewById(R.id.add_node_checkbox);
 			checkBox.setChecked(false);
 		}
+		else if(requestCode == ADD_EXTERNAL_NODE_CODE && resultCode == RESULT_OK){
+			Node node = new Node();
+			node.setAddress(data.getStringExtra("nodeIp"));
+			node.setCondition(data.getStringExtra("nodeCondition"));
+			node.setName("External Node");
+			node.setPort(data.getStringExtra("nodePort"));
+			node.setWeight(data.getStringExtra("nodeWeight"));
+
+			/*
+			 * If the ip is from a cloud server, alert to user
+			 * so they can select it from there
+			 */	
+			if(!isCloudServerIp(node.getAddress())){
+				nodesToAdd.add(node);
+				//Add it to server list so it display in the listview
+				Server server = new Server();
+				server.setName("External Node");
+				String[] ip = {data.getStringExtra("nodeIp")};
+				server.setPrivateIpAddresses(ip);
+				servers.add(server);
+			} else {
+				showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
+						+ "\", please select it from the list.");
+			}
+		}
 	}
-
-
 }
