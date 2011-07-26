@@ -36,6 +36,7 @@ import com.rackspace.cloud.loadbalancer.api.parsers.LoadBalancersXmlParser;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
+import com.rackspacecloud.android.Preferences;
 
 public class LoadBalancerManager extends EntityManager {
 	private Context context;
@@ -63,6 +64,17 @@ public class LoadBalancerManager extends EntityManager {
 				loadBalancer.setRegion("ORD");
 			}
 			catch(LoadBalancersException lbe){
+
+			}
+		}
+
+		//Then try LON
+		if(loadBalancer == null){
+			try{
+				loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerLONUrl());
+				loadBalancer.setRegion("ORD");
+			}
+			catch(LoadBalancersException lbe){
 				throw lbe;
 			}
 		}
@@ -81,9 +93,9 @@ public class LoadBalancerManager extends EntityManager {
 			HttpResponse resp = httpclient.execute(get);		    
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
-			
+
 			Log.d("info", "the xml body is " + body);
-			
+
 			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
 				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -125,22 +137,33 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	public ArrayList<LoadBalancer> createList() throws LoadBalancersException{
-		ArrayList<LoadBalancer> loadBalancers = createSublist(Account.getLoadBalancerORDUrl());
-		for(LoadBalancer loadBalancer: loadBalancers){
-			loadBalancer.setRegion("ORD");
+		
+		ArrayList<LoadBalancer> loadBalancers = new ArrayList<LoadBalancer>();
+		
+		//if US account
+		if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+			loadBalancers.addAll(createSublist(Account.getLoadBalancerORDUrl()));
+			for(LoadBalancer loadBalancer: loadBalancers){
+				loadBalancer.setRegion("ORD");
+			}
+			ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getLoadBalancerDFWUrl());
+			for(LoadBalancer loadBalancer: DFWloadBalancers){
+				loadBalancer.setRegion("DFW");
+			}
+			loadBalancers.addAll(DFWloadBalancers);
 		}
-		ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getLoadBalancerDFWUrl());
-		for(LoadBalancer loadBalancer: DFWloadBalancers){
-			loadBalancer.setRegion("DFW");
+		//if UK account
+		else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+			loadBalancers.addAll(createSublist(Account.getLoadBalancerLONUrl()));
+			for(LoadBalancer loadBalancer: loadBalancers){
+				loadBalancer.setRegion("LON");
+			}
 		}
-		loadBalancers.addAll(DFWloadBalancers);
 		return loadBalancers;
 	}
 
 	public ArrayList<LoadBalancer> createSublist(String regionUrl) throws LoadBalancersException {
-		//TODO:grab from ord and combine list
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		//TODO:check for uk or us
 		HttpGet get = new HttpGet(regionUrl + Account.getAccount().getAccountId() + "/loadbalancers");
 		ArrayList<LoadBalancer> loadBalancers = new ArrayList<LoadBalancer>();
 
@@ -313,6 +336,6 @@ public class LoadBalancerManager extends EntityManager {
 		}	
 		return bundle;
 	}
-	
-	
+
+
 }

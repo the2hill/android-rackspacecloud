@@ -355,6 +355,7 @@ public class AddNodesActivity extends CloudListActivity {
 				String[] ip = {data.getStringExtra("nodeIp")};
 				server.setPrivateIpAddresses(ip);
 				servers.add(server);
+				setServerList(servers);
 			} else {
 				showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
 						+ "\", please select it from the list.");

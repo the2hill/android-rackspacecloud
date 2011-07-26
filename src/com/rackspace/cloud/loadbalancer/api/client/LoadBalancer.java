@@ -33,11 +33,11 @@ public class LoadBalancer extends Entity {
 	public static String getRegionUrl(String region){
 		if(region.equals("ORD")){
 			return Account.getLoadBalancerORDUrl();
-		}
-		else if(region.equals("DFW")){
+		} else if(region.equals("DFW")){
 			return Account.getLoadBalancerDFWUrl();
-		}
-		else{
+		} else if(region.equals("LON")){
+			return Account.getLoadBalancerLONUrl();
+		} else {
 			return "";
 		}
 	}
@@ -205,9 +205,15 @@ public class LoadBalancer extends Entity {
 						" port=\"" + getPort() + "\"" + 
 						" protocol=\"" + getProtocol() + "\"" + 
 						" algorithm=\"" + getAlgorithm() + "\"" + ">" +
-						" <virtualIps>" +
-							"<virtualIp type=\"" + getVirtualIpType() + "\"" +  "/>" + 
-						" </virtualIps>" + 
+						" <virtualIps>";
+						if(getVirtualIpType().equals("SHARED")){
+							for(VirtualIp ip : getVirtualIps()){
+							xml += "<virtualIp id=\"" + ip.getId() + "\"" +  "/>";
+							}
+						} else {
+							xml += "<virtualIp type=\"" + getVirtualIpType() + "\"" +  "/>";
+						}
+						xml += " </virtualIps>" + 
 						" <nodes>";
 						for(Node node : getNodes()){
 							xml += "<node address=\"" + node.getAddress() + "\"" +  " port=\"" + node.getPort() + "\"" + 

@@ -25,12 +25,21 @@ import android.content.Context;
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
 import com.rackspace.cloud.loadbalancer.api.parsers.AlgorithmsXMLParser;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspacecloud.android.Preferences;
 
 public class AlgorithmManager extends EntityManager {
 
 	public ArrayList<Algorithm> createList(Context context) {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml");
+		
+		String url = "";
+		if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+			url = Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml";
+		} else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+			url = Account.getLoadBalancerLONUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml";
+		}
+		HttpGet get = new HttpGet(url);
+		
 		ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());

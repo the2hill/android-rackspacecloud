@@ -25,12 +25,20 @@ import android.content.Context;
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
 import com.rackspace.cloud.loadbalancer.api.parsers.ProtocolsXMLParser;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspacecloud.android.Preferences;
 
 public class ProtocolManager extends EntityManager {
 
 	public ArrayList<Protocol> createList(Context context) {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml");
+		
+		String url = "";
+		if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+			url = Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml";
+		} else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+			url = Account.getLoadBalancerLONUrl() + Account.getAccount().getAccountId() + "/loadbalancers/protocols.xml";
+		}
+		HttpGet get = new HttpGet(url);
 		ArrayList<Protocol> protocols = new ArrayList<Protocol>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());

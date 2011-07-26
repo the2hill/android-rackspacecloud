@@ -10,6 +10,7 @@ public class VirtualIp extends Entity {
 	private String address;
 	private String ipVersion;
 	private String type;
+	private LoadBalancer loadBalancer;
 	public String getId() {
 		return id;
 	}
@@ -33,5 +34,18 @@ public class VirtualIp extends Entity {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	/**
+	 * @return the loadBalancer, the loadBalancer
+	 * that this vip is tied to
+	 */
+	public LoadBalancer getLoadBalancer() {
+		return loadBalancer;
+	}
+	/**
+	 * @return the loadBalancer
+	 */
+	public void setLoadBalancer(LoadBalancer loadBalancer) {
+		this.loadBalancer = loadBalancer;
 	}
 }

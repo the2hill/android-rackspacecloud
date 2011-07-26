@@ -488,6 +488,7 @@ public class ListAccountsActivity extends ListActivity{
 				Protocol.setProtocols(result);
 				new LoadAlgorithmsTask().execute((Void[]) null);
 			} else {
+				hideDialog();
 				showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
 			}
 		}
@@ -506,6 +507,7 @@ public class ListAccountsActivity extends ListActivity{
 				Algorithm.setAlgorithms(result);
 				new LoadFlavorsTask().execute((Void[]) null);
 			} else {
+				hideDialog();
 				showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
 			}
 		}

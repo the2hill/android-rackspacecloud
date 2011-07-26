@@ -4,29 +4,12 @@
 	android:layout_height="fill_parent">
 	<RelativeLayout android:layout_width="fill_parent"
 		android:id="@+id/nodes_relative" android:layout_height="fill_parent">
-		<ScrollView android:layout_height="wrap_content"
-			android:orientation="vertical" android:layout_width="wrap_content"
-			android:id="@+id/node_scroll" android:layout_above="@+id/submit_nodes_button">
-			<LinearLayout android:layout_width="fill_parent"
-				android:id="@+id/nodes_linear_layout" android:layout_height="fill_parent">
-				<ListView android:layout_weight="1" android:layout_width="fill_parent"
-					android:cacheColorHint="@android:color/transparent"
-					android:layout_height="417dp" android:id="@android:id/list"></ListView>
-			</LinearLayout>
-		</ScrollView>
-		<LinearLayout android:id="@+id/linearLayout1"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentLeft="true" android:layout_below="@+id/node_scroll"
-			android:gravity="center_horizontal">
-			<Button android:id="@+id/submit_nodes_button"
-				android:layout_marginBottom="15dip" android:layout_height="wrap_content"
-				android:layout_marginTop="5dip" android:text="Add Selected Nodes"
-				android:layout_width="145dip"></Button>
-			<Button android:layout_marginBottom="15dip"
-				android:layout_height="wrap_content" android:layout_marginTop="5dip"
-				android:id="@+id/add_external_node" android:text="Add External Node"
-				android:layout_width="145dip"></Button>
+		<LinearLayout android:layout_width="fill_parent" android:layout_marginTop="5dip" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_marginBottom="5dip" android:layout_alignParentBottom="true" android:id="@+id/button_row">
+			<Button android:layout_width="130dip" android:text="Add Selected Nodes" android:layout_height="wrap_content" android:id="@+id/submit_nodes_button"></Button>
+			<Button android:layout_width="130dip" android:text="Add External Node" android:layout_height="wrap_content" android:id="@+id/add_external_node"></Button>
+		</LinearLayout>
+		<LinearLayout android:layout_height="fill_parent" android:orientation="vertical" android:layout_width="fill_parent" android:id="@+id/nodes_linear_layout" android:layout_above="@+id/button_row">
+			<ListView android:layout_width="fill_parent" android:id="@android:id/list" android:cacheColorHint="@android:color/transparent" android:layout_height="fill_parent"></ListView>
 		</LinearLayout>
 	</RelativeLayout>
 </LinearLayout>

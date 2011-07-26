@@ -4,6 +4,7 @@
 package com.rackspace.cloud.servers.api.client;
 
 import com.rackspace.cloud.utils.StringUtils;
+import com.rackspacecloud.android.Preferences;
 
 
 
@@ -20,17 +21,19 @@ public class Account implements java.io.Serializable{
 	private String username;
 	private String apiKey;
 	private String accountId;
-	private transient String authToken;
 	private String authServer;
-	private transient String serverUrl;
-	private transient String storageUrl;
+	private String loadBalancerUKUrl;
+	private String[] loadBalancerRegions;
 	private static String loadBalancerDFWUrl;
 	private static String loadBalancerORDUrl;
-	private String loadBalancerUKUrl;
+	private static String loadBalancerLONUrl;
+	private transient String authToken;
+	private transient String serverUrl;
+	private transient String storageUrl;
 	private transient String storageToken;
 	private transient String cdnManagementUrl;
 	private transient static Account currentAccount;
-	
+
 	
 	public static Account getAccount(){
 		return currentAccount;
@@ -113,6 +116,19 @@ public class Account implements java.io.Serializable{
 	 */
 	public void setAuthServer(String authServer) {
 		this.authServer = authServer;
+		
+		/*
+		 * the auth server used determines which regions
+		 * can be used for load balancers, so set available
+		 * regions here.
+		 */
+		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+			setLoadBalancerRegions(Preferences.UK_REGIONS);
+		} else if (authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+			setLoadBalancerRegions(Preferences.US_REGIONS);
+		} else {
+			setLoadBalancerRegions(new String[0]);
+		}
 	}
 	
 	//auth v1.1 should return loadbalancer endpoints and return account id ....
@@ -151,6 +167,21 @@ public class Account implements java.io.Serializable{
 	 */
 	public static void setLoadBalancerORDUrl(String ordUrl) {
 		loadBalancerORDUrl = ordUrl;
+	}
+	
+	/**
+	 * @return the loadBalancerLONUrl
+	 */
+	public static String getLoadBalancerLONUrl() {
+		loadBalancerLONUrl = "https://lon.loadbalancers.api.rackspacecloud.com/v1.0/";
+		return loadBalancerLONUrl;
+	}
+
+	/**
+	 * @param loadBalancerLONUrl the loadBalancerORDUrl to set
+	 */
+	public static void setLoadBalancerLONUrl(String lonUrl) {
+		loadBalancerLONUrl = lonUrl;
 	}
 
 	/**
@@ -199,7 +230,24 @@ public class Account implements java.io.Serializable{
     */
 	public void setStorageToken(String storageToken) {
 		this.storageToken = storageToken;
-		
+	}
+	
+	/**
+	 * @return the load balancer regions
+	 */
+	public String[] getLoadBalancerRegions() {
+		return loadBalancerRegions;
+	}
+	
+	/**
+	 * @param loadBalancerRegions the load 
+	 * balancer regions to set
+	 */
+	public void setLoadBalancerRegions(String[] loadBalancerRegions) {
+		this.loadBalancerRegions = new String[loadBalancerRegions.length];
+		for(int i = 0 ; i < loadBalancerRegions.length; i++){
+			this.loadBalancerRegions[i] = loadBalancerRegions[i];
+		}
 	}
 	
 }

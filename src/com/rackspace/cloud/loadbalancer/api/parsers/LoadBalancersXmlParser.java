@@ -69,6 +69,7 @@ public class LoadBalancersXmlParser extends DefaultHandler {
 			virtualIp.setAddress(atts.getValue("address"));
 			virtualIp.setIpVersion(atts.getValue("ipVersion"));
 			virtualIp.setType(atts.getValue("type"));
+			virtualIp.setLoadBalancer(loadBalancer);
 		} else if ("nodes".equalsIgnoreCase(name)) {
 			nodes = new ArrayList<Node>();
 		} else if ("node".equalsIgnoreCase(name)) {

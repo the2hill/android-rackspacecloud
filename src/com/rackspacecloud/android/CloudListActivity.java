@@ -30,12 +30,21 @@ import android.os.Bundle;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 public class CloudListActivity extends ListActivity{
 
 	private Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		
+		//So keyboard doesn't open till user clicks
+		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); 
+	}
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -87,6 +96,13 @@ public class CloudListActivity extends ListActivity{
 		viewIntent.putExtra("response", bundle.getResponseText());
 		viewIntent.putExtra("request", bundle.getCurlRequest());
 		startActivity(viewIntent);
+	}
+	
+	protected void showToast(String message) {
+		Context context = getApplicationContext();
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, message, duration);
+		toast.show();
 	}
 
 	protected final CloudServersException parseCloudServersException(HttpResponse response) {
