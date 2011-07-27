@@ -34,7 +34,7 @@ import android.widget.Toast;
 
 public class CloudListActivity extends ListActivity{
 
-	private Context context;
+	protected Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
 	

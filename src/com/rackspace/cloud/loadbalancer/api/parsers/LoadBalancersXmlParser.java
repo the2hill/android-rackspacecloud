@@ -51,7 +51,7 @@ public class LoadBalancersXmlParser extends DefaultHandler {
 		} else if ("updated".equalsIgnoreCase(name)) {
 			loadBalancer.setCreated(atts.getValue("time"));
 		} else if ("sessionPersistence".equalsIgnoreCase(name)) {
-			loadBalancer.setSessionPersistence(atts.getValue("sessionPersistence"));
+			loadBalancer.setSessionPersistence(atts.getValue("persistenceType"));
 		} else if ("clusterName".equalsIgnoreCase(name)) {
 			loadBalancer.setClusterName(atts.getValue("clusterName"));
 		} else if ("connectionThrottle".equalsIgnoreCase(name)) {

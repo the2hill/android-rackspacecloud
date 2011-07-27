@@ -41,7 +41,7 @@ import android.widget.Toast;
  */
 public abstract class CloudActivity extends Activity{
 
-	private Context context;
+	protected Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
 	

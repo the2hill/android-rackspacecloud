@@ -108,8 +108,54 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				startActivityForResult(editLoadBalancerIntent, EDIT_NODES_CODE);
 			}
 		});
+
+		Button logs = (Button)findViewById(R.id.connection_log_button);
+		setLogButtonText();
+		logs.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				showDialog(R.id.connection_log_button);	
+			}
+		});
+		
+		Button persist = (Button)findViewById(R.id.session_persistence_button);
+		setSessionButtonText();
+		persist.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(!loadBalancer.getProtocol().equals("HTTP")){
+					showAlert("Error", "Session Persistence cannot be enabled for protocols other than HTTP.");
+				} else {
+					showDialog(R.id.session_persistence_button);
+				}
+			}
+		});
 	}
 	
+	private void setLogButtonText(){
+		Button logs = (Button)findViewById(R.id.connection_log_button);
+		if(loadBalancer.getIsConnectionLoggingEnabled().equals("true")){
+			logs.setText("Disable Logs");
+		} else {
+			logs.setText("Enable Logs");
+		}
+	}
+	
+	private void setSessionButtonText(){
+		Button sessionPersistence = (Button)findViewById(R.id.session_persistence_button);
+		if(loadBalancer.getSessionPersistence() != null){
+			sessionPersistence.setText("Disable Session Persistence");
+		} else {
+			sessionPersistence.setText("Enable Session Persistence");
+		}
+	}
+
+	/*
+	 * bad buttons are used when the load balancer
+	 * in a delete status, prevents load balancer 
+	 * from being referenced when it doesnt exist
+	 */
 	private void setUpBadButtons(){
 		Button editLoadBalancer = (Button)findViewById(R.id.edit_loadbalancer_button);
 		editLoadBalancer.setOnClickListener(new OnClickListener() {
@@ -140,6 +186,24 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			}
 		});
 
+		Button logs = (Button)findViewById(R.id.connection_log_button);
+		logs.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				showAlert(loadBalancer.getStatus(), "Log settings cannot be edited.");		
+			}
+		});
+		
+		Button sessionPersistence = (Button)findViewById(R.id.session_persistence_button);
+		sessionPersistence.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				showAlert(loadBalancer.getStatus(), "Session Persistence cannot be edited.");		
+			}
+		});
+
 
 	}
 
@@ -163,12 +227,99 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				}
 			})
 			.create();
+		case R.id.connection_log_button:
+			return new AlertDialog.Builder(ViewLoadBalancerActivity.this)
+			.setIcon(R.drawable.alert_dialog_icon)
+			.setTitle("Disable Logs")
+			.setMessage("Are you sure you want to disable logs for this Load Balancer?")
+			.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// User clicked OK so do some stuff
+					new SetLoggingTask().execute();	
+				}
+			})
+			.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// User clicked Cancel so do some stuff
+				}
+			})
+			.create();
+		case R.id.session_persistence_button:
+			return new AlertDialog.Builder(ViewLoadBalancerActivity.this)
+			.setIcon(R.drawable.alert_dialog_icon)
+			.setTitle("Session Persistence")
+			.setMessage("Are you sure you want to disable session persistence for this Load Balancer?")
+			.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// User clicked OK so do some stuff
+					new SessionPersistenceTask().execute();
+				}
+			})
+			.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// User clicked Cancel so do some stuff
+				}
+			})
+			.create();
 		}
 		return null;
 	}
 
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog){
+		switch (id) {
+		case R.id.connection_log_button:
+			String logTitle;
+			String logMessage;
+			String logButton;
+			if(loadBalancer.getIsConnectionLoggingEnabled().equals("true")){
+				logTitle = "Disable Logs";
+				logMessage = "Are you sure you want to disable logs for this Load Balancer?";
+				logButton = "Disable";
+			} else {
+				logTitle = "Enable Logs";
+				logMessage = "Log files will be processed every hour and stored in your Cloud Files account. " +
+						"Standard Cloud Files storage and transfer fees will be accessed for the use of this feature." +
+						"\n\nAre you sure you want to enable logs for this Load Balancer?";
+				logButton = "Enable";
+			}
+			((AlertDialog)dialog).setTitle(logTitle);
+			((AlertDialog)dialog).setMessage(logMessage);
+			Button sessionLogButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
+			sessionLogButton.setText(logButton);
+			sessionLogButton.invalidate();
+			break;
+		case R.id.session_persistence_button:
+			String sessionMessage;
+			String sessionButton;
+			if(loadBalancer.getSessionPersistence() != null){
+				Log.d("info", "in sessionpersistence != null");
+				sessionMessage = "Are you sure you want to disable session persistence for this Load Balancer?";
+				sessionButton = "Disable";
+			} else {
+				Log.d("info", "in sessionpersistence == null");
+				sessionMessage = "Are you sure you want to enable session persistence for this Load Balancer?";
+				sessionButton = "Enable";
+			}
+			((AlertDialog)dialog).setMessage(sessionMessage);
+			Button sessionPersistButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
+			sessionPersistButton.setText(sessionButton);
+			sessionPersistButton.invalidate();
+			break;
+		}
+	}
+
 	private void loadLoadBalancerData() {
 		if(loadBalancer != null){
+
+			/*
+			 * need to update the text on button if 
+			 * it has changed
+			 */
+			setLogButtonText();
+			setSessionButtonText();
+			
+
 			TextView name = (TextView) findViewById(R.id.view_name);
 			name.setText(loadBalancer.getName());
 
@@ -193,11 +344,14 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				status.setText(loadBalancer.getStatus());
 			}
 
-
 			status.setText(loadBalancer.getStatus());
 
 			TextView connectionLogging = (TextView) findViewById(R.id.view_islogging);
-			connectionLogging.setText(loadBalancer.getIsConnectionLoggingEnabled());
+			if(loadBalancer.getIsConnectionLoggingEnabled().equals("true")){
+				connectionLogging.setText("Enabled");
+			} else {
+				connectionLogging.setText("Disabled");
+			}
 
 			loadVirutalIpData();
 		}
@@ -232,7 +386,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		if(nodeIps == null){
 			nodeIps = new ArrayList<Node>();
 		}
-		
+
 		/*
 		 * need to sort the addresses because during polling
 		 * their order can change and the display becomes
@@ -242,9 +396,9 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		for(Node n : nodeIps){
 			addresses.add(n.getAddress());
 		}
-		
+
 		Collections.sort(addresses);
-				
+
 		//may be null if lb has been deleted
 		if(nodeIps != null){
 			for (int i = 0; i < nodeIps.size(); i++) {
@@ -314,7 +468,6 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		private String loadBalancerId;
 
 		protected void onPreExecute() {
-			Log.d("info", "load called");
 			loadBalancerId = loadBalancer.getId();
 			/*
 			 * set to null, so if config change occurs
@@ -337,7 +490,6 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 		@Override
 		protected void onPostExecute(LoadBalancer result) {
-			Log.d("info", "in post");
 			hideDialog();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());
@@ -394,6 +546,102 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			} else if (exception != null) {
 				showError("There was a problem deleting your load balancer: " + exception.getMessage(), bundle);				
 			}			
+		}
+	}
+
+
+	private class SetLoggingTask extends AsyncTask<Void, Void, HttpBundle> {
+
+		private CloudServersException exception;
+
+		@Override
+		protected void onPreExecute(){
+			showDialog();
+		}
+
+		@Override
+		protected HttpBundle doInBackground(Void... arg0) {
+			HttpBundle bundle = null;	
+			try {
+				bundle = (new LoadBalancerManager(context)).setLogging(loadBalancer, !Boolean.valueOf(loadBalancer.getIsConnectionLoggingEnabled()));
+			} catch (CloudServersException e) {
+				exception = e;
+			}
+			return bundle;
+		}
+
+		@Override
+		protected void onPostExecute(HttpBundle bundle) {
+			hideDialog();
+			HttpResponse response = bundle.getResponse();
+			if (response != null) {
+				int statusCode = response.getStatusLine().getStatusCode();			
+				if (statusCode == 202 || statusCode == 204) {
+					pollLoadBalancerTask = new PollLoadBalancerTask();
+					pollLoadBalancerTask.execute((Void[]) null);
+				} else {					
+					CloudServersException cse = parseCloudServersException(response);
+					if ("".equals(cse.getMessage())) {
+						showError("There was a problem changing your log settings.", bundle);
+					} else {
+						showError("There was a problem changing your log settings: " + cse.getMessage(), bundle);
+					}					
+				}
+			} else if (exception != null) {
+				showError("There was a problem changing your log settings: " + exception.getMessage(), bundle);
+
+			}
+
+		}
+	}
+	
+	private class SessionPersistenceTask extends AsyncTask<Void, Void, HttpBundle> {
+
+		private CloudServersException exception;
+
+		@Override
+		protected void onPreExecute(){
+			showDialog();
+		}
+
+		@Override
+		protected HttpBundle doInBackground(Void... arg0) {
+			HttpBundle bundle = null;	
+			try {
+				String currentSetting = loadBalancer.getSessionPersistence();
+				if(currentSetting == null){
+					bundle = (new LoadBalancerManager(context)).setSessionPersistence(loadBalancer, "HTTP_COOKIE");
+				} else {
+					bundle = (new LoadBalancerManager(context)).disableSessionPersistence(loadBalancer);
+				}
+			} catch (CloudServersException e) {
+				exception = e;
+			}
+			return bundle;
+		}
+
+		@Override
+		protected void onPostExecute(HttpBundle bundle) {
+			hideDialog();
+			HttpResponse response = bundle.getResponse();
+			if (response != null) {
+				int statusCode = response.getStatusLine().getStatusCode();			
+				if (statusCode == 202 || statusCode == 200) {
+					pollLoadBalancerTask = new PollLoadBalancerTask();
+					pollLoadBalancerTask.execute((Void[]) null);
+				} else {					
+					CloudServersException cse = parseCloudServersException(response);
+					if ("".equals(cse.getMessage())) {
+						showError("There was a problem changing your session persistence settings.", bundle);
+					} else {
+						showError("There was a problem changing your session persistence settings: " + cse.getMessage(), bundle);
+					}					
+				}
+			} else if (exception != null) {
+				showError("There was a problem changing your session persistence settings: " + exception.getMessage(), bundle);
+
+			}
+
 		}
 	}
 

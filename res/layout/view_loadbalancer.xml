@@ -128,12 +128,16 @@
 				<!-- Condition -->
 				<!-- Status -->
 			</LinearLayout>
-			<LinearLayout android:id="@+id/load_balancer_buttons" android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="wrap_content">
+			<LinearLayout android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="wrap_content" android:id="@+id/load_balancer_buttons1">
 				<Button android:text="Delete Load Balancer" android:id="@+id/delete_loadbalancer_button" android:layout_height="wrap_content" android:layout_gravity="left" android:layout_marginLeft="20dip" android:layout_marginTop="10dip" android:layout_width="130dip"></Button>
 				<Button android:text="Edit Load Balancer" android:id="@+id/edit_loadbalancer_button" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:layout_marginTop="10dip" android:layout_width="130dip" android:layout_gravity="left"></Button>
 			</LinearLayout>
-			<LinearLayout android:id="@+id/LinearLayout01" android:layout_height="fill_parent" android:layout_width="fill_parent">
+			<LinearLayout android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/load_balancer_buttons2">
 				<Button android:layout_gravity="left" android:layout_width="130dip" android:layout_marginLeft="20dip" android:layout_height="wrap_content" android:id="@+id/edit_nodes_button" android:text="Edit Nodes" android:layout_marginTop="10dip"></Button>
+				<Button android:layout_height="wrap_content" android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:layout_width="130dip" android:layout_gravity="left" android:text="Log Connections" android:id="@+id/connection_log_button"></Button>
+			</LinearLayout>
+			<LinearLayout android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/load_balancer_button3">
+				<Button android:layout_height="wrap_content" android:layout_marginLeft="20dip" android:layout_marginTop="10dip" android:layout_gravity="left" android:layout_width="130dip" android:id="@+id/session_persistence_button" android:text="Disable Session Persistence"></Button>
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
