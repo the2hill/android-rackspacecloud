@@ -20,7 +20,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -33,30 +32,30 @@ import android.widget.TableRow;;
 
 public class AddLoadBalancerActivity extends CloudActivity implements OnItemSelectedListener {
 
-	//TODO Shared Virtual IP (not in API though?)
 	private static final String[] VIP_TYPES = {"Public", "ServiceNet", "Shared"};
 
 	private static final int ADD_NODES_ACTIVITY_CODE = 165;
 	private static final int SHARED_VIP_ACTIVITY_CODE = 235;
 
+	private ArrayList<Node> nodes;
+	private LoadBalancer loadBalancer;
 	private Protocol[] protocols;
 	private Protocol selectedProtocol;
 	private Algorithm[] algorithms;
 	private Algorithm selectedAlgorithm;
 	private VirtualIp selectedVip;
+	private EditText portEditText;
 	private Spinner protocolSpinner;
+	private Spinner protocolSubSpinner;
 	private Spinner algorithmSpinner;
 	private Spinner vipSpinner;
 	private Spinner regionSpinner;
 	private Button selectVipButton;
 	private Button selectNodesButton;
-	private EditText portEditText;
 	private String selectedVipType;
 	private String selectedRegion;
 	private String selectedName;
 	private String selectedPort;
-	private ArrayList<Node> nodes;
-	private LoadBalancer loadBalancer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,12 +74,14 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		else{
 			nodes = new ArrayList<Node>();
 		}
-		setUpButtons();
+
 		setupText();
 		loadProtocolSpinner();
+		loadProtocolSubSpinner();
 		loadAlgorithmSpinner();
 		loadVipSpinner();
 		loadRegionSpinner();
+		setUpButtons();
 	}
 
 	@Override
@@ -91,22 +92,30 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		if (parent == protocolSpinner) {
-			selectedProtocol = protocols[position];
-			//portText.setText(protocols[position].getDefaultPort());
-		} 
-		else if (parent == algorithmSpinner){
+			TableRow customProtocol = (TableRow)findViewById(R.id.custom_protocol_row);
+			if(position < protocols.length){
+				selectedProtocol = protocols[position];
+				selectedPort = protocols[position].getDefaultPort();
+				customProtocol.setVisibility(View.GONE);
+			} else {
+				customProtocol.setVisibility(View.VISIBLE);
+			}
+			updateVipIndicatorLight();
+		} else if (parent == algorithmSpinner){
 			selectedAlgorithm = algorithms[position];
-		}
-		else if (parent == vipSpinner){
+		} else if (parent == vipSpinner){
 			selectedVipType = VIP_TYPES[position];
 			if(VIP_TYPES[position].equals("Shared")){
 				((TableRow) findViewById(R.id.select_vip_layout)).setVisibility(View.VISIBLE);
 			} else {
 				((TableRow) findViewById(R.id.select_vip_layout)).setVisibility(View.GONE);
 			}
-		}
-		else if (parent == regionSpinner){
+			updateVipIndicatorLight();
+		} else if (parent == regionSpinner){
 			selectedRegion = Account.getAccount().getLoadBalancerRegions()[position];
+			updateVipIndicatorLight();
+		} else if (parent == protocolSubSpinner){
+			selectedProtocol = protocols[position];
 			updateVipIndicatorLight();
 		}
 	}
@@ -114,7 +123,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	public void onNothingSelected(AdapterView<?> parent) {
 
 	}
- 
+
 	private void setUpButtons(){
 		selectVipButton = (Button) findViewById(R.id.selected_shared_vip);
 		updateVipIndicatorLight();
@@ -122,13 +131,14 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			@Override
 			public void onClick(View v) {
 				Intent viewIntent = new Intent(getApplicationContext(), SharedVipActivity.class);
-				viewIntent.putExtra("loadBalancerPort", ((EditText)findViewById(R.id.edit_port_text)).getText().toString());
+				viewIntent.putExtra("loadBalancerPort", selectedPort);
 				viewIntent.putExtra("loadBalancerRegion", selectedRegion);
+				viewIntent.putExtra("selectedVip", selectedVip);
 				startActivityForResult(viewIntent, SHARED_VIP_ACTIVITY_CODE);				
 			}
 		});
 		((TableRow) findViewById(R.id.select_vip_layout)).setVisibility(View.GONE);
-		
+
 		selectNodesButton = (Button) findViewById(R.id.add_nodes_button);
 		updateNodesIndicatorLight();
 		selectNodesButton.setOnClickListener(new OnClickListener() {
@@ -162,6 +172,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 					loadBalancer.setPort(selectedPort);
 					loadBalancer.setVirtualIpType(selectedVipType);
 					loadBalancer.setAlgorithm(selectedAlgorithm.getName());
+					loadBalancer.setRegion(selectedRegion);
 					loadBalancer.setNodes(nodes);
 					if(selectedVip != null){
 						ArrayList<VirtualIp> vips = new ArrayList<VirtualIp>();
@@ -173,7 +184,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			}
 		});
 	}
-	
+
 	private boolean validName(){
 		return !selectedName.equals("");
 	}
@@ -181,11 +192,11 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	private boolean validPort(){
 		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
 	}
-	
+
 	private boolean validNodes(){
 		return nodes != null && nodes.size() > 0;
 	}
-	
+
 	private void updateNodesIndicatorLight(){
 		if(validNodes()){
 			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
@@ -193,12 +204,21 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_notification_overlay,0);
 		}
 	}
-	 
+
 	private boolean validVip(){
-		return selectedVip != null && !selectedVip.getLoadBalancer().getPort().equals(selectedPort) 
-			&& selectedVip.getLoadBalancer().getRegion().equals(selectedRegion);
+		/*
+		 * assign selectedVipType to the
+		 * first value in the list, the default
+		 * if its null
+		 */
+		if(selectedVipType == null){
+			selectedVipType = VIP_TYPES[0];
+		}
+		return !selectedVipType.equalsIgnoreCase("Shared") 
+		||(selectedVip != null && !selectedVip.getLoadBalancer().getPort().equals(selectedPort) 
+				&& selectedVip.getLoadBalancer().getRegion().equals(selectedRegion));
 	}
-	
+
 	private void updateVipIndicatorLight(){
 		if(validVip()){
 			selectVipButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
@@ -206,11 +226,11 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			selectVipButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_notification_overlay,0);
 		}
 	}
-	
+
 	private void setupText(){
 		portEditText = (EditText)findViewById(R.id.edit_port_text);
 		portEditText.addTextChangedListener(new TextWatcher() {
-			
+
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				selectedPort = s.toString();
@@ -250,17 +270,36 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	private void loadProtocolSpinner() {
 		protocolSpinner = (Spinner) findViewById(R.id.edit_protocol_spinner);
 		protocolSpinner.setOnItemSelectedListener(this);
-		String protocolNames[] = new String[Protocol.getProtocols().size()]; 
+		String protocolNames[] = new String[Protocol.getProtocols().size() + 1]; 
 		protocols = new Protocol[Protocol.getProtocols().size()];
 
 		for(int i = 0; i < Protocol.getProtocols().size(); i++){
 			protocols[i] = Protocol.getProtocols().get(i);
+			protocolNames[i] = Protocol.getProtocols().get(i).getName() + " (" + Protocol.getProtocols().get(i).getDefaultPort() + ")";
+		}
+		protocolNames[protocolNames.length - 1] = "Custom";
+
+		ArrayAdapter<String> protocolAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, protocolNames);
+		protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		protocolSpinner.setAdapter(protocolAdapter);
+	}
+
+	/*
+	 * this is the spinner for protocol selection that 
+	 * appears if custom is chosen from protocolSpinner
+	 */
+	private void loadProtocolSubSpinner() {
+		protocolSubSpinner = (Spinner) findViewById(R.id.edit_protocol_sub_spinner);
+		protocolSubSpinner.setOnItemSelectedListener(this);
+		String protocolNames[] = new String[Protocol.getProtocols().size()]; 
+
+		for(int i = 0; i < Protocol.getProtocols().size(); i++){
 			protocolNames[i] = Protocol.getProtocols().get(i).getName();
 		}
 
 		ArrayAdapter<String> protocolAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, protocolNames);
 		protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		protocolSpinner.setAdapter(protocolAdapter);
+		protocolSubSpinner.setAdapter(protocolAdapter);
 	}
 
 	private void loadAlgorithmSpinner() {
@@ -333,8 +372,10 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		else if(requestCode == ADD_NODES_ACTIVITY_CODE && resultCode == RESULT_CANCELED){
 			//don't change list
 		}
-		else if(requestCode == SHARED_VIP_ACTIVITY_CODE && resultCode == RESULT_OK){
-			selectedVip = (VirtualIp)data.getSerializableExtra("selectedVip");
+		else if(requestCode == SHARED_VIP_ACTIVITY_CODE){
+			if(data != null){
+				selectedVip = (VirtualIp)data.getSerializableExtra("selectedVip");
+			}
 			updateVipIndicatorLight();
 		}
 	}

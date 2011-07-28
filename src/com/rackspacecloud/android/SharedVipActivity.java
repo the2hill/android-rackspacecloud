@@ -1,12 +1,12 @@
 package com.rackspacecloud.android;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +21,19 @@ import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 public class SharedVipActivity extends CloudListActivity {
 
-	private Context context;
 	private LoadBalancer[] loadBalancers;
 	private VirtualIp[] vips;
 	private String loadBalancerPort;
 	private String loadBalancerRegion;
+	private VirtualIp selectedVip;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_vips);
-		context = getApplicationContext();
 		loadBalancerPort = (String) this.getIntent().getExtras().get("loadBalancerPort");
 		loadBalancerRegion = (String) this.getIntent().getExtras().get("loadBalancerRegion");
+		selectedVip = (VirtualIp) this.getIntent().getExtras().get("selectedVip");
 		restoreState(savedInstanceState);
 	}
 	
@@ -91,22 +91,22 @@ public class SharedVipActivity extends CloudListActivity {
 	}
 	
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		
 		/*
 		 * only allow clicks on vips that do not have the same port
 		 * as the lb and are in same region
 		 */
 		if (vips != null && vips.length > 0) {
-			Log.d("info", "vip loc: " + vips[position].getLoadBalancer().getRegion() + " lb region: " + loadBalancerRegion);
 			if(vips[position].getLoadBalancer().getPort().equals(loadBalancerPort)){
 				showToast("Cannot use this Virtual IP. The same port cannot be used on multiple load balancers for a Shared Virtual IP.");
 			} else if(!vips[position].getLoadBalancer().getRegion().equals(loadBalancerRegion)){
 				showToast("Cannot use this Virtual IP. The Shared Virtual IP must come the same region as the new load balancer.");
 			} else {
 				Intent viewIntent = new Intent();
+				selectedVip = vips[position];
 				viewIntent.putExtra("selectedVip", vips[position]);
 				setResult(RESULT_OK, viewIntent);
-				finish();
+				//the redisplay will color the users selection white
+				setLoadBalancersList(new ArrayList<VirtualIp>(Arrays.asList(vips)));
 			}
 		}
 	}
@@ -120,6 +120,7 @@ public class SharedVipActivity extends CloudListActivity {
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
+			
 			VirtualIp virtualIp = vips[position];
 			LayoutInflater inflater = getLayoutInflater();
 			View row = inflater.inflate(R.layout.sharedvipcell,
@@ -127,7 +128,7 @@ public class SharedVipActivity extends CloudListActivity {
 
 			TextView vipAddress = (TextView) row.findViewById(R.id.vip_address);
 			vipAddress.setText(virtualIp.getAddress());
-
+			
 			TextView type = (TextView) row.findViewById(R.id.vip_type);
 			type.setText(virtualIp.getType());
 			
@@ -138,6 +139,16 @@ public class SharedVipActivity extends CloudListActivity {
 			protocol.setText(virtualIp.getLoadBalancer().getProtocol() 
 					+ "(" + virtualIp.getLoadBalancer().getPort() + ")");
 			
+			//Set the text of the selected vip (if there is one)
+			//to white so the user knows what they picked
+			boolean isSelected = selectedVip != null && selectedVip.getAddress().equals(vips[position].getAddress());
+			if(isSelected){
+				vipAddress.setTextColor(Color.WHITE);
+				type.setTextColor(Color.WHITE);
+				name.setTextColor(Color.WHITE);
+				protocol.setTextColor(Color.WHITE);
+				protocol.setTextColor(Color.WHITE);
+			}
 			return (row);
 		}
 	}

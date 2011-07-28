@@ -1,5 +1,8 @@
 package com.rackspacecloud.android;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -65,16 +68,16 @@ public class AddExternalNodeActivity extends CloudActivity {
 				selectedIp = ipAddress.getText().toString();
 				selectedPort = ((EditText)findViewById(R.id.node_port_text)).getText().toString();
 				selectedWeight = weightText.getText().toString();
-				if(!validPort()){
+				if(!validPort(selectedPort)){
 					showAlert("Error", "Must have a protocol port number that is between 1 and 65535.");
 				} else if(!(weightText.getVisibility() == View.GONE || (weightText.getVisibility() != View.GONE && validWeight(selectedWeight)))){
 					showAlert("Error", "Weight must be between 1 and 100.");
 				} else if(ipAddress.getText().toString().equals("")){
 					//TODO use regex to validate the ip for IPV4 and IPV6
 					showAlert("Error", "Enter an IP Address");
-				}
-
-				else{
+				} else if(validIp(ipAddress.getText().toString())) {
+					showAlert("Error", "Enter a valid IP Address");
+				} else {
 					Intent data = new Intent();
 					data.putExtra("nodeIp", selectedIp);
 					data.putExtra("nodePort", selectedPort);
@@ -114,9 +117,18 @@ public class AddExternalNodeActivity extends CloudActivity {
 
 		});
 	}
+	
+	//basic ip validation just checks that the string
+	//is only composed of letters, numbers, ., :
+	private static boolean validIp(String ip){
+		//Enter regex
+		Pattern pattern = Pattern.compile("[a-zA-Z0-9.:]+");
+		Matcher match = pattern.matcher(ip);
+		return match.matches();
+	}
 
-	private boolean validPort(){
-		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+	private boolean validPort(String port){
+		return !port.equals("") && Integer.valueOf(port) > 0 && Integer.valueOf(port) < 65536;
 	}
 
 	private Boolean validWeight(String weight){

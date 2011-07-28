@@ -128,6 +128,46 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		finish();
 	}
 
+	//When a list item is click just change the checkbox state
+	//and then the checkbox's onClick will be performed
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		if (servers != null && servers.size() > 0) {
+			LinearLayout linear = (LinearLayout) findViewById(R.id.nodes_linear_layout); 
+			ListView serversList = (ListView) linear.findViewById(android.R.id.list);
+			View row = serversList.getChildAt(position);
+			CheckBox checkBox = (CheckBox)row.findViewById(R.id.add_node_checkbox);
+			if(!checkBox.isChecked()){
+				//if the checkbox was not previously checked, treat the listItemClick
+				//the same as checking the checkbox
+				checkBox.setChecked(!checkBox.isChecked());
+			} else {
+				//if the checkbox was already checked when the listItemClick occurred,
+				//then treat it like an edit
+
+				Server server = servers.get(position);
+
+				//Need to put all the ip's of the server into one
+				//list so they can all be displayed in one spinner
+				String[] ipAddresses = getAllIpsOfServer(server);
+
+				Node node = getNodeFromServer(server);
+
+				lastCheckedPos = position;
+				Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
+				viewIntent.putExtra("ipAddresses", ipAddresses);
+				viewIntent.putExtra("name", server.getName());
+				if(node != null){
+					viewIntent.putExtra("node", node);
+				}
+				//weighted is false, because on initial node add
+				//weight is not option
+				viewIntent.putExtra("weighted", false);
+				startActivityForResult(viewIntent, ADD_NODE_CODE);
+			}
+
+		}
+	}
+
 	private void displayNoServersCell() {
 		String a[] = new String[1];
 		a[0] = "No Servers";
@@ -413,17 +453,53 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		return false;
 	}
 
+	//returns the node that is using an ip from server
+	private Node getNodeFromServer(Server server){
+		for(Node node : nodesToAdd){
+			if(serverHasIp(server, node.getAddress())){
+				return node;
+			}
+		}
+		return null;
+	}
+
+	//returns an array of all the ip's of server
+	private String[] getAllIpsOfServer(Server server){
+		String[] publicIp = server.getPublicIpAddresses();
+		String[] privateIp = server.getPrivateIpAddresses();
+		if(publicIp == null){
+			publicIp = new String[0];
+		}
+		if(privateIp == null){
+			privateIp = new String[0];
+		}
+		String[] ipAddresses = new String[privateIp.length + publicIp.length];
+		for(int i = 0; i < privateIp.length; i++){
+			ipAddresses[i] = privateIp[i];
+		}
+		for(int i = 0; i < publicIp.length; i++){
+			ipAddresses[i+privateIp.length] = publicIp[i];
+		}
+
+		return ipAddresses;
+	}
+
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		int pos = lastCheckedPos;
 		if(requestCode == ADD_NODE_CODE && resultCode == RESULT_OK){
-			Node node = new Node();
-			node.setAddress(data.getStringExtra("nodeIp"));
-			node.setCondition(data.getStringExtra("nodeCondition"));
-			node.setName(servers.get(pos).getName());
-			node.setPort(data.getStringExtra("nodePort"));
-			Log.d("info", "setting the weight in addmore to " + data.getStringExtra("nodeWeight"));
-			node.setWeight(data.getStringExtra("nodeWeight"));
-			nodesToAdd.add(node);
+			//data will be null is user back out on edit
+			//we dont need to do anything then
+			//if new node added data won't be null
+			//so create the new node and add it to the list
+			if(data != null){
+				Node node = new Node();
+				node.setAddress(data.getStringExtra("nodeIp"));
+				node.setCondition(data.getStringExtra("nodeCondition"));
+				node.setName(servers.get(pos).getName());
+				node.setPort(data.getStringExtra("nodePort"));
+				node.setWeight(data.getStringExtra("nodeWeight"));
+				nodesToAdd.add(node);
+			}
 		}
 		else if(requestCode == ADD_NODE_CODE && resultCode == RESULT_CANCELED){
 			//uncheck the node at lastCheckedPos

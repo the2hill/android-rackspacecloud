@@ -10,6 +10,7 @@ import com.rackspace.cloud.servers.api.client.ServerManager;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,9 +29,11 @@ public class AddNodesActivity extends CloudListActivity {
 	private static final int ADD_NODE_CODE = 178;
 	private static final int ADD_EXTERNAL_NODE_CODE = 188;
 
+	//servers are what are displayed in the ListView
 	private ArrayList<Server> servers;
-	private int lastCheckedPos;
+	//nodes are the nodes the user has selected
 	private ArrayList<Node> nodes;
+	private int lastCheckedPos;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -89,6 +92,8 @@ public class AddNodesActivity extends CloudListActivity {
 			@Override
 			public void onClick(View v) {
 				Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
+				//when first creating a load balancer
+				//weighting nodes in not an option
 				viewIntent.putExtra("weighted", false);
 				startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
 			}
@@ -99,6 +104,44 @@ public class AddNodesActivity extends CloudListActivity {
 	public void onBackPressed(){
 		setResult(RESULT_CANCELED);
 		finish();
+	}
+
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		if (servers != null && servers.size() > 0) {
+			LinearLayout linear = (LinearLayout) findViewById(R.id.nodes_linear_layout); 
+			ListView serversList = (ListView) linear.findViewById(android.R.id.list);
+			View row = serversList.getChildAt(position);
+			CheckBox checkBox = (CheckBox)row.findViewById(R.id.add_node_checkbox);
+			if(!checkBox.isChecked()){
+				//if the checkbox was not previously checked, treat the listItemClick
+				//the same as checking the checkbox
+				checkBox.setChecked(!checkBox.isChecked());
+			} else {
+				//if the checkbox was already checked when the listItemClick occurred,
+				//then treat it like an edit
+
+				Server server = servers.get(position);
+
+				//Need to put all the ip's of the server into one
+				//list so they can all be displayed in one spinner
+				String[] ipAddresses = getAllIpsOfServer(server);
+
+				Node node = getNodeFromServer(server);
+
+				lastCheckedPos = position;
+				Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
+				viewIntent.putExtra("ipAddresses", ipAddresses);
+				viewIntent.putExtra("name", server.getName());
+				if(node != null){
+					viewIntent.putExtra("node", node);
+				}
+				//weighted is false, because on initial node add
+				//weight is not option
+				viewIntent.putExtra("weighted", false);
+				startActivityForResult(viewIntent, ADD_NODE_CODE);
+			}
+
+		}
 	}
 
 	private void displayNoServersCell() {
@@ -135,6 +178,166 @@ public class AddNodesActivity extends CloudListActivity {
 
 	private void loadServers() {
 		new LoadServersTask().execute((Void[]) null);
+	}
+
+	// * Adapter/
+	class ServerAdapter extends ArrayAdapter<Server> {
+		ServerAdapter() {
+			super(AddNodesActivity.this, R.layout.listservernodecell, servers);
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+
+			final Server server = servers.get(position);
+			LayoutInflater inflater = getLayoutInflater();
+			View row = inflater.inflate(R.layout.listservernodecell, parent, false);
+
+			TextView label = (TextView) row.findViewById(R.id.label);
+			label.setText(server.getName());
+
+			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
+			if(server.getName().equals("External Node")){
+				sublabel.setText(server.getPrivateIpAddresses()[0]);
+			} else {
+				sublabel.setText(server.getFlavor().getName() + " - " + server.getImage().getName());
+			}
+
+
+			//Need to put all the ip's of the server into one
+			//list so they can all be displayed in one spinner
+			final String[] ipAddresses = getAllIpsOfServer(server);
+
+			final int pos = position;
+			CheckBox add = (CheckBox) row.findViewById(R.id.add_node_checkbox);
+
+			if(inNodeList(server)){
+				add.setChecked(true);
+			}
+
+			add.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if(isChecked){
+						lastCheckedPos = pos;
+						Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
+						viewIntent.putExtra("ipAddresses", ipAddresses);
+						viewIntent.putExtra("name", server.getName());
+						//weighted is false, because on initial node add
+						//weight is not option
+						viewIntent.putExtra("weighted", false);
+						startActivityForResult(viewIntent, ADD_NODE_CODE);
+					}
+					else{
+						removeNodeFromList(server);
+						if(server.getName().equals("External Node")){
+							servers.remove(server);
+							setServerList(servers);
+						}
+					}
+				}
+			});
+
+			return(row);
+		}
+
+		//returns true if an ip from server
+		//is the address of one of the nodes
+		private boolean inNodeList(Server server){
+			for(Node node : nodes){
+				String nodeIp = node.getAddress();
+				if(serverHasIp(server, nodeIp)){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/*
+		 *  need to remove by id because that is 
+		 *  what is unique
+		 */
+		private void removeNodeFromList(Server server){
+			for(int i = 0; i < nodes.size(); i++){
+				Node node = nodes.get(i);
+				if(serverHasIp(server, node.getAddress())){
+					nodes.remove(i);
+					break;
+				}
+			}
+		}
+	}
+
+	private String getNameFromIp(String address){
+		for(Server s: servers){
+			if(serverHasIp(s, address)){
+				return s.getName();
+			}
+		}
+		return "";
+	}
+
+	//returns true if address is an address of
+	//one of the users cloud servers
+	private boolean isCloudServerIp(String address){
+		for(Server s : servers){
+			if(serverHasIp(s, address)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//returns true if address is one of server's addresses
+	private boolean serverHasIp(Server server, String address){
+		String[] addresses = server.getPrivateIpAddresses();
+		if(addresses != null){
+			for(int i = 0; i < addresses.length; i++){
+				if(addresses[i].equals(address)){
+					return true;
+				}
+			}
+		}
+		addresses = server.getPublicIpAddresses();
+		if(addresses != null){
+			for(int i = 0; i < addresses.length; i++){
+				if(addresses[i].equals(address)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	//returns the node that is using an ip from server
+	private Node getNodeFromServer(Server server){
+		for(Node node : nodes){
+			if(serverHasIp(server, node.getAddress())){
+				return node;
+			}
+		}
+		return null;
+	}
+
+	//returns an array of all the ip's of server
+	private String[] getAllIpsOfServer(Server server){
+		String[] publicIp = server.getPublicIpAddresses();
+		String[] privateIp = server.getPrivateIpAddresses();
+		if(publicIp == null){
+			publicIp = new String[0];
+		}
+		if(privateIp == null){
+			privateIp = new String[0];
+		}
+		String[] ipAddresses = new String[privateIp.length + publicIp.length];
+		for(int i = 0; i < privateIp.length; i++){
+			ipAddresses[i] = privateIp[i];
+		}
+		for(int i = 0; i < publicIp.length; i++){
+			ipAddresses[i+privateIp.length] = publicIp[i];
+		}
+
+		return ipAddresses;
 	}
 
 	private class LoadServersTask extends AsyncTask<Void, Void, ArrayList<Server>> {
@@ -177,154 +380,22 @@ public class AddNodesActivity extends CloudListActivity {
 		}
 	}
 
-	// * Adapter/
-	class ServerAdapter extends ArrayAdapter<Server> {
-		ServerAdapter() {
-			super(AddNodesActivity.this, R.layout.listservernodecell, servers);
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {
-
-			final Server server = servers.get(position);
-			LayoutInflater inflater = getLayoutInflater();
-			View row = inflater.inflate(R.layout.listservernodecell, parent, false);
-
-			TextView label = (TextView) row.findViewById(R.id.label);
-			label.setText(server.getName());
-
-			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
-			if(server.getName().equals("External Node")){
-				sublabel.setText(server.getPrivateIpAddresses()[0]);
-			} else {
-				sublabel.setText(server.getFlavor().getName() + " - " + server.getImage().getName());
-			}
-
-			String[] publicIp = server.getPublicIpAddresses();
-			String[] privateIp = server.getPrivateIpAddresses();
-
-			if(publicIp == null){
-				publicIp = new String[0];
-			}
-
-			if(privateIp == null){
-				privateIp = new String[0];
-			}
-
-			final String[] ipAddresses = new String[privateIp.length + publicIp.length];
-			for(int i = 0; i < privateIp.length; i++){
-				ipAddresses[i] = privateIp[i];
-			}
-			for(int i = 0; i < publicIp.length; i++){
-				ipAddresses[i+privateIp.length] = publicIp[i];
-			}
-
-			final int pos = position;
-			CheckBox add = (CheckBox) row.findViewById(R.id.add_node_checkbox);
-
-			if(inNodeList(server)){
-				add.setChecked(true);
-			}
-
-			add.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if(isChecked){
-						lastCheckedPos = pos;
-						Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
-						viewIntent.putExtra("ipAddresses", ipAddresses);
-						viewIntent.putExtra("name", server.getName());
-						//weighted is false, because on initial node add
-						//weight is not option
-						viewIntent.putExtra("weighted", false);
-						startActivityForResult(viewIntent, ADD_NODE_CODE);
-					}
-					else{
-						removeNodeFromList(server);
-						if(server.getName().equals("External Node")){
-							servers.remove(server);
-							setServerList(servers);
-						}
-					}
-				}
-			});
-
-			return(row);
-		}
-
-		private boolean inNodeList(Server server){
-			for(Node node : nodes){
-				String nodeIp = node.getAddress();
-				if(serverHasIp(server, nodeIp)){
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/*
-		 *  need to remove by id because that is 
-		 *  what is unique
-		 */
-		private void removeNodeFromList(Server server){
-			for(int i = 0; i < nodes.size(); i++){
-				Node node = nodes.get(i);
-				if(serverHasIp(server, node.getAddress())){
-					nodes.remove(i);
-					break;
-				}
-			}
-		}
-	}
-
-	private String getNameFromIp(String address){
-		for(Server s: servers){
-			if(serverHasIp(s, address)){
-				return s.getName();
-			}
-		}
-		return "";
-	}
-
-	private boolean isCloudServerIp(String address){
-		for(Server s : servers){
-			if(serverHasIp(s, address)){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean serverHasIp(Server server, String address){
-		String[] addresses = server.getPrivateIpAddresses();
-		if(addresses != null){
-			for(int i = 0; i < addresses.length; i++){
-				if(addresses[i].equals(address)){
-					return true;
-				}
-			}
-		}
-		addresses = server.getPublicIpAddresses();
-		if(addresses != null){
-			for(int i = 0; i < addresses.length; i++){
-				if(addresses[i].equals(address)){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		int pos = lastCheckedPos;
 		if(requestCode == ADD_NODE_CODE && resultCode == RESULT_OK){
-			Node node = new Node();
-			node.setAddress(data.getStringExtra("nodeIp"));
-			node.setCondition(data.getStringExtra("nodeCondition"));
-			node.setName(servers.get(pos).getName());
-			node.setPort(data.getStringExtra("nodePort"));
-			node.setWeight(data.getStringExtra("nodeWeight"));
-			nodes.add(node);
+			//data will be null is user back out on edit
+			//we dont need to do anything then
+			//if new node added data won't be null
+			//so create the new node and add it to the list
+			if(data != null){
+				Node node = new Node();
+				node.setAddress(data.getStringExtra("nodeIp"));
+				node.setCondition(data.getStringExtra("nodeCondition"));
+				node.setName(servers.get(pos).getName());
+				node.setPort(data.getStringExtra("nodePort"));
+				node.setWeight(data.getStringExtra("nodeWeight"));
+				nodes.add(node);
+			}
 		}
 		else if(requestCode == ADD_NODE_CODE && resultCode == RESULT_CANCELED){
 			//uncheck the node at lastCheckedPos
@@ -361,6 +432,7 @@ public class AddNodesActivity extends CloudListActivity {
 						+ "\", please select it from the list.");
 			}
 		}
+		Log.d("info", "number of nodes is " + nodes.size());
 	}
 
 
