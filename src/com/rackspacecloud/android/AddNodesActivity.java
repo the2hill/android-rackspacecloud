@@ -430,6 +430,7 @@ public class AddNodesActivity extends CloudListActivity {
 
 	//removes a node with ip of address from nodes
 	//if one doesnt exists doesn nothing
+	/*
 	private void removeNodeWithIp(String address){
 		for(int i = 0; i < nodes.size(); i++){
 			Node n = nodes.get(i);
@@ -439,6 +440,7 @@ public class AddNodesActivity extends CloudListActivity {
 			}
 		}
 	}
+	*/
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){	
 		int pos = lastCheckedPos;

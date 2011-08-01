@@ -467,7 +467,7 @@ public class ListAccountsActivity extends ListActivity{
 					imageMap.put(image.getId(), image);
 				}
 				Image.setImages(imageMap);
-				new LoadProtocolsTask().execute((Void[]) null);
+				new LoadProtocolsTask().execute((Void[]) null); 
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
