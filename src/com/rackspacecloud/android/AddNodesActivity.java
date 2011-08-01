@@ -77,7 +77,7 @@ public class AddNodesActivity extends CloudListActivity {
 			positionOfNode = (Integer) state.getSerializable("positionOfNode");
 		}
 
-		if (state != null && state.containsKey("possibleNodes")) {
+		if (state != null && state.containsKey("possibleNodes") && state.getSerializable("possibleNodes") != null) {
 			possibleNodes = (ArrayList<Server>) state.getSerializable("possibleNodes");
 			if (possibleNodes.size() == 0) {
 				displayNoServersCell();
