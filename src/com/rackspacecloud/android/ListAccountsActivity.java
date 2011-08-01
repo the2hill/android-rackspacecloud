@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -57,6 +58,9 @@ public class ListAccountsActivity extends GaListActivity{
 	private Context context;
 	//need to store if the user has successfully logged in
 	private boolean loggedIn;
+	private AuthenticateTask authTask;
+	private LoadImagesTask imageTask;
+	private LoadFlavorsTask flavorTask;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -127,7 +131,6 @@ public class ListAccountsActivity extends GaListActivity{
 			authenticating = true;
 		}
 	}
-
 
 	/*
 	 * if the application is password protected,
@@ -269,7 +272,8 @@ public class ListAccountsActivity extends GaListActivity{
 	public void login() {
 		//showActivityIndicators();
 		//setLoginPreferences();
-		new AuthenticateTask().execute((Void[]) null);
+		authTask = new AuthenticateTask();
+		authTask.execute((Void[]) null);
 	}
 
 	//setup menu for when menu button is pressed
@@ -409,6 +413,23 @@ public class ListAccountsActivity extends GaListActivity{
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
 			dialog = ProgressDialog.show(ListAccountsActivity.this, "", "Authenticating...", true);
+			dialog.setCancelable(true);
+			dialog.setOnCancelListener(new OnCancelListener() {
+				
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					if(authTask != null){ 
+						authTask.cancel(true);
+					}
+					if(imageTask != null){
+						imageTask.cancel(true);
+					}
+					if(flavorTask != null){
+						flavorTask.cancel(true);
+					}
+					hideDialog();
+				}
+			});
 		}
     }
     
@@ -428,6 +449,9 @@ public class ListAccountsActivity extends GaListActivity{
 
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
+			if(isCancelled()){
+				return false;
+			}
 			return new Boolean(Authentication.authenticate(context));
 			//return true;
 		}
@@ -436,7 +460,8 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPostExecute(Boolean result) {
 			if (result.booleanValue()) {
 				//startActivity(tabViewIntent);
-				new LoadImagesTask().execute((Void[]) null);
+				imageTask = new LoadImagesTask();
+				imageTask.execute((Void[]) null);
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
@@ -453,6 +478,10 @@ public class ListAccountsActivity extends GaListActivity{
 
 		@Override
 		protected void onPostExecute(ArrayList<Flavor> result) {
+			if(isCancelled()){
+				return;
+			}
+			
 			if (result != null && result.size() > 0) {
 				TreeMap<String, Flavor> flavorMap = new TreeMap<String, Flavor>();
 				for (int i = 0; i < result.size(); i++) {
@@ -460,6 +489,9 @@ public class ListAccountsActivity extends GaListActivity{
 					flavorMap.put(flavor.getId(), flavor);
 				}
 				Flavor.setFlavors(flavorMap);
+				if(isCancelled()){
+					return;
+				}
 				hideDialog();
 				startActivityForResult(tabViewIntent, 187);
 			} else {
@@ -478,6 +510,10 @@ public class ListAccountsActivity extends GaListActivity{
 
 		@Override
 		protected void onPostExecute(ArrayList<Image> result) {
+			if(isCancelled()){
+				return;
+			}
+			
 			if (result != null && result.size() > 0) {
 				TreeMap<String, Image> imageMap = new TreeMap<String, Image>();
 				for (int i = 0; i < result.size(); i++) {
@@ -485,8 +521,13 @@ public class ListAccountsActivity extends GaListActivity{
 					imageMap.put(image.getId(), image);
 				}
 				Image.setImages(imageMap);
-				new LoadFlavorsTask().execute((Void[]) null);
-				//startActivity(tabViewIntent);
+				
+				if(isCancelled()){
+					return;
+				}
+				
+				flavorTask = new LoadFlavorsTask();
+				flavorTask.execute((Void[]) null);
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
