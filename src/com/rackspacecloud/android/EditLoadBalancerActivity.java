@@ -165,8 +165,8 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 
 		for(int i = 0; i < Algorithm.getAlgorithms().size(); i++){
 			algorithms[i] = Algorithm.getAlgorithms().get(i);
-			algorithmNames[i] = Algorithm.getAlgorithms().get(i).getName();
-			if(algorithmNames[i].equals(selectedAlgorithm)){
+			algorithmNames[i] = getPrettyAlgoName(Algorithm.getAlgorithms().get(i).getName());
+			if(algorithmNames[i].equals(getPrettyAlgoName(selectedAlgorithm))){
 				defaultPosition = i;
 			}
 		}
@@ -175,6 +175,30 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 		algorithmAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		algorithmSpinner.setAdapter(algorithmAdapter);
 		algorithmSpinner.setSelection(defaultPosition);
+	}
+	
+	private String getPrettyAlgoName(String name){
+		if(name == null || name.length() == 0){
+			return "";
+		} else {
+			String result = name.charAt(0) + "";
+			boolean previousWasSpace = false;;
+			for(int i = 1; i < name.length(); i++){
+				char curLetter = name.charAt(i);
+				if(curLetter == '_'){
+					result += " ";
+					previousWasSpace = true;
+				} else {
+					if(previousWasSpace){
+						result += Character.toUpperCase(curLetter);
+					} else {
+						result += Character.toLowerCase(curLetter);
+					}
+					previousWasSpace = false;
+				}
+			}
+			return result;
+		}
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

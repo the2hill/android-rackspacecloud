@@ -308,7 +308,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			port.setText(loadBalancer.getPort());
 
 			TextView algorithm = (TextView) findViewById(R.id.view_algorithm);
-			algorithm.setText(loadBalancer.getAlgorithm());
+			algorithm.setText(getPrettyAlgoName(loadBalancer.getAlgorithm()));
 
 			TextView status = (TextView) findViewById(R.id.view_status);
 			if (!"ACTIVE".equals(loadBalancer.getStatus())) {
@@ -330,6 +330,30 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			}
 
 			loadVirutalIpData();
+		}
+	}
+	
+	private String getPrettyAlgoName(String name){
+		if(name == null || name.length() == 0){
+			return "";
+		} else {
+			String result = name.charAt(0) + "";
+			boolean previousWasSpace = false;;
+			for(int i = 1; i < name.length(); i++){
+				char curLetter = name.charAt(i);
+				if(curLetter == '_'){
+					result += " ";
+					previousWasSpace = true;
+				} else {
+					if(previousWasSpace){
+						result += Character.toUpperCase(curLetter);
+					} else {
+						result += Character.toLowerCase(curLetter);
+					}
+					previousWasSpace = false;
+				}
+			}
+			return result;
 		}
 	}
 

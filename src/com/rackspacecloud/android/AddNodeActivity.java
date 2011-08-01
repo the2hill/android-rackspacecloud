@@ -4,7 +4,6 @@ import com.rackspace.cloud.loadbalancer.api.client.Node;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -24,8 +23,8 @@ public class AddNodeActivity extends CloudActivity{
 	private String selectedPort;
 	private String selectedIp;
 	private String selectedWeight;
-	private boolean weighted;
 	private String selectedCondition;
+	private boolean weighted;
 	private Spinner conditionSpinner;
 	private Spinner ipAddressSpinner;
 	private EditText weightText;
@@ -44,7 +43,35 @@ public class AddNodeActivity extends CloudActivity{
 
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
+		
+		if (state != null){
+			if(state.containsKey("selectedPort")){
+				selectedPort = (String) state.getString("selectedPort");
+			}
+			
+			if(state.containsKey("selectedIp")){
+				selectedIp = (String) state.getString("selectedIp");
+			}
+			
+			if(state.containsKey("selectedWeight")){
+				selectedWeight = (String) state.getString("selectedWeight");
+			}
+		
+			if(state.containsKey("selectedCondition")){
+				selectedCondition = (String) state.getString("selectedCondition");
+			}
+		}
+		
 		setupInputs();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("selectedPort", selectedPort);
+		outState.putString("selectedIp", selectedIp);
+		outState.putString("selectedWeight", selectedWeight);
+		outState.putString("selectedCondition", selectedCondition);
 	}
 
 	private void setupInputs(){
@@ -71,23 +98,22 @@ public class AddNodeActivity extends CloudActivity{
 
 	private void loadConditionSpinner(){
 		conditionSpinner = (Spinner) findViewById(R.id.node_condition_spinner);
-	
 		ArrayAdapter<String> conditionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, CONDITIONS);
 		conditionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		conditionSpinner.setAdapter(conditionAdapter);
-	
+
 		conditionSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-	
+
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				selectedCondition = CONDITIONS[pos];	
 			}
-	
+
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-	
+
 			}
-	
+
 		});
 	}
 
@@ -96,21 +122,21 @@ public class AddNodeActivity extends CloudActivity{
 		ArrayAdapter<String> ipAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ipAddresses);
 		ipAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		ipAddressSpinner.setAdapter(ipAdapter);
-	
+
 		ipAddressSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-	
+
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				selectedIp = ipAddresses[pos];	
 			}
-	
+
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-	
+
 			}
-	
+
 		});
-	
+
 	}
 
 	private void setUpButton(){
@@ -132,12 +158,10 @@ public class AddNodeActivity extends CloudActivity{
 					data.putExtra("nodeIp", selectedIp);
 					data.putExtra("nodePort", selectedPort);
 					data.putExtra("nodeCondition", selectedCondition);
-					Log.d("info", "saving the weight as " + selectedWeight);
 					data.putExtra("nodeWeight", selectedWeight);
 					setResult(RESULT_OK, data);
 					finish();
 				}
-
 			}
 		});
 	}
@@ -162,18 +186,27 @@ public class AddNodeActivity extends CloudActivity{
 	//returns the location in objects of object
 	//if it doesn't exist return -1
 	private int getLocation(Object[] objects, Object object){
-		for(int i = 0; i < objects.length; i++){
-			if(objects[i].equals(object)){
-				return i;
+		if(objects == null || object == null){
+			return -1;
+		} else {
+			for(int i = 0; i < objects.length; i++){
+				if(objects[i].toString().equalsIgnoreCase(object.toString())){
+					return i;
+				}
 			}
+			return -1;
 		}
-		return -1;
 	}
 
 	private boolean validPort(){
-		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+		boolean result;
+		try{
+			result = !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+		} catch (NumberFormatException e) {
+			result = false;
+		}
+		return result;
 	}
-
 	private Boolean validWeight(String weight){
 		if(weight.equals("")){
 			return false;

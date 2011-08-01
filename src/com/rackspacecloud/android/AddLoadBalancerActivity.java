@@ -12,6 +12,7 @@ import com.rackspace.cloud.loadbalancer.api.client.Protocol;
 import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 import android.app.Activity;
@@ -20,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -38,6 +40,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	private static final int SHARED_VIP_ACTIVITY_CODE = 235;
 
 	private ArrayList<Node> nodes;
+	private ArrayList<Server> possibleNodes;
 	private LoadBalancer loadBalancer;
 	private Protocol[] protocols;
 	private Protocol selectedProtocol;
@@ -74,6 +77,13 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		else{
 			nodes = new ArrayList<Node>();
 		}
+		
+		if(state != null && state.containsKey("possibleNodes")){
+			possibleNodes = (ArrayList<Server>) state.getSerializable("possibleNodes");
+		}
+		else{
+			possibleNodes = new ArrayList<Server>();
+		}
 
 		setupText();
 		loadProtocolSpinner();
@@ -88,6 +98,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putSerializable("nodes", nodes);
+		outState.putSerializable("possibleNodes", possibleNodes);
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -146,6 +157,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			public void onClick(View v) {
 				Intent viewIntent = new Intent(getApplicationContext(), AddNodesActivity.class);
 				viewIntent.putExtra("nodes", nodes);
+				viewIntent.putExtra("possibleNodes", possibleNodes);
 				startActivityForResult(viewIntent, ADD_NODES_ACTIVITY_CODE);
 			}
 		});
@@ -159,7 +171,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 				//selectedPort = ((EditText)findViewById(R.id.edit_port_text)).getText().toString();
 				if(!validName()){
 					showAlert("Error", "Load balancer name cannot be blank.");
-				} else if(!validPort()){
+				} else if(!validPort(selectedPort)){
 					showAlert("Error", "Must have a protocol port number that is between 1 and 65535.");
 				} else if(!validVip()){
 					showAlert("Error", "Please select a valid Virtual IP.");
@@ -189,20 +201,23 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		return !selectedName.equals("");
 	}
 
-	private boolean validPort(){
-		return !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
+	private boolean validPort(String selectedPort){
+		boolean result;
+		try{
+			result = !selectedPort.equals("") && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536; 
+		} catch (NumberFormatException e){
+			result = false;
+		}
+		return result;
 	}
 
 	private boolean validNodes(){
-		return nodes != null && nodes.size() > 0;
-	}
-
-	private void updateNodesIndicatorLight(){
-		if(validNodes()){
-			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
-		} else {
-			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_notification_overlay,0);
+		boolean exist = nodes != null && nodes.size() > 0;
+		boolean enabled = false;
+		for(Node n: nodes){
+			enabled = enabled || n.getCondition().equalsIgnoreCase("enabled");
 		}
+		return exist && enabled;
 	}
 
 	private boolean validVip(){
@@ -217,6 +232,14 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		return !selectedVipType.equalsIgnoreCase("Shared") 
 		||(selectedVip != null && !selectedVip.getLoadBalancer().getPort().equals(selectedPort) 
 				&& selectedVip.getLoadBalancer().getRegion().equals(selectedRegion));
+	}
+	
+	private void updateNodesIndicatorLight(){
+		if(validNodes()){
+			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+		} else {
+			selectNodesButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_notification_overlay,0);
+		}
 	}
 
 	private void updateVipIndicatorLight(){
@@ -310,7 +333,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 
 		for(int i = 0; i < Algorithm.getAlgorithms().size(); i++){
 			algorithms[i] = Algorithm.getAlgorithms().get(i);
-			algorithmNames[i] = Algorithm.getAlgorithms().get(i).getName();
+			algorithmNames[i] = getPrettyAlgoName(Algorithm.getAlgorithms().get(i).getName());
 		}
 
 		ArrayAdapter<String> algorithmAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, algorithmNames);
@@ -318,6 +341,30 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		algorithmSpinner.setAdapter(algorithmAdapter);
 	}
 
+	private String getPrettyAlgoName(String name){
+		if(name == null || name.length() == 0){
+			return "";
+		} else {
+			String result = name.charAt(0) + "";
+			boolean previousWasSpace = false;;
+			for(int i = 1; i < name.length(); i++){
+				char curLetter = name.charAt(i);
+				if(curLetter == '_'){
+					result += " ";
+					previousWasSpace = true;
+				} else {
+					if(previousWasSpace){
+						result += Character.toUpperCase(curLetter);
+					} else {
+						result += Character.toLowerCase(curLetter);
+					}
+					previousWasSpace = false;
+				}
+			}
+			return result;
+		}
+	}
+	
 	private class AddLoadBalancerTask extends AsyncTask<Void, Void, HttpBundle> {
 		private CloudServersException exception;
 
@@ -361,6 +408,12 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		}
 	}
 
+	private void printNodes(ArrayList<Node> nodes){
+		for(Node n : nodes){
+			Log.d("info", "node is: " + n.getAddress());
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onActivityResult (int requestCode, int resultCode, Intent data){
@@ -368,6 +421,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			//set node list
 			nodes = ((ArrayList<Node>)data.getSerializableExtra("nodes"));
 			updateNodesIndicatorLight();
+			printNodes(nodes);
 		}
 		else if(requestCode == ADD_NODES_ACTIVITY_CODE && resultCode == RESULT_CANCELED){
 			//don't change list

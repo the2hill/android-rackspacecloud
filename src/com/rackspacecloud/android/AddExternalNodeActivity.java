@@ -3,6 +3,8 @@ package com.rackspacecloud.android;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.rackspace.cloud.loadbalancer.api.client.Node;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -27,12 +29,14 @@ public class AddExternalNodeActivity extends CloudActivity {
 	private Spinner conditionSpinner;
 	private EditText ipAddress;
 	private EditText weightText;
-
+	private Node node;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.addexternalnode);
 		weighted = (Boolean) this.getIntent().getExtras().get("weighted");
+		node = (Node) this.getIntent().getExtras().get("node");
 		restoreState(savedInstanceState);
 	} 
 
@@ -42,7 +46,7 @@ public class AddExternalNodeActivity extends CloudActivity {
 	}
 
 	private void setupInputs(){
-
+		
 		ipAddress = (EditText) findViewById(R.id.ip_address);
 		
 		weightText = (EditText) findViewById(R.id.node_weight_text);
@@ -57,6 +61,21 @@ public class AddExternalNodeActivity extends CloudActivity {
 		loadConditionSpinner();
 		setUpButton();
 
+		if(node != null){
+			ipAddress.setText(node.getAddress());
+			weightText.setText(node.getWeight());
+			((EditText)findViewById(R.id.node_port_text)).setText(node.getPort());
+			conditionSpinner.setSelection(getLocation(CONDITIONS, node.getCondition()));
+		}
+	}
+	
+	private int getLocation(Object[] objects, Object object){
+		for(int i = 0; i < objects.length; i++){
+			if(object.equals(objects[i])){
+				return i;
+			}
+		}
+		return 0;
 	}
 
 	private void setUpButton(){
@@ -75,7 +94,7 @@ public class AddExternalNodeActivity extends CloudActivity {
 				} else if(ipAddress.getText().toString().equals("")){
 					//TODO use regex to validate the ip for IPV4 and IPV6
 					showAlert("Error", "Enter an IP Address");
-				} else if(validIp(ipAddress.getText().toString())) {
+				} else if(!validIp(ipAddress.getText().toString())) {
 					showAlert("Error", "Enter a valid IP Address");
 				} else {
 					Intent data = new Intent();
@@ -89,11 +108,6 @@ public class AddExternalNodeActivity extends CloudActivity {
 
 			}
 		});
-	}
-
-	public void onBackPressed(){
-		setResult(RESULT_CANCELED);
-		finish();
 	}
 
 	private void loadConditionSpinner(){
@@ -128,7 +142,13 @@ public class AddExternalNodeActivity extends CloudActivity {
 	}
 
 	private boolean validPort(String port){
-		return !port.equals("") && Integer.valueOf(port) > 0 && Integer.valueOf(port) < 65536;
+		boolean result;
+		try{
+			result = !port.equals("") && Integer.valueOf(port) > 0 && Integer.valueOf(port) < 65536;
+		} catch (NumberFormatException e) {
+	    	result = false;
+	    }
+	    return result;
 	}
 
 	private Boolean validWeight(String weight){
@@ -136,9 +156,19 @@ public class AddExternalNodeActivity extends CloudActivity {
 			return false;
 		}
 		else{
-			int w = Integer.valueOf(weight);
+			int w;
+			try{
+				w = Integer.valueOf(weight);
+			} catch (NumberFormatException e){
+				return false;
+			}
 			return w >= 1 && w <= 100 ;
 		}
+	}
+
+	public void onBackPressed(){
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 
 }
