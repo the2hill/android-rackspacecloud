@@ -68,11 +68,11 @@ public class AddNodesActivity extends CloudListActivity {
 				nodes = new ArrayList<Node>();
 			}
 		}
-		
+
 		if (state != null && state.containsKey("lastCheckedPos")){
 			lastCheckedPos = (Integer) state.getSerializable("lastCheckedPos");
 		}
-		
+
 		if (state != null && state.containsKey("positionOfNode")){
 			positionOfNode = (Integer) state.getSerializable("positionOfNode");
 		}
@@ -146,10 +146,10 @@ public class AddNodesActivity extends CloudListActivity {
 					String[] ipAddresses = getAllIpsOfServer(server);
 
 					Node node = getNodeFromServer(server);
-					
+
 					positionOfNode = findNodePosition(node);
 					lastCheckedPos = position;
-					
+
 					Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
 					viewIntent.putExtra("ipAddresses", ipAddresses);
 					viewIntent.putExtra("name", server.getName());
@@ -162,23 +162,23 @@ public class AddNodesActivity extends CloudListActivity {
 					startActivityForResult(viewIntent, ADD_NODE_CODE);
 				}
 			} else {
-			//When clicked on an external node
-			Server server = possibleNodes.get(position);
-			Node node = getNodeFromServer(server);
-			positionOfNode = findNodePosition(node);
-			lastCheckedPos = position;
-			Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
-			if(node != null){
-				viewIntent.putExtra("node", node);
-			}
-			//weighted is false, because on initial node add
-			//weight is not option
-			viewIntent.putExtra("weighted", false);
-			startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
+				//When clicked on an external node
+				Server server = possibleNodes.get(position);
+				Node node = getNodeFromServer(server);
+				positionOfNode = findNodePosition(node);
+				lastCheckedPos = position;
+				Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
+				if(node != null){
+					viewIntent.putExtra("node", node);
+				}
+				//weighted is false, because on initial node add
+				//weight is not option
+				viewIntent.putExtra("weighted", false);
+				startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
 			}
 		}
 	}
-	
+
 	//return the location of node in nodes
 	//if it is no in there then -1
 	private int findNodePosition(Node node){
@@ -327,9 +327,9 @@ public class AddNodesActivity extends CloudListActivity {
 
 	//returns true if address is an address of
 	//one of the users cloud servers
-	private boolean isCloudServerIp(String address){
+	private boolean ipInList(String address){
 		for(Server s : possibleNodes){
-			if(serverHasIp(s, address)){
+			if(serverHasIp(s, address) && !s.getName().equals("External Node")){
 				return true;
 			}
 		}
@@ -430,7 +430,7 @@ public class AddNodesActivity extends CloudListActivity {
 
 	//removes a node with ip of address from nodes
 	//if one doesnt exists doesn nothing
-	/*private void removeNodeWithIp(String address){
+	private void removeNodeWithIp(String address){
 		for(int i = 0; i < nodes.size(); i++){
 			Node n = nodes.get(i);
 			if(n.getAddress().equals(address)){
@@ -438,7 +438,7 @@ public class AddNodesActivity extends CloudListActivity {
 				break;
 			}
 		}
-	}*/
+	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){	
 		int pos = lastCheckedPos;
@@ -454,7 +454,7 @@ public class AddNodesActivity extends CloudListActivity {
 				if(positionOfNode >= 0){
 					nodes.remove(positionOfNode);
 				}
-				
+
 				Node node = new Node();
 				node.setAddress(data.getStringExtra("nodeIp"));
 				node.setCondition(data.getStringExtra("nodeCondition"));
@@ -488,12 +488,12 @@ public class AddNodesActivity extends CloudListActivity {
 			 * If the ip is from a cloud server, alert to user
 			 * so they can select it from there
 			 */	
-			if(!isCloudServerIp(node.getAddress())){
-				
+			if(!ipInList(node.getAddress())){
+
 				if(positionOfNode >= 0){
 					nodes.remove(positionOfNode);
 				}
-				
+
 				nodes.add(node);
 				//Add it to server list so it display in the listview
 				Server server = new Server();
@@ -503,8 +503,14 @@ public class AddNodesActivity extends CloudListActivity {
 				possibleNodes.add(server);
 				setServerList(possibleNodes);
 			} else {
-				showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
-						+ "\", please select it from the list.");
+				String name = getNameFromIp(node.getAddress());
+				if(name.equals("External Node")){
+					showAlert("Error", "This IP has already been added as an external node, please edit" +
+					"it from the list.");
+				} else {
+					showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
+							+ "\", please edit it from the list.");
+				}
 			}
 		}
 		printTheNodes();

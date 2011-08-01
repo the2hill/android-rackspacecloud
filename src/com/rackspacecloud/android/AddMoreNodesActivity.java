@@ -490,7 +490,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 		return "";
 	}
 
-	private boolean isCloudServerIp(String address){
+	private boolean ipInList(String address){
 		for(Server s : possibleNodes){
 			if(serverHasIp(s, address)){
 				return true;
@@ -573,7 +573,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			 * If the ip is from a cloud server, alert to user
 			 * so they can select it from there
 			 */	
-			if(!isCloudServerIp(node.getAddress())){
+			if(!ipInList(node.getAddress())){
 
 				if(positionOfNode >= 0){
 					nodesToAdd.remove(positionOfNode);
@@ -588,8 +588,14 @@ public class AddMoreNodesActivity extends CloudListActivity {
 				possibleNodes.add(server);
 				setServerList(possibleNodes);
 			} else {
-				showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
-						+ "\", please select it from the list.");
+				String name = getNameFromIp(node.getAddress());
+				if(name.equals("External Node")){
+					showAlert("Error", "This IP has already been added as an external node, please edit" +
+					"it from the list.");
+				} else {
+					showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 
+							+ "\", please edit it from the list.");
+				}
 			}
 		}
 		printTheNodes();

@@ -11,6 +11,7 @@ public class Node extends Entity {
 	private String condition;
 	private String status;
 	private String weight;
+	private Boolean isExternalNode;
 	
 	public String getId() {
 		return id;
@@ -62,6 +63,14 @@ public class Node extends Entity {
 	
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	
+	public boolean isExternalNode(){
+		return isExternalNode;
+	}
+	
+	public void setIsExternalNode(boolean external){
+		isExternalNode = external;
 	}
 	
 }
