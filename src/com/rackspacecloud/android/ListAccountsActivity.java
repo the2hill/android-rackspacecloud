@@ -426,6 +426,7 @@ public class ListAccountsActivity extends ListActivity{
     	
 		@Override
 		protected void onPreExecute(){
+			Log.d("info", "AuthenticateTask Started");
 			showDialog();
 		}
 		
@@ -455,6 +456,7 @@ public class ListAccountsActivity extends ListActivity{
     	
 		@Override
 		protected ArrayList<Image> doInBackground(Void... arg0) {
+			Log.d("info", "LoadImagesTask Started");
 			return (new ImageManager()).createList(true, context);
 		}
     	
@@ -479,6 +481,7 @@ public class ListAccountsActivity extends ListActivity{
 
 		@Override
 		protected ArrayList<Protocol> doInBackground(Void... arg0) {
+			Log.d("info", "LoadProtocolsTask Started");
 			return (new ProtocolManager()).createList(context);
 		}
 
@@ -498,6 +501,7 @@ public class ListAccountsActivity extends ListActivity{
 
 		@Override
 		protected ArrayList<Algorithm> doInBackground(Void... arg0) {
+			Log.d("info", "LoadAlgorithmsTask Started");
 			return (new AlgorithmManager()).createList(context);
 		}
 
@@ -517,6 +521,7 @@ public class ListAccountsActivity extends ListActivity{
     	
 		@Override
 		protected ArrayList<Flavor> doInBackground(Void... arg0) {
+			Log.d("info", "LoadFlavorsTask Started");
 			return (new FlavorManager()).createList(true, context);
 		}
     	
@@ -530,6 +535,7 @@ public class ListAccountsActivity extends ListActivity{
 				}
 				Flavor.setFlavors(flavorMap);
 				hideDialog();
+				Log.d("info", "Starting TabViewIntent");
 				startActivityForResult(tabViewIntent, 187);
 			} else {
 				hideDialog();

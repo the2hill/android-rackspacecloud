@@ -7,9 +7,13 @@
 		android:layout_height="fill_parent">
 
 		<TableRow>
-			<TextView android:id="@+id/label" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:layout_marginTop="5px"
-				android:textColor="#FFFFFF" android:textSize="24sp" />
+			 <TextView android:id="@+id/label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="5px"
+		        android:textColor="#FFFFFF"
+		        android:textSize="24sp" 
+		        android:singleLine="true"/>
 		</TableRow>
 
 		<TableRow>

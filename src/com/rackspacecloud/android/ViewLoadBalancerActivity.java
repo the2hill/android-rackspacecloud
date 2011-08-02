@@ -122,7 +122,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 					editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
 					startActivityForResult(editLoadBalancerIntent, EDIT_LOAD_BALANCER_CODE);
 				} else {
-					showAlert(loadBalancer.getStatus(), "The load balancer cannot be updated");
+					showAlert(loadBalancer.getStatus(), "The load balancer cannot be updated.");
 				}
 			}
 		});
@@ -134,7 +134,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				if(!loadBalancer.getStatus().contains("DELETE")){
 					showDialog(R.id.view_server_delete_button);
 				} else {
-					showAlert(loadBalancer.getStatus(), "The load balancer cannot be deleted");
+					showAlert(loadBalancer.getStatus(), "The load balancer cannot be deleted.");
 				}
 			}
 
@@ -149,7 +149,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 					editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
 					startActivityForResult(editLoadBalancerIntent, EDIT_NODES_CODE);
 				} else {
-					showAlert(loadBalancer.getStatus(), "The nodes cannot be edited");
+					showAlert(loadBalancer.getStatus(), "The nodes cannot be edited.");
 				}
 			}
 		});

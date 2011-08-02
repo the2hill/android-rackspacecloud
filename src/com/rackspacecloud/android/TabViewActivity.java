@@ -5,6 +5,7 @@ package com.rackspacecloud.android;
 
 import android.app.TabActivity;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.TabHost;
 import android.os.Bundle;
 
@@ -17,6 +18,8 @@ public class TabViewActivity extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Log.d("info", "TabViewActivity Started");
 		
 		TabHost tabs = getTabHost();
 		
