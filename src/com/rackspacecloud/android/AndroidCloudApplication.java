@@ -10,6 +10,12 @@ import android.app.Application;
 
 public class AndroidCloudApplication extends Application {
 
+	/*
+	 * these fields act as global fields for the application
+	 * they are used for some async tasks that need this
+	 * data but may lose reference to them on a rotation
+	 */
+	private boolean isLoggingIn;
 	private boolean taskProcessing;
 	private boolean deletingObjectProcessing;
 	private boolean deletingContainerProcessing;
@@ -67,5 +73,13 @@ public class AndroidCloudApplication extends Application {
 			curDirFiles.add(obj);
 		}
 			
+	}
+	
+	public void setIsLoggingIn(boolean logginIn){
+		isLoggingIn = logginIn;
+	}
+	
+	public boolean isLogginIn(){
+		return isLoggingIn;
 	}
 }

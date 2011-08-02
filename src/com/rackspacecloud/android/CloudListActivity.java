@@ -145,7 +145,7 @@ public class CloudListActivity extends ListActivity{
 	protected final void showDialog() {
 		if(pDialog == null || !pDialog.isShowing()){
 			isLoading = true;
-			pDialog = new ProgressDialog(this, R.style.NewDialog);
+			pDialog = new ProgressDialog(this);
 
 			/*
 			 * if back is pressed while dialog is showing it will 

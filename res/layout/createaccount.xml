@@ -1,38 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical">
-	<TextView android:layout_height="wrap_content" android:text="Provider"
-		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
-	<Spinner android:layout_height="wrap_content"
-		android:layout_marginLeft="22dip" android:layout_marginRight="30dip"
-		android:layout_width="fill_parent" android:id="@+id/provider_spinner"></Spinner>
-	<TextView android:layout_height="wrap_content" android:text="Custom Authentication Server"
-		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
-	<EditText android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:text="https://" android:layout_marginLeft="22dip"
-		android:layout_marginRight="30dip" android:id="@+id/custom_auth_server_edit"></EditText>
-	<TextView android:layout_height="wrap_content" android:text="Username"
-		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
-	<EditText android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_marginLeft="22dip"
-		android:layout_marginRight="30dip" android:id="@+id/username"
-		android:singleLine="true"></EditText>
-	<TextView android:layout_height="wrap_content" android:text="API Key"
-		android:layout_marginLeft="22dip" android:layout_width="fill_parent"></TextView>
-	<EditText android:layout_height="wrap_content"
-		android:layout_width="fill_parent" android:layout_marginLeft="22dip"
-		android:layout_marginRight="30dip" android:scrollHorizontally="true"
-		android:autoText="false" android:capitalize="none" android:gravity="fill_horizontal"
-		android:singleLine="true" android:imeOptions="actionGo"
-		android:inputType="textNoSuggestions" android:password="true"
-		android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/addaccount_apikey"/>
-	<LinearLayout android:layout_height="wrap_content"
-		android:layout_width="fill_parent" android:layout_marginTop="10dip">
-		<Button android:layout_marginLeft="22dip"
-			android:layout_height="wrap_content" android:text="Save"
-			android:id="@+id/submit_new_account" android:layout_width="100dip"></Button>
-		<CheckBox android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="Show API Key" android:id="@+id/show_clear"></CheckBox>
+	<LinearLayout android:id="@+id/linearLayout1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="5dip" android:paddingBottom="5dip">
+		<TextView android:layout_marginLeft="22dip" android:text="Provider" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
+		<Spinner android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:id="@+id/provider_spinner" android:layout_width="fill_parent" android:layout_height="wrap_content"></Spinner>
+		<TextView android:layout_marginLeft="22dip" android:text="Custom Authentication Server" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
+		<EditText android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:text="https://" android:layout_width="fill_parent" android:id="@+id/custom_auth_server_edit">
+			<requestFocus></requestFocus>
+		</EditText>
+		<TextView android:layout_marginLeft="22dip" android:text="Username" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
+		<EditText android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:layout_width="fill_parent" android:singleLine="true" android:id="@+id/username"></EditText>
+		<TextView android:layout_marginLeft="22dip" android:text="API Key" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
+		<EditText android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:inputType="textNoSuggestions" android:scrollHorizontally="true" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:capitalize="none" android:gravity="fill_horizontal" android:password="true" android:autoText="false" android:layout_width="fill_parent" android:singleLine="true" android:imeOptions="actionGo" android:id="@+id/addaccount_apikey"></EditText>
+		<LinearLayout android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="wrap_content">
+			<Button android:id="@+id/submit_new_account" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:layout_width="100dip" android:text="Save"></Button>
+			<CheckBox android:text="Show API Key" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/show_clear"></CheckBox>
+		</LinearLayout>
 	</LinearLayout>
-</LinearLayout>
+</ScrollView>
