@@ -58,9 +58,6 @@ public class ListAccountsActivity extends GaListActivity{
 	private Context context;
 	//need to store if the user has successfully logged in
 	private boolean loggedIn;
-	private AuthenticateTask authTask;
-	private LoadImagesTask imageTask;
-	private LoadFlavorsTask flavorTask;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -272,8 +269,7 @@ public class ListAccountsActivity extends GaListActivity{
 	public void login() {
 		//showActivityIndicators();
 		//setLoginPreferences();
-		authTask = new AuthenticateTask();
-		authTask.execute((Void[]) null);
+		new AuthenticateTask().execute((Void[]) null);
 	}
 
 	//setup menu for when menu button is pressed
@@ -413,23 +409,6 @@ public class ListAccountsActivity extends GaListActivity{
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
 			dialog = ProgressDialog.show(ListAccountsActivity.this, "", "Authenticating...", true);
-			dialog.setCancelable(true);
-			dialog.setOnCancelListener(new OnCancelListener() {
-				
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					if(authTask != null){ 
-						authTask.cancel(true);
-					}
-					if(imageTask != null){
-						imageTask.cancel(true);
-					}
-					if(flavorTask != null){
-						flavorTask.cancel(true);
-					}
-					hideDialog();
-				}
-			});
 		}
     }
     
@@ -460,8 +439,7 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPostExecute(Boolean result) {
 			if (result.booleanValue()) {
 				//startActivity(tabViewIntent);
-				imageTask = new LoadImagesTask();
-				imageTask.execute((Void[]) null);
+				new LoadImagesTask().execute((Void[]) null);
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
@@ -526,8 +504,7 @@ public class ListAccountsActivity extends GaListActivity{
 					return;
 				}
 				
-				flavorTask = new LoadFlavorsTask();
-				flavorTask.execute((Void[]) null);
+				new LoadFlavorsTask().execute((Void[]) null);
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
