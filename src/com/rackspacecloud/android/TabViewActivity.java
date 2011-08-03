@@ -35,7 +35,7 @@ public class TabViewActivity extends TabActivity {
 		
 		spec = tabs.newTabSpec("tab3");
 		spec.setContent(new Intent(this, ListLoadBalancersActivity.class));
-		spec.setIndicator("LoadBalancers", getResources().getDrawable(R.drawable.load_balancers_icon));
+		spec.setIndicator("Load Balancers", getResources().getDrawable(R.drawable.load_balancers_icon));
 		tabs.addTab(spec);
 	}
 	
