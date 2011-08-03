@@ -51,6 +51,9 @@ import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser
  * @author Phillip Toohill
  * 
  */
+
+//doesn't extend cloud activity because of the complex
+//dialog management needed for the listeners
 public class ContainerObjectsActivity extends GaListActivity {
 
 	private static final int deleteContainer = 0;

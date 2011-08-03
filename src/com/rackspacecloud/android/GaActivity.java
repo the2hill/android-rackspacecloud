@@ -42,7 +42,7 @@ public class GaActivity extends Activity {
 	private GoogleAnalyticsTracker tracker;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		startTracker();
 	}

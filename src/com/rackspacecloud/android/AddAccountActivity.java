@@ -1,7 +1,5 @@
 package com.rackspacecloud.android;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
@@ -15,7 +13,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class AddAccountActivity extends GaActivity implements OnClickListener{
+public class AddAccountActivity extends CloudActivity implements OnClickListener{
 	
 	private final String[] PROVIDERS = {"Rackspace Cloud (US)", "Rackspace Cloud (UK)", "Custom"};
 	private EditText usernameText;
@@ -128,21 +126,6 @@ public class AddAccountActivity extends GaActivity implements OnClickListener{
 		}
 		return authServer;
 	}
-	
-	private void showAlert(String title, String message) {
-    	try {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-	      public void onClick(DialogInterface dialog, int which) {
-	        return;
-	    } }); 
-		alert.show();
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    }
 	
 	private boolean hasValidInput() {
     	String username = usernameText.getText().toString();

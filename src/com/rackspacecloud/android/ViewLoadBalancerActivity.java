@@ -562,7 +562,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;	
 			try {
-				bundle = (new LoadBalancerManager(context)).setLogging(loadBalancer, !Boolean.valueOf(loadBalancer.getIsConnectionLoggingEnabled()));
+				bundle = (new LoadBalancerManager(getContext())).setLogging(loadBalancer, !Boolean.valueOf(loadBalancer.getIsConnectionLoggingEnabled()));
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -609,9 +609,9 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			try {
 				String currentSetting = loadBalancer.getSessionPersistence();
 				if(currentSetting == null){
-					bundle = (new LoadBalancerManager(context)).setSessionPersistence(loadBalancer, "HTTP_COOKIE");
+					bundle = (new LoadBalancerManager(getContext())).setSessionPersistence(loadBalancer, "HTTP_COOKIE");
 				} else {
-					bundle = (new LoadBalancerManager(context)).disableSessionPersistence(loadBalancer);
+					bundle = (new LoadBalancerManager(getContext())).disableSessionPersistence(loadBalancer);
 				}
 			} catch (CloudServersException e) {
 				exception = e;

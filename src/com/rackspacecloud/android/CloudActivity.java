@@ -19,7 +19,6 @@ import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -39,9 +38,9 @@ import android.widget.Toast;
  * Also provides many accessory methods that are common
  * to Activities
  */
-public abstract class CloudActivity extends Activity{
+public abstract class CloudActivity extends GaActivity{
 
-	protected Context context;
+	private Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
 	
@@ -56,7 +55,7 @@ public abstract class CloudActivity extends Activity{
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-	
+
 		outState.putBoolean("isLoading", isLoading);
 		
 		if(pDialog != null && pDialog.isShowing()){
@@ -143,7 +142,6 @@ public abstract class CloudActivity extends Activity{
 	}
 
 	protected final void hideDialog() {
-
 		if(pDialog != null){
 			isLoading = false;
 			pDialog.dismiss();

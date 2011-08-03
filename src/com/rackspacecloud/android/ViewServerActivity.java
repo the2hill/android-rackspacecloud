@@ -3,27 +3,14 @@
  */
 package com.rackspacecloud.android;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -38,7 +25,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
@@ -46,21 +32,18 @@ import com.rackspace.cloud.servers.api.client.Image;
 import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.ServerManager;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
 /**
  * @author Mike Mayo - mike.mayo@rackspace.com - twitter.com/greenisus
  *
  */
-public class ViewServerActivity extends GaActivity {
+public class ViewServerActivity extends CloudActivity {
 
 	private Server server;
 	private boolean ipAddressesLoaded; // to prevent polling from loading tons of duplicates
 	private Flavor[] flavors;
 	private String[] flavorNames;
 	private String selectedFlavorId;
-	Context context;
-	//private boolean imageLoaded;
 	private String modifiedServerName;
 	private Image[] images;
 	private String[] imageNames;
@@ -76,7 +59,6 @@ public class ViewServerActivity extends GaActivity {
 		super.onCreate(savedInstanceState);
 		trackPageView(PAGE_SERVER);
 		server = (Server) this.getIntent().getExtras().get("server");
-		context = getApplicationContext();
 		setContentView(R.layout.viewserver);
 		restoreState(savedInstanceState);
 	}
@@ -92,7 +74,8 @@ public class ViewServerActivity extends GaActivity {
 		outState.putBoolean("wasPolling", isPolling);
 	}
 
-	private void restoreState(Bundle state) {
+	protected void restoreState(Bundle state) {
+		super.restoreState(state);
 		if(state != null && state.containsKey("noAskForConfirm")){
 			noAskForConfirm = state.getBoolean("noAskForConfirm");
 		}
@@ -110,21 +93,6 @@ public class ViewServerActivity extends GaActivity {
 		loadFlavors();
 		loadImages();
 	}
-
-
-	/*
-    private void loadImage() {
-    	// hate to do this, but devices run out of memory after a few rotations
-    	// because the background images are so large
-    	if (!imageLoaded) {
-    		ImageView osLogo = (ImageView) findViewById(R.id.view_server_os_logo);
-    		osLogo.setAlpha(100);
-    		osLogo.setImageResource(server.getImage().logoResourceId());
-    		imageLoaded = true;
-    	}
-
-    }
-	 */  
 
 	/*
 	 * need to manage the polling task
@@ -334,13 +302,6 @@ public class ViewServerActivity extends GaActivity {
 
 	}
 
-	private void showToast(String message) {
-		Context context = getApplicationContext();
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
-	}
-
 	/**
 	 * @return the server
 	 */
@@ -373,14 +334,6 @@ public class ViewServerActivity extends GaActivity {
 		}	
 		return false;
 	} 
-
-	private void startServerError(String message, HttpBundle bundle){
-		Intent viewIntent = new Intent(getApplicationContext(), ServerErrorActivity.class);
-		viewIntent.putExtra("errorMessage", message);
-		viewIntent.putExtra("response", bundle.getResponseText());
-		viewIntent.putExtra("request", bundle.getCurlRequest());
-		startActivity(viewIntent);
-	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -526,36 +479,6 @@ public class ViewServerActivity extends GaActivity {
 
 	}
 
-	private CloudServersException parseCloudServersException(HttpResponse response) {
-		CloudServersException cse = new CloudServersException();
-		try {
-			BasicResponseHandler responseHandler = new BasicResponseHandler();
-			String body = responseHandler.handleResponse(response);
-			CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-			xmlReader.setContentHandler(parser);
-			xmlReader.parse(new InputSource(new StringReader(body)));		    	
-			cse = parser.getException();		    	
-		} catch (ClientProtocolException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (IOException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (ParserConfigurationException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (SAXException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (FactoryConfigurationError e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		}
-		return cse;
-	}
-
 	// HTTP request tasks
 
 	private class PollServerTask extends AsyncTask<Void, Void, Server> {
@@ -573,7 +496,7 @@ public class ViewServerActivity extends GaActivity {
 				return null;
 			}
 			try {
-				tempServer = (new ServerManager()).find(Integer.parseInt(server.getId()), context);
+				tempServer = (new ServerManager()).find(Integer.parseInt(server.getId()), getContext());
 			} catch (NumberFormatException e) {
 				// we're polling, so need to show exceptions
 			} catch (CloudServersException e) {
@@ -613,7 +536,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new ServerManager()).reboot(server, ServerManager.SOFT_REBOOT, context);
+				bundle = (new ServerManager()).reboot(server, ServerManager.SOFT_REBOOT, getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -629,13 +552,13 @@ public class ViewServerActivity extends GaActivity {
 				if (statusCode != 202) {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem rebooting your server.", bundle);
+						showError("There was a problem rebooting your server.", bundle);
 					} else {
-						startServerError("There was a problem rebooting your server: " + cse.getMessage(), bundle);
+						showError("There was a problem rebooting your server: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startServerError("There was a problem rebooting your server: " + exception.getMessage(), bundle);
+				showError("There was a problem rebooting your server: " + exception.getMessage(), bundle);
 
 			}
 		}
@@ -655,7 +578,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;		
 			try {
-				bundle = (new ServerManager()).reboot(server, ServerManager.HARD_REBOOT, context);
+				bundle = (new ServerManager()).reboot(server, ServerManager.HARD_REBOOT, getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -671,13 +594,13 @@ public class ViewServerActivity extends GaActivity {
 				if (statusCode != 202) {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem rebooting your server.", bundle);
+						showError("There was a problem rebooting your server.", bundle);
 					} else {
-						startServerError("There was a problem rebooting your server: " + cse.getMessage(), bundle);
+						showError("There was a problem rebooting your server: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startServerError("There was a problem rebooting your server: " + exception.getMessage(), bundle);
+				showError("There was a problem rebooting your server: " + exception.getMessage(), bundle);
 
 			}
 		}
@@ -696,7 +619,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;	
 			try {
-				bundle = (new ServerManager()).resize(server, Integer.parseInt(selectedFlavorId), context);
+				bundle = (new ServerManager()).resize(server, Integer.parseInt(selectedFlavorId), getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -714,13 +637,13 @@ public class ViewServerActivity extends GaActivity {
 				} else {					
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem resizing your server.", bundle);
+						showError("There was a problem resizing your server.", bundle);
 					} else {
-						startServerError("There was a problem resizing your server: " + cse.getMessage(), bundle);
+						showError("There was a problem resizing your server: " + cse.getMessage(), bundle);
 					}					
 				}
 			} else if (exception != null) {
-				startServerError("There was a problem resizing your server: " + exception.getMessage(), bundle);
+				showError("There was a problem resizing your server: " + exception.getMessage(), bundle);
 
 			}
 
@@ -741,7 +664,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new ServerManager()).delete(server, context);
+				bundle = (new ServerManager()).delete(server, getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -760,13 +683,13 @@ public class ViewServerActivity extends GaActivity {
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem deleting your server.", bundle);
+						showError("There was a problem deleting your server.", bundle);
 					} else {
-						startServerError("There was a problem deleting your server: " + cse.getMessage(), bundle);
+						showError("There was a problem deleting your server: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startServerError("There was a problem deleting your server: " + exception.getMessage(), bundle);				
+				showError("There was a problem deleting your server: " + exception.getMessage(), bundle);				
 			}			
 		}
 	}
@@ -785,7 +708,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new ServerManager()).rename(server, modifiedServerName, context);
+				bundle = (new ServerManager()).rename(server, modifiedServerName, getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -804,14 +727,14 @@ public class ViewServerActivity extends GaActivity {
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem renaming your server.", bundle);
+						showError("There was a problem renaming your server.", bundle);
 					} else {
-						startServerError("There was a problem renaming your server: " + cse.getMessage(), bundle);
+						showError("There was a problem renaming your server: " + cse.getMessage(), bundle);
 					}					
 				}
 			}
 			else if (exception != null) {
-				startServerError("There was a problem renaming your server: " + exception.getMessage(), bundle);	
+				showError("There was a problem renaming your server: " + exception.getMessage(), bundle);	
 			}
 		}
 
@@ -830,7 +753,7 @@ public class ViewServerActivity extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
 			try {
-				bundle = (new ServerManager()).rebuild(server, Integer.parseInt(selectedImageId), context);
+				bundle = (new ServerManager()).rebuild(server, Integer.parseInt(selectedImageId), getContext());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -848,13 +771,13 @@ public class ViewServerActivity extends GaActivity {
 				} else {					
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startServerError("There was a problem rebuilding your server.", bundle);
+						showError("There was a problem rebuilding your server.", bundle);
 					} else {
-						startServerError("There was a problem rebuilding your server: " + cse.getMessage(), bundle);
+						showError("There was a problem rebuilding your server: " + cse.getMessage(), bundle);
 					}					
 				}
 			} else if (exception != null) {
-				startServerError("There was a problem rebuilding your server: " + exception.getMessage(), bundle);
+				showError("There was a problem rebuilding your server: " + exception.getMessage(), bundle);
 			}
 
 		}

@@ -2,7 +2,6 @@ package com.rackspacecloud.android;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -10,9 +9,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 
-public class CreatePasswordActivity extends GaActivity {
+public class CreatePasswordActivity extends CloudActivity {
 
 	private PasswordManager pwManager;
 	private EditText passwordText;
@@ -29,7 +27,8 @@ public class CreatePasswordActivity extends GaActivity {
 		restoreState(savedInstanceState);
 	}
 
-	private void restoreState(Bundle state) {
+	protected void restoreState(Bundle state) {
+		super.restoreState(state);
 		if (state != null && state.containsKey("isChecked")) {
 			isChecked = state.getBoolean("isChecked");
 		}
@@ -216,24 +215,4 @@ public class CreatePasswordActivity extends GaActivity {
 		return !passwordText.getText().toString().equals("") 
 		|| !confirmText.getText().toString().equals("");
 	}
-
-	private void showToast(String message) {
-		Context context = getApplicationContext();
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
-	}
-
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			}
-		});
-		alert.show();
-	}
-
 }

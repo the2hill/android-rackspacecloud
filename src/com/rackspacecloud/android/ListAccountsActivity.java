@@ -49,6 +49,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+//
 public class ListAccountsActivity extends GaListActivity{
 
 	private final int PASSWORD_PROMPT = 123;

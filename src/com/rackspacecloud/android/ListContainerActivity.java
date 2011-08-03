@@ -111,7 +111,7 @@ public class ListContainerActivity extends GaListActivity {
 
 	private void displayNoServersCell() {
 		String a[] = new String[1];
-		a[0] = "No Files";
+		a[0] = "No Containers";
 		setListAdapter(new ArrayAdapter<String>(this,
 				R.layout.nocontainerscell, R.id.no_containers_label, a));
 		getListView().setTextFilterEnabled(true);

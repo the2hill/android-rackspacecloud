@@ -20,7 +20,6 @@ import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,7 +31,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class CloudListActivity extends ListActivity{
+public class CloudListActivity extends GaListActivity{
 
 	protected Context context;
 	private boolean isLoading;
