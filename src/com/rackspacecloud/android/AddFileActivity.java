@@ -180,11 +180,11 @@ public class AddFileActivity extends GaActivity implements OnClickListener{
 					if ("".equals(cse.getMessage())) {
 						startFileError("There was a problem creating your file.", bundle);
 					} else {
-						startFileError("There was a problem creating your file: " + cse.getMessage() + " Check file name and try again", bundle);
+						startFileError("There was a problem creating your file: " + cse.getMessage() +  " See details for more information", bundle);
 					}
 				}
 			} else if (exception != null) {
-				startFileError("There was a problem creating your file: " + exception.getMessage()+" Check file name and try again", bundle);				
+				startFileError("There was a problem creating your file: " + exception.getMessage()+ " See details for more information", bundle);				
 			}			
 		}
     }

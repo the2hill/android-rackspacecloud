@@ -13,7 +13,6 @@
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-
 		<activity android:name=".TabViewActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -82,6 +81,35 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name=".ActivityChooser" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.APPLICATION" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".LoadBalancersActivity"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.APPLICATION" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".ListLoadBalancersActivity"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.APPLICATION" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".ViewLoadBalancerActivity"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.APPLICATION" />
+			</intent-filter>
+		</activity>
+
+
 		<activity android:name=".Preferences" android:label="@string/preference_name" />
 		<activity android:name=".BackupServerActivity"></activity>
 		<activity android:name=".PasswordServerActivity"></activity>
@@ -97,9 +125,21 @@
 		<activity android:name=".ContactActivity"></activity>
 		<activity android:name=".CreatePasswordActivity"></activity>
 		<activity android:name=".AddFileActivity"></activity>
-		<activity android:name=".ServerErrorActivity" android:theme="@android:style/Theme.Dialog" android:noHistory="true"></activity>
+		<activity android:name=".ServerErrorActivity" android:theme="@android:style/Theme.Dialog"
+			android:noHistory="true"></activity>
 		<activity android:name=".ErrorDetailsActivity"></activity>
-		<activity android:name=".ConfirmResizeActivity" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name=".ConfirmResizeActivity"
+			android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name=".AddLoadBalancerActivity"></activity>
+		<activity android:name=".AddNodesActivity"></activity>
+		<activity android:name=".AddNodeActivity"></activity>
+		<activity android:name=".EditNodeActivity" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name=".EditNodesActivity"></activity>
+		<activity android:name=".EditLoadBalancerActivity"></activity>
+		<activity android:name=".AddMoreNodesActivity"></activity>
+		<activity android:name=".AddExternalNodeActivity"></activity>
+		<activity android:name=".SharedVipActivity"></activity>
+
 
 
 	</application>

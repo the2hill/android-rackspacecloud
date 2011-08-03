@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_height="fill_parent"
+	android:layout_width="fill_parent">
+	<LinearLayout android:layout_height="wrap_content"
+		android:id="@+id/linearLayout1" android:orientation="vertical"
+		android:layout_width="fill_parent">
+		<TextView android:id="@+id/node_name" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:text="CentOS1"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_marginLeft="10dip" android:layout_marginTop="10dip"></TextView>
+		<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="IP Address"
+			android:layout_marginLeft="10dip" android:layout_marginTop="10dip"></TextView>
+		<Spinner android:layout_height="wrap_content"
+			android:layout_width="fill_parent" android:layout_marginLeft="20dip"
+			android:layout_marginRight="30dip" android:id="@+id/node_ip_spinner"></Spinner>
+		<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_marginLeft="10dip"
+			android:text="Port"></TextView>
+		<EditText android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:inputType="number"
+			android:layout_marginLeft="20dip" android:layout_marginRight="30dip"
+			android:id="@+id/node_port_text">
+			<requestFocus></requestFocus>
+		</EditText>
+		<TextView android:layout_width="wrap_content" android:id="@+id/TextView01"
+			android:layout_marginLeft="10dip" android:layout_height="wrap_content"
+			android:text="Condition"></TextView>
+		<Spinner android:layout_marginLeft="20dip"
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:layout_marginRight="30dip" android:id="@+id/node_condition_spinner"></Spinner>
+		<TextView android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip" android:id="@+id/node_weight_label"
+			android:layout_width="wrap_content" android:text="Weight"></TextView>
+		<EditText android:layout_height="wrap_content"
+			android:layout_marginRight="30dip" android:layout_marginLeft="20dip"
+			android:inputType="number" android:layout_width="fill_parent"
+			android:id="@+id/node_weight_text"></EditText>
+		<Button android:layout_gravity="center_horizontal"
+			android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
+			android:layout_width="120dip" android:text="Submit" android:id="@+id/add_node_button"
+			android:layout_height="wrap_content"></Button>
+	</LinearLayout>
+
+</ScrollView>

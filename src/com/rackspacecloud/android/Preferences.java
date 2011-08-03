@@ -29,6 +29,10 @@ public class Preferences extends PreferenceActivity{
     public static final String COUNTRY_US_AUTH_SERVER = "https://auth.api.rackspacecloud.com/v1.0";
     public static final String COUNTRY_UK_AUTH_SERVER = "https://lon.auth.api.rackspacecloud.com/v1.0";
     
+    //Regions
+    public static final String[] US_REGIONS = {"ORD", "DFW"};
+    public static final String[] UK_REGIONS = {"LON"};
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         getPreferenceManager().setSharedPreferencesName(SHARED_PREFERENCES_NAME);

@@ -5,6 +5,7 @@ package com.rackspacecloud.android;
 
 import android.app.TabActivity;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.TabHost;
 import android.os.Bundle;
 
@@ -18,6 +19,8 @@ public class TabViewActivity extends TabActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Log.d("info", "TabViewActivity Started");
+		
 		TabHost tabs = getTabHost();
 		
 		TabHost.TabSpec spec = tabs.newTabSpec("tab1");		
@@ -28,6 +31,11 @@ public class TabViewActivity extends TabActivity {
 		spec = tabs.newTabSpec("tab2");
 		spec.setContent(new Intent(this, ListContainerActivity.class));
 		spec.setIndicator("Cloud Files", getResources().getDrawable(R.drawable.cloudfiles));
+		tabs.addTab(spec);
+		
+		spec = tabs.newTabSpec("tab3");
+		spec.setContent(new Intent(this, ListLoadBalancersActivity.class));
+		spec.setIndicator("Load Balancers", getResources().getDrawable(R.drawable.load_balancers_icon));
 		tabs.addTab(spec);
 	}
 	

@@ -46,6 +46,7 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 	private Server server;
 	private SeekBar numberBar;
 	private TextView numberDisplay;
+	private String extension;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -55,16 +56,21 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 		setContentView(R.layout.createserver);
 		serverName = (EditText) findViewById(R.id.server_name);
 		((Button) findViewById(R.id.save_button)).setOnClickListener(this);
+		((TextView)findViewById(R.id.names_number)).setText("        ");
+		setUpNameText();
 		loadImageSpinner();
 		loadFlavorSpinner();
 		loadServerCount();
+	}
+
+	private void setUpNameText(){
+		serverName = (EditText) findViewById(R.id.server_name);
 	}
 
 	private void loadServerCount(){
 		numberDisplay = (TextView)findViewById(R.id.server_count_text);
 		numberBar = (SeekBar)findViewById(R.id.number_of_servers);
 		numberBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub
@@ -82,13 +88,16 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 					boolean fromUser) {
 				// TODO Auto-generated method stub
 				numberDisplay.setText(getCountText(progress));
-				TextView number = (TextView)findViewById(R.id.server_name_number);
 				if(progress == 0){
-					number.setText("");
+					extension = "        ";
+				}
+				else if(progress == 9){
+					extension = "[1.." + (progress + 1) + "]";
 				}
 				else{
-					number.setText("[1.." + (progress+1) + "]");
+					extension = "[1.." + (progress + 1) + "] ";
 				}
+				((TextView)findViewById(R.id.names_number)).setText(extension);
 			}
 
 			private String getCountText(int i){

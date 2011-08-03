@@ -10,6 +10,10 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.FlavorManager;
@@ -56,6 +60,8 @@ public class ListAccountsActivity extends GaListActivity{
 	private Intent tabViewIntent;
 	private ProgressDialog dialog;
 	private Context context;
+	private AndroidCloudApplication app;
+
 	//need to store if the user has successfully logged in
 	private boolean loggedIn;
 
@@ -74,6 +80,7 @@ public class ListAccountsActivity extends GaListActivity{
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("authenticating", authenticating);
 		outState.putBoolean("loggedIn", loggedIn);
+		outState.putSerializable("accounts", accounts);
 
 		//need to set authenticating back to true because it is set to false
 		//in hideDialog()
@@ -84,22 +91,30 @@ public class ListAccountsActivity extends GaListActivity{
 		writeAccounts();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected void onRestoreInstanceState(Bundle state) {		
+	protected void onRestoreInstanceState(Bundle state) {
+
+		/*
+		 * need reference to the app so you can access
+		 * isLoggingIn
+		 */
+		app = (AndroidCloudApplication)this.getApplication();
+		
 		if (state != null && state.containsKey("loggedIn")){
 			loggedIn = state.getBoolean("loggedIn");
 		}
 		else{
 			loggedIn = false;
 		}
+
 		if (state != null && state.containsKey("authenticating") && state.getBoolean("authenticating")) {
-			Log.d("info", "captin on restore show");
 			showDialog();
 		} else {
 			hideDialog();
 		}
 		if (state != null && state.containsKey("accounts")) {
-			accounts = readAccounts();
+			accounts = (ArrayList<Account>)state.getSerializable("accounts");
 			if (accounts.size() == 0) {
 				displayNoAccountsCell();
 			} else {
@@ -123,7 +138,6 @@ public class ListAccountsActivity extends GaListActivity{
 	protected void onStop(){
 		super.onStop();
 		if(authenticating){
-			Log.d("info", "captin onstop called");
 			hideDialog();
 			authenticating = true;
 		}
@@ -230,7 +244,7 @@ public class ListAccountsActivity extends GaListActivity{
 			@SuppressWarnings("unchecked")
 			ArrayList<Account> file = (ArrayList<Account>)in.readObject();
 			in.close();
-			return file;
+			return file; 
 		} catch (FileNotFoundException e) {
 			//showAlert("Error", "Could not load accounts.");
 			e.printStackTrace();
@@ -385,39 +399,30 @@ public class ListAccountsActivity extends GaListActivity{
 			loadAccounts();
 		}
 	}	
-	/*
-	private void setActivityIndicatorsVisibility(int visibility) {
-		//FINISH THIS TO LET USER KNOW PROGRAM IS STILL WORKING
-
-        //ProgressBar pb = new ProgressBar();
-    	//TextView tv = (TextView) findViewById(R.id.login_authenticating_label);
-        //pb.setVisibility(visibility);
-        //tv.setVisibility(visibility);
-    }
-
-	private void setActivityIndicatorsVisibility(int visibility, View v) {
-		//FINISH THIS TO LET USER KNOW PROGRAM IS STILL WORKING
-
-        //ProgressBar pb = new ProgressBar();
-    	//TextView tv = (TextView) findViewById(R.id.login_authenticating_label);
-        //pb.setVisibility(visibility);
-        //tv.setVisibility(visibility);
-    }
-	 */
 
 	private void showDialog() {
+		app.setIsLoggingIn(true);
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
 			dialog = ProgressDialog.show(ListAccountsActivity.this, "", "Authenticating...", true);
+			dialog.setCancelable(true);
+			dialog.setOnCancelListener(new OnCancelListener() {
+
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					app.setIsLoggingIn(false);
+					hideDialog();
+				}
+			});
 		}
-    }
-    
-    private void hideDialog() {
-    	if(dialog != null){
-    		dialog.dismiss();
-    	}
-    	authenticating = false;
-    }
+	}
+
+	private void hideDialog() {
+		if(dialog != null){
+			dialog.dismiss();
+		}
+		authenticating = false;
+	}
 
 	private class AuthenticateTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -432,17 +437,97 @@ public class ListAccountsActivity extends GaListActivity{
 				return false;
 			}
 			return new Boolean(Authentication.authenticate(context));
-			//return true;
 		}
 
 		@Override
 		protected void onPostExecute(Boolean result) {
 			if (result.booleanValue()) {
 				//startActivity(tabViewIntent);
-				new LoadImagesTask().execute((Void[]) null);
+				if(app.isLogginIn()){
+					new LoadImagesTask().execute((Void[]) null);
+				} else {
+					hideDialog();
+				}
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
+			}
+		}
+	}
+
+	private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
+ 
+		@Override
+		protected ArrayList<Image> doInBackground(Void... arg0) {
+			Log.d("info", "LoadImagesTask Started");
+			return (new ImageManager()).createList(true, context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Image> result) {
+			if (result != null && result.size() > 0) {
+				TreeMap<String, Image> imageMap = new TreeMap<String, Image>();
+				for (int i = 0; i < result.size(); i++) {
+					Image image = result.get(i);
+					imageMap.put(image.getId(), image);
+				}
+				Image.setImages(imageMap);
+				if(app.isLogginIn()){
+					new LoadProtocolsTask().execute((Void[]) null); 
+				} else {
+					hideDialog();
+				}
+			} else {
+				hideDialog();
+				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+			}
+		}
+	}
+
+	private class LoadProtocolsTask extends AsyncTask<Void, Void, ArrayList<Protocol>> {
+
+		@Override
+		protected ArrayList<Protocol> doInBackground(Void... arg0) {
+			Log.d("info", "LoadProtocolsTask Started");
+			return (new ProtocolManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Protocol> result) {
+			if (result != null && result.size() > 0) {
+				Protocol.setProtocols(result);
+				if(app.isLogginIn()){
+					new LoadAlgorithmsTask().execute((Void[]) null);
+				} else {
+					hideDialog();
+				}
+			} else {
+				hideDialog();
+				showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+			}
+		}
+	}
+
+	private class LoadAlgorithmsTask extends AsyncTask<Void, Void, ArrayList<Algorithm>> {
+
+		@Override
+		protected ArrayList<Algorithm> doInBackground(Void... arg0) {
+			Log.d("info", "LoadAlgorithmsTask Started");
+			return (new AlgorithmManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Algorithm> result) {
+			if (result != null && result.size() > 0) {
+				Algorithm.setAlgorithms(result);
+				if(app.isLogginIn()){
+					new LoadFlavorsTask().execute((Void[]) null);
+				} else {
+					hideDialog();
+				}
+			} else {
+				hideDialog();
+				showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
 			}
 		}
 	}
@@ -451,6 +536,7 @@ public class ListAccountsActivity extends GaListActivity{
 
 		@Override
 		protected ArrayList<Flavor> doInBackground(Void... arg0) {
+			Log.d("info", "LoadFlavorsTask Started");
 			return (new FlavorManager()).createList(true, context);
 		}
 
@@ -471,7 +557,12 @@ public class ListAccountsActivity extends GaListActivity{
 					return;
 				}
 				hideDialog();
-				startActivityForResult(tabViewIntent, 187);
+				Log.d("info", "Starting TabViewIntent");
+				if(app.isLogginIn()){
+					startActivityForResult(tabViewIntent, 187);
+				} else {
+					hideDialog();
+				}
 			} else {
 				hideDialog();
 				showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
@@ -479,38 +570,6 @@ public class ListAccountsActivity extends GaListActivity{
 		}
 	}
 
-	private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
-
-		@Override
-		protected ArrayList<Image> doInBackground(Void... arg0) {
-			return (new ImageManager()).createList(true, context);
-		}
-
-		@Override
-		protected void onPostExecute(ArrayList<Image> result) {
-			if(isCancelled()){
-				return;
-			}
-			
-			if (result != null && result.size() > 0) {
-				TreeMap<String, Image> imageMap = new TreeMap<String, Image>();
-				for (int i = 0; i < result.size(); i++) {
-					Image image = result.get(i);
-					imageMap.put(image.getId(), image);
-				}
-				Image.setImages(imageMap);
-				
-				if(isCancelled()){
-					return;
-				}
-				
-				new LoadFlavorsTask().execute((Void[]) null);
-			} else {
-				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
-			}
-		}
-	}
 
 	private void showAlert(String title, String message) {
 		AlertDialog alert = new AlertDialog.Builder(this).create();

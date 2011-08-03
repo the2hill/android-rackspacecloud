@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspacecloud.android.Preferences;
 
 /**
  * @author Mike Mayo - mike.mayo@rackspace.com - twitter.com/greenisus
@@ -35,6 +36,14 @@ public class Authentication {
 		    	Account.getAccount().setStorageUrl(resp.getFirstHeader("X-Storage-Url").getValue());
 		    	Account.getAccount().setStorageToken(resp.getFirstHeader("X-Storage-Token").getValue());
 		    	Account.getAccount().setCdnManagementUrl(resp.getFirstHeader("X-Cdn-Management-Url").getValue());
+		    	
+		    	//Set the available regions for the account
+		    	if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+		    		Account.getAccount().setLoadBalancerRegions(Preferences.UK_REGIONS);
+		    	} else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		    		Account.getAccount().setLoadBalancerRegions(Preferences.US_REGIONS);
+		    	}
+		    	
 		    	return true;
 		    } else {
 		    	Log.d("status code", Integer.toString(resp.getStatusLine().getStatusCode()));

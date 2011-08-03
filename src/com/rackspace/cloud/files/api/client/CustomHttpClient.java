@@ -1,7 +1,6 @@
 package com.rackspace.cloud.files.api.client;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -27,10 +26,10 @@ import java.security.KeyStore;
  *         other version than 2.3.1.
  */
 public class CustomHttpClient extends DefaultHttpClient {
-	
-	private static KeyStore trusted;
-	final Context context; 
-	 
+
+	final Context context;
+	static KeyStore trusted;
+
 	public CustomHttpClient(Context context) {
 		super();
 		this.context = context;
@@ -47,9 +46,9 @@ public class CustomHttpClient extends DefaultHttpClient {
 
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			if (trusted == null) {
+			if(trusted == null){
 				trusted = KeyStore.getInstance("BKS");
-				InputStream in = context.getResources().openRawResource(R.raw.android231); 
+				InputStream in = context.getResources().openRawResource(R.raw.android231);
 				try {
 					trusted.load(in, "changeit".toCharArray());
 				} finally {
