@@ -169,7 +169,7 @@ public class SharedVipActivity extends CloudListActivity {
 		protected ArrayList<LoadBalancer> doInBackground(Void... arg0) {
 			ArrayList<LoadBalancer> loadBalancers = null;
 			try {
-				loadBalancers = (new LoadBalancerManager(context)).createList();
+				loadBalancers = (new LoadBalancerManager(getContext())).createList();
 			} catch (LoadBalancersException e) {
 				exception = e;
 			}

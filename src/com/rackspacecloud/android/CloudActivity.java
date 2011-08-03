@@ -80,6 +80,23 @@ public abstract class CloudActivity extends GaActivity{
 		
 	}
 	
+	@Override
+	protected void onStart(){
+		super.onStart();
+		if(isLoading){
+			showDialog();
+		}
+	}
+	
+	@Override
+	protected void onStop(){
+		super.onStop();
+		if(isLoading){
+			hideDialog();
+			isLoading = true;
+		}
+	}
+	
 	protected final void showAlert(String title, String message) {
 		try {
 			AlertDialog alert = new AlertDialog.Builder(this).create();
@@ -152,6 +169,7 @@ public abstract class CloudActivity extends GaActivity{
 		if(pDialog == null || !pDialog.isShowing()){
 			isLoading = true;
 			pDialog = new ProgressDialog(this);
+			pDialog.setProgressStyle(R.style.NewDialog);
 
 			/*
 			 * if back is pressed while dialog is showing it will 
@@ -163,7 +181,6 @@ public abstract class CloudActivity extends GaActivity{
 					finish();
 				}
 			});
-
 			pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 			pDialog.show();
 			pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));

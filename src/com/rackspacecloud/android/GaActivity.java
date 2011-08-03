@@ -5,7 +5,6 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 public class GaActivity extends Activity {
 	
@@ -49,18 +48,13 @@ public class GaActivity extends Activity {
 	
 	public void startTracker(){
 		if(!"google_sdk".equals(Build.PRODUCT) && !"sdk".equals(Build.PRODUCT)){
-			Log.d("tracker", "Creating Tracker");
 			tracker = GoogleAnalyticsTracker.getInstance();
 			tracker.start(Config.WEB_PROPERTY_ID, 20, this);
-		}
-		else{
-			Log.d("tracker", "Not Creating Tracker");
 		}
 	}
 	
 	public void trackPageView(String page){
 		if(tracker != null){
-			Log.d("tracker", "Tracking pageview: " + page);
 			tracker.trackPageView(page);
 		}
 	}
@@ -75,7 +69,6 @@ public class GaActivity extends Activity {
 
 	public void trackEvent(String category, String action, String label, int value){
 		if(tracker != null){
-			Log.d("tracker", "Tracking event: " + category + " " + action);
 			tracker.trackEvent(category, action, label, value);
 		}
 	}

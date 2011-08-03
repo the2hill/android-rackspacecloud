@@ -1,36 +1,21 @@
 package com.rackspacecloud.android;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MenuItem; 
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -44,7 +29,6 @@ import com.rackspace.cloud.files.api.client.ContainerObjectManager;
 import com.rackspace.cloud.files.api.client.ContainerObjects;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
 /**
  * 
@@ -52,9 +36,7 @@ import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser
  * 
  */
 
-//doesn't extend cloud activity because of the complex
-//dialog management needed for the listeners
-public class ContainerObjectsActivity extends GaListActivity {
+public class ContainerObjectsActivity extends CloudListActivity {
 
 	private static final int deleteContainer = 0;
 	private static final int deleteFolder = 1;
@@ -67,11 +49,8 @@ public class ContainerObjectsActivity extends GaListActivity {
 	public Object kiloBytes;
 	public int bConver = 1048576;
 	public int kbConver = 1024;
-	private Context context;
-	private String currentPath;
 	private boolean loadingFiles;
-	private boolean displayDialog;
-	private ProgressDialog dialog;
+	private String currentPath;
 	private AndroidCloudApplication app;
 	private AddObjectListenerTask task;
 	private DeleteObjectListenerTask deleteObjTask;
@@ -82,8 +61,6 @@ public class ContainerObjectsActivity extends GaListActivity {
 		super.onCreate(savedInstanceState);
 		trackPageView(PAGE_FOLDER);
 		container = (Container) this.getIntent().getExtras().get("container");
-		Log.v(LOG, "CDNEnabled:" + container.isCdnEnabled());
-		context = getApplicationContext();
 		if (container.isCdnEnabled() == true) {
 			cdnEnabledIs = "true";
 		} else {
@@ -102,36 +79,19 @@ public class ContainerObjectsActivity extends GaListActivity {
 		//current path represents where you have "navigated" to
 		outState.putString("path", currentPath);
 		
-		//stores state if you are loading or not 
 		outState.putBoolean("loadingFiles", loadingFiles);
-		
-		//stores whether dialog is showing or not
-		outState.putBoolean("displayDialog", displayDialog);
-		
-		//need to set authenticating back to true because it is set to false
-		//in hideDialog()
-		if(displayDialog){
-			hideDialog();
-			displayDialog = true;
-		}
 	}
 
 
 
-	private void restoreState(Bundle state) {
-		
+	protected void restoreState(Bundle state) {
+		super.restoreState(state);
 		
 		/*
 		 * need reference to the app so you can access curDirFiles
 		 * as well as processing status
 		 */
 		app = (AndroidCloudApplication)this.getApplication();
-
-		if (state != null && state.containsKey("displayDialog") && state.getBoolean("displayDialog")) {
-    		showDialog();
-    	} else {
-    		hideDialog();
-    	}
 		
 		if(state != null){
 			if(state.containsKey("path")){
@@ -187,22 +147,8 @@ public class ContainerObjectsActivity extends GaListActivity {
 	}
 	
 	@Override
-	protected void onStart(){
-		super.onStart();
-		if(displayDialog){
-			showDialog();
-		}
-	}
-
-	
-	@Override
 	protected void onStop(){
 		super.onStop();
-
-		if(displayDialog){
-			hideDialog();
-			displayDialog = true;
-		}
 
 		/*
 		 * Need to stop running listener task
@@ -341,26 +287,6 @@ public class ContainerObjectsActivity extends GaListActivity {
 		getListView().setDividerHeight(0); // hide the dividers so it won't look
 											// like a list row
 		getListView().setItemsCanFocus(false);
-	}
-
-
-	private void showAlert(String title, String message) {
-		// Can't create handler inside thread that has not called
-		// Looper.prepare()
-		// Looper.prepare();
-		try {
-			AlertDialog alert = new AlertDialog.Builder(this).create();
-			alert.setTitle(title);
-			alert.setMessage(message);
-			alert.setButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					return;
-				}
-			});
-			alert.show();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	/* just get the last part of the filename
@@ -579,59 +505,6 @@ public class ContainerObjectsActivity extends GaListActivity {
 		
 	}
 
-	private CloudServersException parseCloudServersException(
-			HttpResponse response) {
-		CloudServersException cse = new CloudServersException();
-		try {
-			BasicResponseHandler responseHandler = new BasicResponseHandler();
-			String body = responseHandler.handleResponse(response);
-			CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-			xmlReader.setContentHandler(parser);
-			xmlReader.parse(new InputSource(new StringReader(body)));
-			cse = parser.getException();
-		} catch (ClientProtocolException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (IOException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (ParserConfigurationException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (SAXException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (FactoryConfigurationError e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		}
-		return cse;
-	}
-
-	private void startFileError(String message, HttpBundle bundle){
-		Intent viewIntent = new Intent(getApplicationContext(), ServerErrorActivity.class);
-		viewIntent.putExtra("errorMessage", message);
-		viewIntent.putExtra("response", bundle.getResponseText());
-		viewIntent.putExtra("request", bundle.getCurlRequest());
-		startActivity(viewIntent);
-	}
-	
-	private void showDialog() {
-		if(dialog == null || !dialog.isShowing()){
-			displayDialog = true;
-			dialog = ProgressDialog.show(ContainerObjectsActivity.this, "", "Loading...", true);
-		}
-    }
-    
-    private void hideDialog() {
-    	if(dialog != null){
-    		dialog.dismiss();
-    	}
-    	displayDialog = false;
-    }
-
 	class FileAdapter extends ArrayAdapter<ContainerObjects> {
 		FileAdapter() {
 			super(ContainerObjectsActivity.this,
@@ -669,16 +542,17 @@ public class ContainerObjectsActivity extends GaListActivity {
 	AsyncTask<String, Void, ArrayList<ContainerObjects>> {
 
 		private CloudServersException exception;
+		
 		protected void onPreExecute(){
 			showDialog();
-			loadingFiles = true; 
+			loadingFiles = true;
 		}
 
 		@Override
 		protected ArrayList<ContainerObjects> doInBackground(String... path) {
 			ArrayList<ContainerObjects> files = null;
 			try {
-				files = (new ContainerObjectManager(context)).createList(true,
+				files = (new ContainerObjectManager(getContext())).createList(true,
 						container.getName());
 			} catch (CloudServersException e) {
 				exception = e;
@@ -689,15 +563,14 @@ public class ContainerObjectsActivity extends GaListActivity {
 
 		@Override
 		protected void onPostExecute(ArrayList<ContainerObjects> result) {
+			loadingFiles = false;
 			hideDialog();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());
 			}
-
 			setFileList(result);
 			loadCurrentDirectoryFiles();
 			displayCurrentFiles();
-			loadingFiles = false;
 		}
 
 	}
@@ -720,7 +593,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 			HttpBundle bundle = null;
 			try {
 				
-				bundle = (new ContainerObjectManager(context)).addObject(container.getName(), currentPath, data[0], data[1]);
+				bundle = (new ContainerObjectManager(getContext())).addObject(container.getName(), currentPath, data[0], data[1]);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -730,6 +603,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
 			app.setAddingObject(false);
+			hideDialog();
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
@@ -737,18 +611,16 @@ public class ContainerObjectsActivity extends GaListActivity {
 					setResult(Activity.RESULT_OK);
 					//loading the new files is done by ListenerTask
 				} else {
-					hideDialog();
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startFileError("There was a problem deleting your folder.", bundle);
+						showError("There was a problem deleting your folder.", bundle);
 					} else {
-						startFileError("There was a problem deleting your folder: "
+						showError("There was a problem deleting your folder: "
 								+ cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				hideDialog();
-				startFileError("There was a problem deleting your folder: "
+				showError("There was a problem deleting your folder: "
 						+ exception.getMessage(), bundle);
 			}
 		}
@@ -772,7 +644,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 			HttpBundle bundle = null;
 			try {
 				//subtring because the current directory contains a "/" at the end of the string
-				bundle = (new ContainerObjectManager(context)).deleteObject(container.getName(), currentPath.substring(0, currentPath.length()-1));
+				bundle = (new ContainerObjectManager(getContext())).deleteObject(container.getName(), currentPath.substring(0, currentPath.length()-1));
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -782,29 +654,27 @@ public class ContainerObjectsActivity extends GaListActivity {
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
 			app.setDeleteingObject(false);
+			hideDialog();
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
 				if (statusCode == 409) {
-					hideDialog();
 					showAlert("Error",
 					"Folder must be empty in order to delete");
 				}
 				if (statusCode == 204) {
 					setResult(Activity.RESULT_OK);
 				} else {
-					hideDialog();
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startFileError("There was a problem deleting your folder.", bundle);
+						showError("There was a problem deleting your folder.", bundle);
 					} else {
-						startFileError("There was a problem deleting your folder: "
+						showError("There was a problem deleting your folder: "
 								+ cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				hideDialog();
-				startFileError("There was a problem deleting your folder: "
+				showError("There was a problem deleting your folder: "
 						+ exception.getMessage(), bundle);
 			}
 		}
@@ -816,7 +686,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 		private CloudServersException exception;
 
 		@Override
-		protected void onPreExecute(){
+		protected void onPreExecute(){ 
 			showDialog();
 			app.setDeletingContainer(true);
 			deleteContainerTask = new DeleteContainerListenerTask();
@@ -827,8 +697,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 		protected HttpBundle doInBackground(String... object) {
 			HttpBundle bundle = null;
 			try {
-				
-				bundle = (new ContainerManager(context)).delete(container.getName());
+				bundle = (new ContainerManager(getContext())).delete(container.getName());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -843,7 +712,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
 				if (statusCode == 409) {
-					startFileError("Container must be empty in order to delete", bundle);
+					showError("Container must be empty in order to delete", bundle);
 				}
 				if (statusCode == 204) {
 					setResult(Activity.RESULT_OK);
@@ -851,14 +720,14 @@ public class ContainerObjectsActivity extends GaListActivity {
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startFileError("There was a problem deleting your container.", bundle);
+						showError("There was a problem deleting your container.", bundle);
 					} else {
-						startFileError("There was a problem deleting your container: "
+						showError("There was a problem deleting your container: "
 								+ cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startFileError("There was a problem deleting your server: "
+				showError("There was a problem deleting your server: "
 						+ exception.getMessage(), bundle);
 			}
 		}
@@ -891,6 +760,7 @@ public class ContainerObjectsActivity extends GaListActivity {
 		 */
 		@Override
 		protected void onPostExecute(Void arg1) {
+			hideDialog();
 			loadFiles();
 		}
 	}

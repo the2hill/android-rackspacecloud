@@ -46,7 +46,6 @@ public class LoadBalancerManager extends EntityManager {
 	}
 
 	public LoadBalancer getLoadBalancerById(long id) throws LoadBalancersException {
-		Log.d("info", "the id is " + id);
 		LoadBalancer loadBalancer = null;
 		//First try DFW
 		try{
@@ -72,7 +71,7 @@ public class LoadBalancerManager extends EntityManager {
 		if(loadBalancer == null){
 			try{
 				loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerLONUrl());
-				loadBalancer.setRegion("ORD");
+				loadBalancer.setRegion("LON");
 			}
 			catch(LoadBalancersException lbe){
 				throw lbe;

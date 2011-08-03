@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 public class CloudListActivity extends GaListActivity{
 
-	protected Context context;
+	private Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
 	
@@ -145,7 +145,8 @@ public class CloudListActivity extends GaListActivity{
 		if(pDialog == null || !pDialog.isShowing()){
 			isLoading = true;
 			pDialog = new ProgressDialog(this);
-
+			pDialog.setProgressStyle(R.style.NewDialog);
+			
 			/*
 			 * if back is pressed while dialog is showing it will 
 			 * still finish the activity

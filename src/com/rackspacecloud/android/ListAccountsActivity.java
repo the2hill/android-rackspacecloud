@@ -38,7 +38,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
@@ -46,6 +48,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,7 +58,7 @@ public class ListAccountsActivity extends GaListActivity{
 	private final int PASSWORD_PROMPT = 123;
 	private final String FILENAME = "accounts.data";
 	private static final String PAGE_ROOT = "/Root";
-
+	
 	private boolean authenticating;
 	private ArrayList<Account> accounts;
 	private Intent tabViewIntent;
@@ -405,8 +408,8 @@ public class ListAccountsActivity extends GaListActivity{
 		app.setIsLoggingIn(true);
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
-			dialog = ProgressDialog.show(ListAccountsActivity.this, "", "Authenticating...", true);
-			dialog.setCancelable(true);
+			dialog = new ProgressDialog(this);
+			dialog.setProgressStyle(R.style.NewDialog);
 			dialog.setOnCancelListener(new OnCancelListener() {
 
 				@Override
@@ -415,7 +418,12 @@ public class ListAccountsActivity extends GaListActivity{
 					hideDialog();
 				}
 			});
+			dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+			dialog.show();
+			dialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		}
+
+		
 	}
 
 	private void hideDialog() {

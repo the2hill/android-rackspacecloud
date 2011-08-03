@@ -194,7 +194,7 @@ public class AddNodesActivity extends CloudListActivity {
 	private void displayNoServersCell() {
 		String a[] = new String[1];
 		a[0] = "No Nodes";
-		setListAdapter(new ArrayAdapter<String>(this, R.layout.noserverscell, R.id.no_servers_label, a));
+		setListAdapter(new ArrayAdapter<String>(this, R.layout.nonodescell, R.id.no_nodes_label, a));
 		getListView().setTextFilterEnabled(true);
 		getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
 		getListView().setItemsCanFocus(false);
