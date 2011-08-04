@@ -2,7 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/RelativeLayout" android:layout_height="fill_parent" android:layout_width="fill_parent">
     <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Filename" android:id="@+id/filename_textview" android:layout_marginLeft="22dip"></TextView>
-    <EditText android:id="@+id/file_name_text" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_below="@+id/filename_textview" android:layout_marginLeft="22dip" android:layout_marginRight="30dip"></EditText>
+    <EditText android:id="@+id/file_name_text" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_below="@+id/filename_textview" android:layout_marginLeft="22dip" android:layout_marginRight="30dip" android:lines="1" android:scrollHorizontally="true"></EditText>
     <TextView android:layout_below="@+id/file_name_text" android:layout_height="wrap_content" android:id="@+id/file_contents_view" android:layout_width="wrap_content" android:text="File Content" android:layout_marginLeft="22dip"></TextView>
     <EditText android:layout_width="fill_parent" android:id="@+id/new_file_text" android:layout_above="@+id/add_text_file_buttons" android:layout_height="fill_parent" android:layout_below="@+id/file_contents_view" android:layout_marginLeft="22dip" android:layout_marginRight="30dip" android:gravity="top"></EditText>
     <LinearLayout android:layout_height="wrap_content" android:id="@+id/add_text_file_buttons" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_alignParentBottom="true">
