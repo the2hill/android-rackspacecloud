@@ -65,6 +65,9 @@ public class ListAccountsActivity extends GaListActivity{
 	private ProgressDialog dialog;
 	private Context context;
 	private AndroidCloudApplication app;
+	//used to track the current asynctask
+	@SuppressWarnings("rawtypes")
+	private AsyncTask task;
 
 	//need to store if the user has successfully logged in
 	private boolean loggedIn;
@@ -415,6 +418,8 @@ public class ListAccountsActivity extends GaListActivity{
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					app.setIsLoggingIn(false);
+					//need to cancel the old task or we may get a double login
+					task.cancel(true);
 					hideDialog();
 				}
 			});
@@ -437,14 +442,13 @@ public class ListAccountsActivity extends GaListActivity{
 
 		@Override
 		protected void onPreExecute(){
+			Log.d("info", "Starting authenticate");
+			task = this;
 			showDialog();
 		}
 
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			if(isCancelled()){
-				return false;
-			}
 			return new Boolean(Authentication.authenticate(context));
 		}
 
@@ -452,14 +456,16 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPostExecute(Boolean result) {
 			if (result.booleanValue()) {
 				//startActivity(tabViewIntent);
-				if(app.isLogginIn()){
+				if(app.isLoggingIn()){
 					new LoadImagesTask().execute((Void[]) null);
 				} else {
 					hideDialog();
 				}
 			} else {
 				hideDialog();
-				showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
+				}
 			}
 		}
 	}
@@ -467,8 +473,13 @@ public class ListAccountsActivity extends GaListActivity{
 	private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
  
 		@Override
+		protected void onPreExecute(){
+			Log.d("info", "Starting Images");
+			task = this;
+		}
+		
+		@Override
 		protected ArrayList<Image> doInBackground(Void... arg0) {
-			Log.d("info", "LoadImagesTask Started");
 			return (new ImageManager()).createList(true, context);
 		}
 
@@ -481,14 +492,16 @@ public class ListAccountsActivity extends GaListActivity{
 					imageMap.put(image.getId(), image);
 				}
 				Image.setImages(imageMap);
-				if(app.isLogginIn()){
+				if(app.isLoggingIn()){
 					new LoadProtocolsTask().execute((Void[]) null); 
 				} else {
 					hideDialog();
 				}
 			} else {
 				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+				}
 			}
 		}
 	}
@@ -496,8 +509,13 @@ public class ListAccountsActivity extends GaListActivity{
 	private class LoadProtocolsTask extends AsyncTask<Void, Void, ArrayList<Protocol>> {
 
 		@Override
+		protected void onPreExecute(){
+			Log.d("info", "Starting protcols");
+			task = this;
+		}
+		
+		@Override
 		protected ArrayList<Protocol> doInBackground(Void... arg0) {
-			Log.d("info", "LoadProtocolsTask Started");
 			return (new ProtocolManager()).createList(context);
 		}
 
@@ -505,23 +523,29 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPostExecute(ArrayList<Protocol> result) {
 			if (result != null && result.size() > 0) {
 				Protocol.setProtocols(result);
-				if(app.isLogginIn()){
+				if(app.isLoggingIn()){
 					new LoadAlgorithmsTask().execute((Void[]) null);
 				} else {
 					hideDialog();
 				}
 			} else {
 				hideDialog();
-				showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+				}
 			}
 		}
 	}
 
 	private class LoadAlgorithmsTask extends AsyncTask<Void, Void, ArrayList<Algorithm>> {
 
+		protected void onPreExecute(){
+			Log.d("info", "Starting algorithms");
+			task = this;
+		}
+		
 		@Override
 		protected ArrayList<Algorithm> doInBackground(Void... arg0) {
-			Log.d("info", "LoadAlgorithmsTask Started");
 			return (new AlgorithmManager()).createList(context);
 		}
 
@@ -529,32 +553,34 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPostExecute(ArrayList<Algorithm> result) {
 			if (result != null && result.size() > 0) {
 				Algorithm.setAlgorithms(result);
-				if(app.isLogginIn()){
+				if(app.isLoggingIn()){
 					new LoadFlavorsTask().execute((Void[]) null);
 				} else {
 					hideDialog();
 				}
 			} else {
 				hideDialog();
-				showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
+				}
 			}
 		}
 	}
 
 	private class LoadFlavorsTask extends AsyncTask<Void, Void, ArrayList<Flavor>> {
 
+		protected void onPreExecute(){
+			Log.d("info", "Starting flavors");
+			task = this;
+		}
+		
 		@Override
 		protected ArrayList<Flavor> doInBackground(Void... arg0) {
-			Log.d("info", "LoadFlavorsTask Started");
 			return (new FlavorManager()).createList(true, context);
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<Flavor> result) {
-			if(isCancelled()){
-				return;
-			}
-			
 			if (result != null && result.size() > 0) {
 				TreeMap<String, Flavor> flavorMap = new TreeMap<String, Flavor>();
 				for (int i = 0; i < result.size(); i++) {
@@ -562,19 +588,15 @@ public class ListAccountsActivity extends GaListActivity{
 					flavorMap.put(flavor.getId(), flavor);
 				}
 				Flavor.setFlavors(flavorMap);
-				if(isCancelled()){
-					return;
-				}
 				hideDialog();
-				Log.d("info", "Starting TabViewIntent");
-				if(app.isLogginIn()){
+				if(app.isLoggingIn()){
 					startActivityForResult(tabViewIntent, 187);
-				} else {
-					hideDialog();
 				}
 			} else {
 				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
+				}
 			}
 		}
 	}

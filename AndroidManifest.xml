@@ -139,6 +139,7 @@
 		<activity android:name=".AddMoreNodesActivity"></activity>
 		<activity android:name=".AddExternalNodeActivity"></activity>
 		<activity android:name=".SharedVipActivity"></activity>
+		<activity android:name=".ConnectionThrottleActivity"></activity>
 
 
 

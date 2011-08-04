@@ -79,7 +79,7 @@ public class AndroidCloudApplication extends Application {
 		isLoggingIn = logginIn;
 	}
 	
-	public boolean isLogginIn(){
+	public boolean isLoggingIn(){
 		return isLoggingIn;
 	}
 }
