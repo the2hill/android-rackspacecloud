@@ -41,7 +41,8 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 	private final int EDIT_LOAD_BALANCER_CODE = 184;
 	private final int EDIT_NODES_CODE = 185;
 	private final int EDIT_THROTTLE_CODE = 186;
-	
+	private final int EDIT_ACCESS_CONTROL_CODE = 187;
+
 	private final String DELETED = "DELETED";
 
 	private LoadBalancer loadBalancer;
@@ -118,86 +119,101 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 	//then parts of it may be null, so use a different
 	//onClick in that condition
 	private void setUpButtons(){
-		setupButton(R.id.edit_loadbalancer_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					Intent editLoadBalancerIntent = new Intent(getContext(), EditLoadBalancerActivity.class);
-					editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
-					startActivityForResult(editLoadBalancerIntent, EDIT_LOAD_BALANCER_CODE);
-				} else {
-					showAlert(loadBalancer.getStatus(), "The load balancer cannot be updated.");
-				}
-			}
-		});
-
-
-		setupButton(R.id.delete_loadbalancer_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					showDialog(R.id.view_server_delete_button);
-				} else {
-					showAlert(loadBalancer.getStatus(), "The load balancer cannot be deleted.");
-				}
-			}
-
-		});
-
-		setupButton(R.id.edit_nodes_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					Intent editLoadBalancerIntent = new Intent(getContext(), EditNodesActivity.class);
-					editLoadBalancerIntent.putExtra("nodes", loadBalancer.getNodes());
-					editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
-					startActivityForResult(editLoadBalancerIntent, EDIT_NODES_CODE);
-				} else {
-					showAlert(loadBalancer.getStatus(), "The nodes cannot be edited.");
-				}
-			}
-		});
-
-		setupButton(R.id.connection_log_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					showDialog(R.id.connection_log_button);	
-				} else {
-					showAlert(loadBalancer.getStatus(), "Log settings cannot be edited.");	
-				}
-			}
-		});
-		setLogButtonText();
-
-		setupButton(R.id.session_persistence_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					if(!loadBalancer.getProtocol().equals("HTTP")){
-						showAlert("Error", "Session Persistence cannot be enabled for protocols other than HTTP.");
+		if(loadBalancer != null){
+			setupButton(R.id.edit_loadbalancer_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						Intent editLoadBalancerIntent = new Intent(getContext(), EditLoadBalancerActivity.class);
+						editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
+						startActivityForResult(editLoadBalancerIntent, EDIT_LOAD_BALANCER_CODE);
 					} else {
-						showDialog(R.id.session_persistence_button);
+						showAlert(loadBalancer.getStatus(), "The load balancer cannot be updated.");
 					}
-				} else {
-					showAlert(loadBalancer.getStatus(), "Session Persistence cannot be edited.");	
 				}
-			}
-		});
-		setSessionButtonText();
-		
-		setupButton(R.id.connection_throttle_button, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!loadBalancer.getStatus().contains(DELETED)){
-					Intent editLoadBalancerIntent = new Intent(getContext(), ConnectionThrottleActivity.class);
-					editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
-					startActivityForResult(editLoadBalancerIntent, EDIT_THROTTLE_CODE);
-				} else {
-					showAlert(loadBalancer.getStatus(), "Connection Throttle cannot be edited.");
+			});
+
+
+			setupButton(R.id.delete_loadbalancer_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						showDialog(R.id.view_server_delete_button);
+					} else {
+						showAlert(loadBalancer.getStatus(), "The load balancer cannot be deleted.");
+					}
 				}
-			}
-		});
+
+			});
+
+			setupButton(R.id.edit_nodes_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						Intent editLoadBalancerIntent = new Intent(getContext(), EditNodesActivity.class);
+						editLoadBalancerIntent.putExtra("nodes", loadBalancer.getNodes());
+						editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
+						startActivityForResult(editLoadBalancerIntent, EDIT_NODES_CODE);
+					} else {
+						showAlert(loadBalancer.getStatus(), "The nodes cannot be edited.");
+					}
+				}
+			});
+
+			setupButton(R.id.connection_log_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						showDialog(R.id.connection_log_button);	
+					} else {
+						showAlert(loadBalancer.getStatus(), "Log settings cannot be edited.");	
+					}
+				}
+			});
+			setLogButtonText();
+
+			setupButton(R.id.session_persistence_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						if(!loadBalancer.getProtocol().equals("HTTP")){
+							showAlert("Error", "Session Persistence cannot be enabled for protocols other than HTTP.");
+						} else {
+							showDialog(R.id.session_persistence_button);
+						}
+					} else {
+						showAlert(loadBalancer.getStatus(), "Session Persistence cannot be edited.");	
+					}
+				}
+			});
+			setSessionButtonText();
+
+			setupButton(R.id.connection_throttle_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						Intent editLoadBalancerIntent = new Intent(getContext(), ConnectionThrottleActivity.class);
+						editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
+						startActivityForResult(editLoadBalancerIntent, EDIT_THROTTLE_CODE);
+					} else {
+						showAlert(loadBalancer.getStatus(), "Connection Throttle cannot be edited.");
+					}
+				}
+			});
+
+			setupButton(R.id.access_control_button, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(!loadBalancer.getStatus().contains(DELETED)){
+						Intent editLoadBalancerIntent = new Intent(getContext(), AccessControlActivity.class);
+						editLoadBalancerIntent.putExtra("loadBalancer", loadBalancer);
+						startActivityForResult(editLoadBalancerIntent, EDIT_ACCESS_CONTROL_CODE);
+					} else {
+						showAlert(loadBalancer.getStatus(), "Access Control cannot be edited.");
+					}
+				}
+			});
+		}
 	}
 
 	@Override
@@ -349,7 +365,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			loadVirutalIpData();
 		}
 	}
-	
+
 	private String getPrettyAlgoName(String name){
 		if(name == null || name.length() == 0){
 			return "";

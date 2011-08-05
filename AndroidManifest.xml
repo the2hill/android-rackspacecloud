@@ -140,6 +140,8 @@
 		<activity android:name=".AddExternalNodeActivity"></activity>
 		<activity android:name=".SharedVipActivity"></activity>
 		<activity android:name=".ConnectionThrottleActivity"></activity>
+		<activity android:name=".AccessControlActivity"></activity>
+		<activity android:name=".AddAccessRuleActivity"></activity>
 
 
 

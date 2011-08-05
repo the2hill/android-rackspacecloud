@@ -136,9 +136,13 @@ public class AddExternalNodeActivity extends CloudActivity {
 	//is only composed of letters, numbers, ., :
 	private static boolean validIp(String ip){
 		//Enter regex
-		Pattern pattern = Pattern.compile("[a-zA-Z0-9.:]+");
-		Matcher match = pattern.matcher(ip);
-		return match.matches();
+		if(ip != null){
+			Pattern pattern = Pattern.compile("[a-zA-Z0-9.:]+");
+			Matcher match = pattern.matcher(ip);
+			return match.matches();
+		} else {
+			return false;
+		}
 	}
 
 	private boolean validPort(String port){

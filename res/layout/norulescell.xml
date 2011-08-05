@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="264dip"
+    >
+    
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="125px"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        
+        android:textSize="24sp" android:id="@+id/no_rules_label" android:text="No Rules"/>
+
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10px"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:textSize="12sp" android:id="@+id/no_rules_sublabel" android:text="Press the button below to create a new rule."/>
+        
+</LinearLayout>

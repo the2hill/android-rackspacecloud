@@ -187,7 +187,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
-				if (statusCode == 202) {
+				if (statusCode == 202 || statusCode == 200) {
 					setResult(Activity.RESULT_OK);
 					finish();
 				} else {
@@ -230,7 +230,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
-				if (statusCode == 202) {
+				if (statusCode == 202 || statusCode == 200) {
 					setResult(Activity.RESULT_OK);
 					finish();
 				} else {
