@@ -69,7 +69,7 @@ public class LoadBalancer extends Entity {
 		 * null
 		 */
 		if(protocol != null){
-			this.protocol = protocol.toUpperCase();
+			this.protocol = protocol;
 		} else {
 			this.protocol = "";
 		}

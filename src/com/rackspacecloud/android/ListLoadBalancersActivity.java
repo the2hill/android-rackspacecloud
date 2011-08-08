@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -138,6 +139,13 @@ public class ListLoadBalancersActivity extends ListActivity {
 			LayoutInflater inflater = getLayoutInflater();
 			View row = inflater.inflate(R.layout.list_loadbalancer_item,
 					parent, false);
+			
+			ImageView status = (ImageView) row.findViewById(R.id.load_balancer_status);
+			if(loadBalancer.getStatus().equals("DELETED") || loadBalancer.getStatus().equals("PENDING_DELETE")){
+				status.setImageResource(R.drawable.deny_rule);
+			} else {
+				status.setImageResource(R.drawable.allow_rule);
+			}
 	
 			TextView label = (TextView) row.findViewById(R.id.label);
 			label.setText(loadBalancer.getName());

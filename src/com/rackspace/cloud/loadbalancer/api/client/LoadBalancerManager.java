@@ -45,68 +45,75 @@ public class LoadBalancerManager extends EntityManager {
 		this.context = context;
 	}
 
-	public LoadBalancer getLoadBalancerById(long id) throws LoadBalancersException {
+	public LoadBalancer getLoadBalancerById(long id)
+			throws LoadBalancersException {
 		LoadBalancer loadBalancer = null;
-		//First try DFW
-		try{
-			loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerDFWUrl());
+		// First try DFW
+		try {
+			loadBalancer = getLoadBalancerById(id,
+					Account.getLoadBalancerDFWUrl());
 			loadBalancer.setRegion("DFW");
-		} catch(LoadBalancersException lbe){
-			//Didn't work
+		} catch (LoadBalancersException lbe) {
+			// Didn't work
 
 		}
 
-		//Then try ORD
-		if(loadBalancer == null){
-			try{
-				loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerORDUrl());
+		// Then try ORD
+		if (loadBalancer == null) {
+			try {
+				loadBalancer = getLoadBalancerById(id,
+						Account.getLoadBalancerORDUrl());
 				loadBalancer.setRegion("ORD");
-			}
-			catch(LoadBalancersException lbe){
+			} catch (LoadBalancersException lbe) {
 
 			}
 		}
 
-		//Then try LON
-		if(loadBalancer == null){
-			try{
-				loadBalancer = getLoadBalancerById(id, Account.getLoadBalancerLONUrl());
+		// Then try LON
+		if (loadBalancer == null) {
+			try {
+				loadBalancer = getLoadBalancerById(id,
+						Account.getLoadBalancerLONUrl());
 				loadBalancer.setRegion("LON");
-			}
-			catch(LoadBalancersException lbe){
+			} catch (LoadBalancersException lbe) {
 				throw lbe;
 			}
 		}
 		return loadBalancer;
 	}
 
-	private LoadBalancer getLoadBalancerById(long id, String url) throws LoadBalancersException {
+	private LoadBalancer getLoadBalancerById(long id, String url)
+			throws LoadBalancersException {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(url + Account.getAccount().getAccountId() + "/loadbalancers/" + id);
+		HttpGet get = new HttpGet(url + Account.getAccount().getAccountId()
+				+ "/loadbalancers/" + id);
 		LoadBalancer loadBalancer = new LoadBalancer();
 
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		get.addHeader("Accept", "application/xml");
 
-		try {			
-			HttpResponse resp = httpclient.execute(get);		    
+		try {
+			HttpResponse resp = httpclient.execute(get);
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
 
-			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
+			if (resp.getStatusLine().getStatusCode() == 200
+					|| resp.getStatusLine().getStatusCode() == 202) {
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
-				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				SAXParser saxParser = SAXParserFactory.newInstance()
+						.newSAXParser();
 				XMLReader xmlReader = saxParser.getXMLReader();
 				xmlReader.setContentHandler(loadBalancersXMLParser);
-				xmlReader.parse(new InputSource(new StringReader(body)));		    	
-				loadBalancer = loadBalancersXMLParser.getLoadBalancer();		    	
+				xmlReader.parse(new InputSource(new StringReader(body)));
+				loadBalancer = loadBalancersXMLParser.getLoadBalancer();
 			} else {
 				CloudLoadBalancersFaultXMLParser parser = new CloudLoadBalancersFaultXMLParser();
-				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				SAXParser saxParser = SAXParserFactory.newInstance()
+						.newSAXParser();
 				XMLReader xmlReader = saxParser.getXMLReader();
 				xmlReader.setContentHandler(parser);
-				xmlReader.parse(new InputSource(new StringReader(body)));		    	
-				LoadBalancersException cse = parser.getException();		    	
+				xmlReader.parse(new InputSource(new StringReader(body)));
+				LoadBalancersException cse = parser.getException();
 				throw cse;
 			}
 		} catch (ClientProtocolException e) {
@@ -133,58 +140,68 @@ public class LoadBalancerManager extends EntityManager {
 		return loadBalancer;
 	}
 
-	public ArrayList<LoadBalancer> createList() throws LoadBalancersException{
-		
+	public ArrayList<LoadBalancer> createList() throws LoadBalancersException {
+
 		ArrayList<LoadBalancer> loadBalancers = new ArrayList<LoadBalancer>();
-		
-		//if US account
-		if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
-			loadBalancers.addAll(createSublist(Account.getLoadBalancerORDUrl()));
-			for(LoadBalancer loadBalancer: loadBalancers){
+
+		// if US account
+		if (Account.getAccount().getAuthServer()
+				.equals(Preferences.COUNTRY_US_AUTH_SERVER)) {
+			loadBalancers
+					.addAll(createSublist(Account.getLoadBalancerORDUrl()));
+			for (LoadBalancer loadBalancer : loadBalancers) {
 				loadBalancer.setRegion("ORD");
 			}
-			ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account.getLoadBalancerDFWUrl());
-			for(LoadBalancer loadBalancer: DFWloadBalancers){
+			ArrayList<LoadBalancer> DFWloadBalancers = createSublist(Account
+					.getLoadBalancerDFWUrl());
+			for (LoadBalancer loadBalancer : DFWloadBalancers) {
 				loadBalancer.setRegion("DFW");
 			}
 			loadBalancers.addAll(DFWloadBalancers);
 		}
-		//if UK account
-		else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
-			loadBalancers.addAll(createSublist(Account.getLoadBalancerLONUrl()));
-			for(LoadBalancer loadBalancer: loadBalancers){
+		// if UK account
+		else if (Account.getAccount().getAuthServer()
+				.equals(Preferences.COUNTRY_UK_AUTH_SERVER)) {
+			loadBalancers
+					.addAll(createSublist(Account.getLoadBalancerLONUrl()));
+			for (LoadBalancer loadBalancer : loadBalancers) {
 				loadBalancer.setRegion("LON");
 			}
 		}
 		return loadBalancers;
 	}
 
-	public ArrayList<LoadBalancer> createSublist(String regionUrl) throws LoadBalancersException {
+	public ArrayList<LoadBalancer> createSublist(String regionUrl)
+			throws LoadBalancersException {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
-		HttpGet get = new HttpGet(regionUrl + Account.getAccount().getAccountId() + "/loadbalancers");
+		HttpGet get = new HttpGet(regionUrl
+				+ Account.getAccount().getAccountId() + "/loadbalancers");
 		ArrayList<LoadBalancer> loadBalancers = new ArrayList<LoadBalancer>();
 
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		get.addHeader("Accept", "application/xml");
 
-		try {			
-			HttpResponse resp = httpclient.execute(get);		    
+		try {
+			HttpResponse resp = httpclient.execute(get);
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
-			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
+			if (resp.getStatusLine().getStatusCode() == 200
+					|| resp.getStatusLine().getStatusCode() == 202) {
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
-				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				SAXParser saxParser = SAXParserFactory.newInstance()
+						.newSAXParser();
 				XMLReader xmlReader = saxParser.getXMLReader();
 				xmlReader.setContentHandler(loadBalancersXMLParser);
-				xmlReader.parse(new InputSource(new StringReader(body)));		    	
-				loadBalancers = loadBalancersXMLParser.getLoadBalancers();		    	
+				xmlReader.parse(new InputSource(new StringReader(body)));
+				loadBalancers = loadBalancersXMLParser.getLoadBalancers();
 			} else {
 				CloudLoadBalancersFaultXMLParser parser = new CloudLoadBalancersFaultXMLParser();
-				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				SAXParser saxParser = SAXParserFactory.newInstance()
+						.newSAXParser();
 				XMLReader xmlReader = saxParser.getXMLReader();
 				xmlReader.setContentHandler(parser);
-				xmlReader.parse(new InputSource(new StringReader(body)));		    	
-				LoadBalancersException cse = parser.getException();		    	
+				xmlReader.parse(new InputSource(new StringReader(body)));
+				LoadBalancersException cse = parser.getException();
 				throw cse;
 			}
 		} catch (ClientProtocolException e) {
@@ -211,11 +228,13 @@ public class LoadBalancerManager extends EntityManager {
 		return loadBalancers;
 	}
 
-	public HttpBundle create(LoadBalancer entity, String regionUrl) throws CloudServersException {
+	public HttpBundle create(LoadBalancer entity, String regionUrl)
+			throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpPost post = new HttpPost(regionUrl + Account.getAccount().getAccountId() + "/loadbalancers");
+		HttpPost post = new HttpPost(regionUrl
+				+ Account.getAccount().getAccountId() + "/loadbalancers");
 		post.addHeader("Content-Type", "application/xml");
 
 		StringEntity tmp = null;
@@ -253,12 +272,15 @@ public class LoadBalancerManager extends EntityManager {
 		return bundle;
 	}
 
-	public HttpBundle delete(LoadBalancer loadBalancer) throws CloudServersException {
+	public HttpBundle delete(LoadBalancer loadBalancer)
+			throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpDelete delete = new HttpDelete(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() 
-				+ "/loadbalancers/" + loadBalancer.getId());				
+		HttpDelete delete = new HttpDelete(
+				LoadBalancer.getRegionUrl(loadBalancer.getRegion())
+						+ Account.getAccount().getAccountId()
+						+ "/loadbalancers/" + loadBalancer.getId());
 		delete.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		delete.addHeader("Content-Type", "application/xml");
 		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
@@ -266,7 +288,7 @@ public class LoadBalancerManager extends EntityManager {
 		HttpBundle bundle = new HttpBundle();
 		bundle.setCurlRequest(delete);
 
-		try {			
+		try {
 			resp = httpclient.execute(delete);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
@@ -281,24 +303,33 @@ public class LoadBalancerManager extends EntityManager {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
-		}	
+		}
 		return bundle;
 	}
 
-	public HttpBundle update(LoadBalancer loadBalancer, String name, String algorithm, String protocol, String port) throws CloudServersException {
+	public HttpBundle update(LoadBalancer loadBalancer, String name,
+			String algorithm, String protocol, String port)
+			throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" + loadBalancer.getId());				
+		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer
+				.getRegion())
+				+ Account.getAccount().getAccountId()
+				+ "/loadbalancers/" + loadBalancer.getId());
 
 		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		put.addHeader("Content-Type", "application/xml");
 
-		String xml = "<loadBalancer xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" " + 
-		"name=\"" + name + "\" " + 
-		"algorithm=\"" + algorithm.toUpperCase() + "\" " + 
-		"protocol=\"" + protocol.toUpperCase() + "\" " + 
-		"port=\"" + port + "\" />";
+		String xml = "<loadBalancer xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" "
+				+ "name=\""
+				+ name
+				+ "\" "
+				+ "algorithm=\""
+				+ algorithm.toUpperCase()
+				+ "\" "
+				+ "protocol=\""
+				+ protocol + "\" " + "port=\"" + port + "\" />";
 
 		StringEntity tmp = null;
 		try {
@@ -315,7 +346,7 @@ public class LoadBalancerManager extends EntityManager {
 		HttpBundle bundle = new HttpBundle();
 		bundle.setCurlRequest(put);
 
-		try {			
+		try {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
@@ -330,22 +361,27 @@ public class LoadBalancerManager extends EntityManager {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
-		}	
+		}
 		return bundle;
 	}
-	
-	public HttpBundle setLogging(LoadBalancer loadBalancer, Boolean setting) throws CloudServersException {
+
+	public HttpBundle setLogging(LoadBalancer loadBalancer, Boolean setting)
+			throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" 
-				+ loadBalancer.getId() + "/connectionlogging");				
+		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer
+				.getRegion())
+				+ Account.getAccount().getAccountId()
+				+ "/loadbalancers/"
+				+ loadBalancer.getId()
+				+ "/connectionlogging");
 
 		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		put.addHeader("Content-Type", "application/xml");
 
-		String xml = "<connectionLogging xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" " + 
-		"enabled=\"" + setting.toString() + "\" />";
+		String xml = "<connectionLogging xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" "
+				+ "enabled=\"" + setting.toString() + "\" />";
 
 		StringEntity tmp = null;
 		try {
@@ -362,7 +398,7 @@ public class LoadBalancerManager extends EntityManager {
 		HttpBundle bundle = new HttpBundle();
 		bundle.setCurlRequest(put);
 
-		try {			
+		try {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
@@ -377,24 +413,30 @@ public class LoadBalancerManager extends EntityManager {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
-		}	
+		}
 		return bundle;
 	}
-	
-	public HttpBundle setSessionPersistence(LoadBalancer loadBalancer, String setting) throws CloudServersException {
+
+	public HttpBundle setSessionPersistence(LoadBalancer loadBalancer,
+			String setting) throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" 
-				+ loadBalancer.getId() + "/sessionpersistence");				
+		HttpPut put = new HttpPut(LoadBalancer.getRegionUrl(loadBalancer
+				.getRegion())
+				+ Account.getAccount().getAccountId()
+				+ "/loadbalancers/"
+				+ loadBalancer.getId()
+				+ "/sessionpersistence");
 
 		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		put.addHeader("Content-Type", "application/xml");
 
-		String xml = "<sessionPersistence xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" persistenceType=\"" + setting + "\"/>";
+		String xml = "<sessionPersistence xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\" persistenceType=\""
+				+ setting + "\"/>";
 
 		Log.d("info", "session persist xml is: " + xml);
-		
+
 		StringEntity tmp = null;
 		try {
 			tmp = new StringEntity(xml);
@@ -410,7 +452,7 @@ public class LoadBalancerManager extends EntityManager {
 		HttpBundle bundle = new HttpBundle();
 		bundle.setCurlRequest(put);
 
-		try {			
+		try {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
@@ -425,25 +467,29 @@ public class LoadBalancerManager extends EntityManager {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
-		}	
+		}
 		return bundle;
 	}
 
-	public HttpBundle disableSessionPersistence(LoadBalancer loadBalancer) throws CloudServersException {
+	public HttpBundle disableSessionPersistence(LoadBalancer loadBalancer)
+			throws CloudServersException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 
-		HttpDelete delete = new HttpDelete(LoadBalancer.getRegionUrl(loadBalancer.getRegion()) + Account.getAccount().getAccountId() + "/loadbalancers/" 
-				+ loadBalancer.getId() + "/sessionpersistence");				
+		HttpDelete delete = new HttpDelete(
+				LoadBalancer.getRegionUrl(loadBalancer.getRegion())
+						+ Account.getAccount().getAccountId()
+						+ "/loadbalancers/" + loadBalancer.getId()
+						+ "/sessionpersistence");
 
 		delete.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
-		
+
 		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
 
 		HttpBundle bundle = new HttpBundle();
 		bundle.setCurlRequest(delete);
 
-		try {			
+		try {
 			resp = httpclient.execute(delete);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
@@ -458,7 +504,7 @@ public class LoadBalancerManager extends EntityManager {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
-		}	
+		}
 		return bundle;
 	}
 

@@ -120,7 +120,6 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 		try{
 			return (!selectedPort.equals("")) && Integer.valueOf(selectedPort) > 0 && Integer.valueOf(selectedPort) < 65536;
 		} catch (NumberFormatException nfe){	
-			Log.d("info", "im returning false");
 			return false;
 		}
 	}
@@ -203,7 +202,7 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		if (parent == protocolSpinner) {
-			selectedProtocol = protocols[position].getName();
+			selectedProtocol = Protocol.getProtocols().get(position).getName();
 		}
 		
 		else if (parent == algorithmSpinner){

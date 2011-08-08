@@ -2,8 +2,6 @@ package com.rackspace.cloud.servers.api.client;
 
 import java.io.Serializable;
 
-import android.util.Log;
-
 public class Backup implements Serializable {
 	
 	/**

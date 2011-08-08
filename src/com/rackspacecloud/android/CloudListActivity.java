@@ -31,6 +31,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+/*
+ * CloudActivity manages the display and hiding of 
+ * pDialog. 
+ * 
+ * Also provides many accessory methods that are common
+ * to Activities
+ */
 public class CloudListActivity extends GaListActivity{
 
 	private Context context;
@@ -71,6 +78,23 @@ public class CloudListActivity extends GaListActivity{
 			}
 		}
 		
+	}
+	
+	@Override
+	protected void onStart(){
+		super.onStart();
+		if(isLoading){
+			showDialog();
+		}
+	}
+	
+	@Override
+	protected void onStop(){
+		super.onStop();
+		if(isLoading){
+			hideDialog();
+			isLoading = true;
+		}
 	}
 	
 	protected final void showAlert(String title, String message) {
@@ -157,7 +181,6 @@ public class CloudListActivity extends GaListActivity{
 					finish();
 				}
 			});
-
 			pDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 			pDialog.show();
 			pDialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -167,5 +190,4 @@ public class CloudListActivity extends GaListActivity{
 	protected Context getContext(){
 		return context;
 	}
-	
 }

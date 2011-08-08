@@ -44,7 +44,7 @@ public class AddNodesActivity extends CloudListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		nodes = (ArrayList<Node>) this.getIntent().getExtras().get("nodes");
-		possibleNodes = (ArrayList<Server>) this.getIntent().getExtras().get("possibleNodes");
+		//possibleNodes = (ArrayList<Server>) this.getIntent().getExtras().get("possibleNodes");
 		setContentView(R.layout.addnodes);
 		restoreState(savedInstanceState);
 	}

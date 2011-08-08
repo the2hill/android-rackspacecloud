@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +41,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 
 	private static final int deleteContainer = 0;
 	private static final int deleteFolder = 1;
-	
+
 	private ContainerObjects[] files;
 	private static Container container;
 	public String LOG = "viewFilesActivity";
@@ -55,7 +56,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	private AddObjectListenerTask task;
 	private DeleteObjectListenerTask deleteObjTask;
 	private DeleteContainerListenerTask deleteContainerTask;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -72,13 +73,13 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		
+
 		//files stores all the files in the container
 		outState.putSerializable("container", files);
-		
+
 		//current path represents where you have "navigated" to
 		outState.putString("path", currentPath);
-		
+
 		outState.putBoolean("loadingFiles", loadingFiles);
 	}
 
@@ -86,13 +87,13 @@ public class ContainerObjectsActivity extends CloudListActivity {
 
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
-		
+
 		/*
 		 * need reference to the app so you can access curDirFiles
 		 * as well as processing status
 		 */
 		app = (AndroidCloudApplication)this.getApplication();
-		
+
 		if(state != null){
 			if(state.containsKey("path")){
 				currentPath = state.getString("path");
@@ -102,26 +103,27 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			}
 
 			if(state.containsKey("loadingFiles") && state.getBoolean("loadingFiles")){
+				Log.d("info", "up here");
 				loadFiles();
 			}
-			else{
-				if(state.containsKey("container")){
-					files = (ContainerObjects[]) state.getSerializable("container");
-					if (app.getCurFiles() == null) {
-						displayNoFilesCell();
-					} else {
-						getListView().setDividerHeight(1); // restore divider lines
-						setListAdapter(new FileAdapter());
+			else if(state.containsKey("container")){
+				Log.d("info", "down here");
+				files = (ContainerObjects[]) state.getSerializable("container");
+				if (app.getCurFiles() == null || app.getCurFiles().size() == 0) {
+					displayNoFilesCell();
+				} else {
+					getListView().setDividerHeight(1); // restore divider lines
+					setListAdapter(new FileAdapter());
 
-					}
 				}
+
 			}
 		}
 		else {
 			currentPath = "";
 			loadFiles();
 		}	
-		
+
 		/*
 		 * if the app is process when we enter the activity
 		 * we must listen for the new curDirFiles list
@@ -130,13 +132,13 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			task = new AddObjectListenerTask();
 			task.execute();
 		}
-		
+
 		if(app.isDeletingObject()){
 			displayNoFilesCell();
 			deleteObjTask = new DeleteObjectListenerTask();
 			deleteObjTask.execute();
 		}
-		
+
 		if(app.isDeletingContainer()){
 			displayNoFilesCell();
 			deleteContainerTask = new DeleteContainerListenerTask();
@@ -145,7 +147,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 
 
 	}
-	
+
 	@Override
 	protected void onStop(){
 		super.onStop();
@@ -157,11 +159,11 @@ public class ContainerObjectsActivity extends CloudListActivity {
 		if(task != null){
 			task.cancel(true);
 		}
-		
+
 		if(deleteObjTask != null){
 			deleteObjTask.cancel(true);
 		}
-		
+
 		if(deleteContainerTask != null){
 			deleteContainerTask.cancel(true);
 		}
@@ -276,16 +278,16 @@ public class ContainerObjectsActivity extends CloudListActivity {
 		if(currentPath.equals("")){
 			a[0] = "Empty Container";
 			setListAdapter(new ArrayAdapter<String>(this, R.layout.noobjectscell,
-				R.id.no_files_label, a));
+					R.id.no_files_label, a));
 		}
 		else{
 			a[0] = "No Files";
 			setListAdapter(new ArrayAdapter<String>(this, R.layout.nofilescell,
-						R.id.no_files_label, a));
+					R.id.no_files_label, a));
 		}
 		getListView().setTextFilterEnabled(true);
 		getListView().setDividerHeight(0); // hide the dividers so it won't look
-											// like a list row
+		// like a list row
 		getListView().setItemsCanFocus(false);
 	}
 
@@ -492,17 +494,17 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-			
+
 		if (resultCode == RESULT_OK && requestCode == 56) {
 			// a sub-activity kicked back, so we want to refresh the server list
 			loadFiles();
 		}
-		
+
 		// deleted file so need to update the list
 		if (requestCode == 55 && resultCode == 99) {
 			loadFiles();
 		}
-		
+
 	}
 
 	class FileAdapter extends ArrayAdapter<ContainerObjects> {
@@ -537,12 +539,12 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			return (row);
 		}
 	}
-		
+
 	private class LoadFilesTask extends
 	AsyncTask<String, Void, ArrayList<ContainerObjects>> {
 
 		private CloudServersException exception;
-		
+
 		protected void onPreExecute(){
 			showDialog();
 			loadingFiles = true;
@@ -592,7 +594,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 		protected HttpBundle doInBackground(String... data) {
 			HttpBundle bundle = null;
 			try {
-				
+
 				bundle = (new ContainerObjectManager(getContext())).addObject(container.getName(), currentPath, data[0], data[1]);
 			} catch (CloudServersException e) {
 				exception = e;
@@ -628,9 +630,9 @@ public class ContainerObjectsActivity extends CloudListActivity {
 
 	private class DeleteObjectTask extends
 	AsyncTask<Void, Void, HttpBundle> {
-	
+
 		private CloudServersException exception;
-	
+
 		@Override
 		protected void onPreExecute(){
 			showDialog();
@@ -638,7 +640,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			deleteObjTask = new DeleteObjectListenerTask();
 			deleteObjTask.execute();
 		}
-	
+
 		@Override
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
@@ -650,7 +652,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			}
 			return bundle;
 		}
-	
+
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
 			app.setDeleteingObject(false);
@@ -692,7 +694,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			deleteContainerTask = new DeleteContainerListenerTask();
 			deleteContainerTask.execute();
 		}
-		
+
 		@Override
 		protected HttpBundle doInBackground(String... object) {
 			HttpBundle bundle = null;
@@ -740,7 +742,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	 */
 	private class AddObjectListenerTask extends
 	AsyncTask<Void, Void, Void> {
-		
+
 		@Override
 		protected Void doInBackground(Void... arg1) {
 
@@ -764,11 +766,11 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			loadFiles();
 		}
 	}
-	
-	
+
+
 	private class DeleteObjectListenerTask extends
 	AsyncTask<Void, Void, Void> {
-		
+
 		@Override
 		protected Void doInBackground(Void... arg1) {
 
@@ -793,10 +795,10 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			goUpDirectory();
 		}
 	}
-	
+
 	private class DeleteContainerListenerTask extends
 	AsyncTask<Void, Void, Void> {
-		
+
 		@Override
 		protected Void doInBackground(Void... arg1) {
 
