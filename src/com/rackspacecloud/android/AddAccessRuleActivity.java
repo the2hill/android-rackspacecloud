@@ -1,6 +1,7 @@
 package com.rackspacecloud.android;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,6 @@ public class AddAccessRuleActivity extends CloudActivity{
 	private LoadBalancer loadBalancer;
 	private String selectedAction;
 	private String selectedAddresses;
-	private NetworkItem networkItem;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,6 +97,7 @@ public class AddAccessRuleActivity extends CloudActivity{
 		Button addRule = (Button)findViewById(R.id.add_rule_button);
 		addRule.setOnClickListener(new OnClickListener() {
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public void onClick(View v) {
 				if(!validAddress(selectedAddresses)){
@@ -119,10 +120,11 @@ public class AddAccessRuleActivity extends CloudActivity{
 	}
 	
 	//basic ip validation just checks that the string
-	//is only composed of letters, numbers, ., :
+	//is only composed of letters, numbers, ., : and , 
 	private static boolean validAddress(String address){
-		//Enter regex
-		if(address != null){
+		//if just white space return false;
+		//check regex
+		if(address != null && !address.trim().equals("")){
 			Pattern pattern = Pattern.compile("[a-zA-Z0-9.:/, ]+");
 			Matcher match = pattern.matcher(address);
 			return match.matches();
@@ -132,7 +134,7 @@ public class AddAccessRuleActivity extends CloudActivity{
 	}
 	
 	private Boolean validAction(String action){
-		return action != null;
+		return action != null && Arrays.asList(ACTIONS).contains(action);
 	}
 	
 	private class AddNetworkItemTask extends AsyncTask<ArrayList<NetworkItem>, Void, HttpBundle> {

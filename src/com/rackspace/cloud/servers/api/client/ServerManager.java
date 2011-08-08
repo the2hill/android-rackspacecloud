@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
+
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
@@ -496,9 +497,8 @@ public class ServerManager extends EntityManager {
 
 		StringEntity tmp = null;
 		try {
-			tmp = new StringEntity("<backupSchedule xmlns=\"http://docs.rackspacecloud.com/servers/api/v1.0\" enabled=\"" + enabled + "\" " +
-					"weekly=\"" + weeklyValue + "\" daily=\"" + dailyValue + "\"/>");
-			
+			tmp = new StringEntity("<?xml version=\"1.0\" encoding=\"UTF-8\"?> <backupSchedule xmlns=\"http://docs.rackspacecloud.com/servers/api/v1.0\" enabled=\"" + enabled + "\" " +
+					"weekly=\"" + weeklyValue + "\" daily=\"" + dailyValue + "\"/>");		
 		} catch (UnsupportedEncodingException e) {
 			CloudServersException cse = new CloudServersException();
 			cse.setMessage(e.getLocalizedMessage());

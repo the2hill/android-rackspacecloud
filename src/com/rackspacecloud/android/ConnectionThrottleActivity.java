@@ -18,17 +18,17 @@ import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class ConnectionThrottleActivity extends CloudActivity{
-	
+
 	private LoadBalancer loadBalancer;
 	private ConnectionThrottle connectionThrottle;
 	private EditText minCons;
 	private EditText maxCons;
 	private EditText maxConRate;
 	private EditText rateInterval;
-	
+
 	private final String ENABLE = "Enable Throttle";
 	private final String DISABLE = "Disable Throttle";
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,18 +37,28 @@ public class ConnectionThrottleActivity extends CloudActivity{
 		restoreState(savedInstanceState);
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putSerializable("loadBalancer", loadBalancer);
+	}
+
+	
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
 
+		if(state != null && state.containsKey("loadBalancer")){
+			loadBalancer = (LoadBalancer)state.getSerializable("loadBalancer");
+		}
 		minCons = (EditText)findViewById(R.id.min_connections_text);
 		maxCons = (EditText)findViewById(R.id.max_connections_text);
 		maxConRate = (EditText)findViewById(R.id.max_connection_rate);
 		rateInterval = (EditText)findViewById(R.id.rate_interval);
-		
+
 		setupButtons();
 		setupText();
 	}
-	
+
 	private void setupButtons(){
 		Button enable = (Button)findViewById(R.id.enable_throttle_button);
 		if(loadBalancer.getConnectionThrottle() == null){
@@ -61,6 +71,13 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			@Override
 			public void onClick(View v) {
 				if(enable.getText().toString().equals(ENABLE)){
+					ConnectionThrottle connectionThrottle = new ConnectionThrottle();
+					connectionThrottle.setMinConnections("25");
+					connectionThrottle.setMaxConnections("100");
+					connectionThrottle.setMaxConnectionRate("25");
+					connectionThrottle.setRateInterval("5");
+					
+					loadBalancer.setConnectionThrottle(connectionThrottle);
 					//Turn on EditTexts
 					minCons.setEnabled(true);			
 					maxCons.setEnabled(true);	
@@ -68,6 +85,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 					rateInterval.setEnabled(true);
 					enable.setText(DISABLE);
 				} else {
+					loadBalancer.setConnectionThrottle(null);
 					//Turn off EditTexts
 					minCons.setEnabled(false);
 					maxCons.setEnabled(false);
@@ -80,18 +98,18 @@ public class ConnectionThrottleActivity extends CloudActivity{
 
 		Button submit = (Button)findViewById(R.id.save_throttle_button);
 		submit.setOnClickListener(new OnClickListener() {
-			
+
 			Button enable = (Button)findViewById(R.id.enable_throttle_button);
-			
+
 			@Override
 			public void onClick(View v) {
-				
+
 				connectionThrottle = new ConnectionThrottle();
 				connectionThrottle.setMaxConnectionRate(maxConRate.getText().toString());
 				connectionThrottle.setMinConnections(minCons.getText().toString());
 				connectionThrottle.setMaxConnections(maxCons.getText().toString());
 				connectionThrottle.setRateInterval(rateInterval.getText().toString());
-				
+
 				if(enable.getText().toString().equals(DISABLE)){	
 					if(validText()){
 						new UpdateConnectionThrottleTask().execute();
@@ -108,14 +126,14 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			}
 		}); 
 	}
-	
+
 	private void setupText(){
 		if(loadBalancer.getConnectionThrottle() == null){
 			minCons.setEnabled(false);
 			maxCons.setEnabled(false);
 			maxConRate.setEnabled(false);
 			rateInterval.setEnabled(false);
-			
+
 			//Set boxes to default values
 			minCons.setText("25");
 			maxCons.setText("100");
@@ -123,7 +141,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			rateInterval.setText("5");
 		} else {
 			ConnectionThrottle throttle = loadBalancer.getConnectionThrottle();
-			
+
 			//restore the current values to the boxes
 			minCons.setText(throttle.getMinConnections());
 			maxCons.setText(throttle.getMaxConnections());
@@ -131,14 +149,14 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			rateInterval.setText(throttle.getRateInterval());
 		}
 	}
-	
+
 	private Boolean validText(){
 		return validEditText(maxCons, 0, 100000, "Max Connections") 
-			&& validEditText(minCons, 0, 1000, "Min Connections") 
-			&& validEditText(maxConRate, 0, 100000, "Max Connection Rate") 
-			&& validEditText(rateInterval, 1, 3600, "Rate Interval");
+		&& validEditText(minCons, 0, 1000, "Min Connections") 
+		&& validEditText(maxConRate, 0, 100000, "Max Connection Rate") 
+		&& validEditText(rateInterval, 1, 3600, "Rate Interval");
 	}
-	
+
 	private Boolean validEditText(EditText box, int min, int max, String boxName){
 		String result = box.getText().toString();
 		if(result.equals("")){
@@ -160,7 +178,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			}
 		}
 	}
-	
+
 	public class UpdateConnectionThrottleTask extends AsyncTask<Void, Void, HttpBundle> {
 
 		private CloudServersException exception;
@@ -203,7 +221,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 			}			
 		}
 	}
-	
+
 	public class DeleteConnectionThrottleTask extends AsyncTask<Void, Void, HttpBundle> {
 
 		private CloudServersException exception;

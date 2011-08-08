@@ -3,6 +3,7 @@ package com.rackspacecloud.android;
 import org.apache.http.HttpResponse;
 
 import com.rackspace.cloud.servers.api.client.Backup;
+import com.rackspace.cloud.servers.api.client.BackupManager;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.ServerManager;
@@ -10,6 +11,7 @@ import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -20,54 +22,85 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 public class BackupServerActivity extends CloudActivity implements OnItemSelectedListener, OnClickListener {
-	
+
 	private Server server;
+	private Backup backup;
 	private Spinner weeklyBackupSpinner;
 	private Spinner dailyBackupSpinner;
 	private CheckBox enableCheckBox;
 	private String selectedWeeklyBackup;
 	private String selectedDailyBackup;
-	
+
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        restoreState(savedInstanceState);
-    }
-    
-    protected void restoreState(Bundle state){
-		super.restoreState(state);
-		server = (Server) this.getIntent().getExtras().get("server");
-        setContentView(R.layout.viewbackup); 
-        setupSpinners();
-    	setupButtons();
-    	setupCheckBox(); 
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreState(savedInstanceState);
 	}
 
-    private void setupSpinners(){
-    	weeklyBackupSpinner = (Spinner) findViewById(R.id.weekly_backup_spinner);
-    	ArrayAdapter<CharSequence> weeklyAdapter = ArrayAdapter.createFromResource(this, R.array.weeklyBackupValues, android.R.layout.simple_spinner_item);
-    	weeklyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	weeklyBackupSpinner.setAdapter(weeklyAdapter);
-    	weeklyBackupSpinner.setOnItemSelectedListener(this);
-    	
-    	
-    	dailyBackupSpinner = (Spinner) findViewById(R.id.daily_backup_spinner);
-    	ArrayAdapter<CharSequence> dailyAdapter = ArrayAdapter.createFromResource(this, R.array.dailyBackupValues, android.R.layout.simple_spinner_item);
-    	dailyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	dailyBackupSpinner.setAdapter(dailyAdapter);
-    	dailyBackupSpinner.setOnItemSelectedListener(this);
-    }
-    
+	protected void restoreState(Bundle state){
+		super.restoreState(state);
+		server = (Server) this.getIntent().getExtras().get("server");
+		setContentView(R.layout.viewbackup); 
+		setupSpinners();
+		setupButtons();
+		setupCheckBox(); 
+
+		if(state != null && state.containsKey("backup")){
+			backup = (Backup)state.getSerializable("backup");
+			if(backup == null){
+				loadData();
+			} else {
+				displayData();
+			}
+		} else {
+			loadData();
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle state){
+		state.putSerializable("backup", backup);
+	}
+
+	private void setupSpinners(){
+		weeklyBackupSpinner = (Spinner) findViewById(R.id.weekly_backup_spinner);
+		ArrayAdapter<CharSequence> weeklyAdapter = ArrayAdapter.createFromResource(this, R.array.weeklyBackupValues, android.R.layout.simple_spinner_item);
+		weeklyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		weeklyBackupSpinner.setAdapter(weeklyAdapter);
+		weeklyBackupSpinner.setOnItemSelectedListener(this);
+
+
+		dailyBackupSpinner = (Spinner) findViewById(R.id.daily_backup_spinner);
+		ArrayAdapter<CharSequence> dailyAdapter = ArrayAdapter.createFromResource(this, R.array.dailyBackupValues, android.R.layout.simple_spinner_item);
+		dailyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		dailyBackupSpinner.setAdapter(dailyAdapter);
+		dailyBackupSpinner.setOnItemSelectedListener(this);
+	}
+
 	private void setupButtons() {
 		Button update = (Button) findViewById(R.id.backup_update_button);
 		update.setOnClickListener(this);
 	}
-	
+
 	private void setupCheckBox(){
 		enableCheckBox = (CheckBox) findViewById(R.id.enable_backup_checkbox);
 	}
-	
+
+	private void displayData(){
+		if(backup != null){
+			enableCheckBox.setChecked(backup.getEnable());
+
+			if(backup.getWeekly() != null){
+				weeklyBackupSpinner.setSelection(Backup.getWeeklyIndex(backup.getWeekly()));
+			}
+
+			if(backup.getDaily() != null){
+				dailyBackupSpinner.setSelection(Backup.getDailyIndex(backup.getDaily()));
+			}
+		}
+	}
+
 	public void onClick(View v) {
 		/*
 		 * server maybe null if another task is
@@ -94,17 +127,56 @@ public class BackupServerActivity extends CloudActivity implements OnItemSelecte
 	public void onNothingSelected(AdapterView<?> parent) {
 		//do nothing
 	}
-	
-	private class BackupServerTask extends AsyncTask<Void, Void, HttpBundle> {
-    	
+
+	private void loadData(){
+		new GetBackUpTask().execute((Void[]) null);
+	}
+
+	private class GetBackUpTask extends AsyncTask<Void, Void, Backup> {
+
 		private CloudServersException exception;
-		
+
+		@Override
+		//let user know their process has started
+		protected void onPreExecute(){
+			showDialog();
+		}
+
+		@Override
+		protected Backup doInBackground(Void... arg0) {
+			try {
+				return (new BackupManager()).getBackup(server, getContext());
+			} catch (CloudServersException e) {
+				exception = e;
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Backup result) {
+			hideDialog();
+			if (exception != null) {
+				showAlert("Error", exception.getMessage());
+			} else {
+				backup = new Backup();
+				backup.setEnabled(result.getEnable());
+				backup.setWeekly(result.getWeekly());
+				backup.setDaily(result.getDaily());
+				displayData();
+			}
+		}
+	}
+
+	private class BackupServerTask extends AsyncTask<Void, Void, HttpBundle> {
+
+		private CloudServersException exception;
+
 		@Override
 		//let user know their process has started
 		protected void onPreExecute(){
 			showToast("Changing backup schedule process has begun");
 		}
-		
+
 		@Override
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;
@@ -115,7 +187,7 @@ public class BackupServerActivity extends CloudActivity implements OnItemSelecte
 			}
 			return bundle;
 		}
-    	
+
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
 			HttpResponse response = bundle.getResponse();
@@ -135,8 +207,8 @@ public class BackupServerActivity extends CloudActivity implements OnItemSelecte
 				}
 			} else if (exception != null) {
 				showError("There was a problem changing the backup schedule: " + exception.getMessage(), bundle);
-				
+
 			}
 		}
-    }
+	}
 }

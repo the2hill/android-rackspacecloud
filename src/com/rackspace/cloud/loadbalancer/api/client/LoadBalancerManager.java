@@ -93,8 +93,6 @@ public class LoadBalancerManager extends EntityManager {
 			BasicResponseHandler responseHandler = new BasicResponseHandler();
 			String body = responseHandler.handleResponse(resp);
 
-			Log.d("info", "the xml body is " + body);
-
 			if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 202) {		    	
 				LoadBalancersXmlParser loadBalancersXMLParser = new LoadBalancersXmlParser();
 				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
