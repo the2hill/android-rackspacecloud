@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -103,11 +103,9 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			}
 
 			if(state.containsKey("loadingFiles") && state.getBoolean("loadingFiles")){
-				Log.d("info", "up here");
 				loadFiles();
 			}
 			else if(state.containsKey("container")){
-				Log.d("info", "down here");
 				files = (ContainerObjects[]) state.getSerializable("container");
 				if (app.getCurFiles() == null || app.getCurFiles().size() == 0) {
 					displayNoFilesCell();
@@ -520,9 +518,15 @@ public class ContainerObjectsActivity extends CloudListActivity {
 					parent, false);
 
 			TextView label = (TextView) row.findViewById(R.id.label);
-			//label.setText(file.getCName());
 			label.setText(getShortName(file.getCName()));
 
+			ImageView objectImage = (ImageView) row.findViewById(R.id.file_type_image);
+			if(file.getContentType().equals("application/directory")){
+				objectImage.setImageResource(R.drawable.folder);
+			} else {
+				objectImage.setImageResource(R.drawable.file);
+			}
+			
 			if (file.getBytes() >= bConver) {
 				megaBytes = Math.abs(file.getBytes() / bConver + 0.2);
 				TextView sublabel = (TextView) row.findViewById(R.id.sublabel);

@@ -85,6 +85,10 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			possibleNodes = new ArrayList<Server>();
 		}
 
+		if(state != null && state.containsKey("selectedVip")){
+			selectedVip = (VirtualIp) state.getSerializable("selectedVip");
+		}
+		
 		setupText();
 		loadProtocolSpinner();
 		loadProtocolSubSpinner();
@@ -99,6 +103,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		super.onSaveInstanceState(outState);
 		outState.putSerializable("nodes", nodes);
 		outState.putSerializable("possibleNodes", possibleNodes);
+		outState.putSerializable("selectedVip", selectedVip);
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

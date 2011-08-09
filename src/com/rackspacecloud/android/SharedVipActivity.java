@@ -1,32 +1,32 @@
 package com.rackspacecloud.android;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;
 import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
-public class SharedVipActivity extends CloudListActivity {
+public class SharedVipActivity extends CloudActivity {
 
-	private LoadBalancer[] loadBalancers;
 	private VirtualIp[] vips;
 	private String loadBalancerPort;
 	private String loadBalancerRegion;
 	private VirtualIp selectedVip;
-	
+	private RadioGroup vipGroup;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,43 +36,108 @@ public class SharedVipActivity extends CloudListActivity {
 		selectedVip = (VirtualIp) this.getIntent().getExtras().get("selectedVip");
 		restoreState(savedInstanceState);
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("loadBalancers", loadBalancers);
+		outState.putSerializable("vips", vips);
+		outState.putSerializable("selectedVip", selectedVip);
 	}
 
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
+
+		setupButton();
 		
-		if (state != null && state.containsKey("loadBalancers") && state.getSerializable("loadBalancers") != null) {
-			loadBalancers = (LoadBalancer[]) state.getSerializable("loadBalancers");
-			if (loadBalancers.length == 0) {
-				displayNoLoadBalancerCell();
+		vipGroup = (RadioGroup) findViewById(R.id.vip_group);
+
+		if(state != null && state.containsKey("selectedVip")){
+			selectedVip = (VirtualIp) state.getSerializable("selectedVip");
+		} 
+		
+		if (state != null && state.containsKey("vips") && state.getSerializable("vips") != null) {
+			vips = (VirtualIp[]) state.getSerializable("vips");
+			if (vips.length == 0) {
+				displayNoVipsCell();
 			} else {
-				getListView().setDividerHeight(1); // restore divider lines
-				setListAdapter(new VirtualIpAdapter());
+				displayRadioButtons();
 			}
 		} else {
-			loadLoadBalancers();
+			loadVirtualIps();
 		}
 	}
+	
+	private void setupButton(){
+		Button submit = (Button) findViewById(R.id.select_vip_button);
+		submit.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent viewIntent = new Intent();
+				viewIntent.putExtra("selectedVip", selectedVip);
+				setResult(RESULT_OK, viewIntent);
+				finish();
+			}
+		});
+	}
 
-	private void displayNoLoadBalancerCell() {
-		String a[] = new String[1];
+	private void displayNoVipsCell() {
+		/*	String a[] = new String[1];
 		a[0] = "No Load Balancers";
 		setListAdapter(new ArrayAdapter<String>(this, R.layout.noloadbalancerscell, R.id.no_loadbalancers_label, a));
 		getListView().setTextFilterEnabled(true);
 		getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
 		getListView().setItemsCanFocus(false);
+		 */
 	}
-	
+
+	private void displayRadioButtons(){
+		for(VirtualIp vip : vips){
+			RadioButton button = new RadioButton(getContext());
+			//Display the load balancer info next to the radio
+			//buttons
+			button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+			button.setText(vip.getAddress() + "\n" +
+					"Type: " + vip.getType() + "\n" +
+					"Load Balancer: " + vip.getLoadBalancer().getName() + "\n");
+
+			//if can't add vip make it unselectable
+			if((vip.getLoadBalancer().getPort().equals(loadBalancerPort) 
+					|| !vip.getLoadBalancer().getRegion().equals(loadBalancerRegion))){
+				button.setEnabled(false);
+			}
+			vipGroup.addView(button);
+			if(selectedVip != null && selectedVip.getId().equals(vip.getId())){
+				((RadioButton)vipGroup.getChildAt(vipGroup.getChildCount() - 1)).toggle();
+			}
+		}
+		
+		vipGroup.setOnCheckedChangeListener (new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+				View radioButton = group.findViewById(checkedId);
+				int index = group.indexOfChild(radioButton);
+
+				if(vips[index].getLoadBalancer().getPort().equals(loadBalancerPort)){
+					showToast("Cannot use this Virtual IP. The same port cannot be used on multiple load balancers for a Shared Virtual IP.");
+				} else if(!vips[index].getLoadBalancer().getRegion().equals(loadBalancerRegion)){
+					showToast("Cannot use this Virtual IP. The Shared Virtual IP must come the same region as the new load balancer.");
+				} else {
+					Log.d("info", "the selected vip is " + vips[index].getAddress());
+					selectedVip = vips[index];
+				}
+			}
+		});
+
+	}
+
 	private void setLoadBalancersList(ArrayList<VirtualIp> vips) {
 		if (vips == null) {
 			vips = new ArrayList<VirtualIp>();
 		}
-		
+
 		this.vips = new VirtualIp[vips.size()];
 
 		if (vips != null) {
@@ -83,88 +148,24 @@ public class SharedVipActivity extends CloudListActivity {
 		}
 
 		if (this.vips.length == 0) {
-			displayNoLoadBalancerCell();
+			displayNoVipsCell();
 		} else {
-			getListView().setDividerHeight(1); // restore divider lines
-			setListAdapter(new VirtualIpAdapter());
+			displayRadioButtons();
 		}
 	}
-	
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		/*
-		 * only allow clicks on vips that do not have the same port
-		 * as the lb and are in same region
-		 */
-		if (vips != null && vips.length > 0) {
-			if(vips[position].getLoadBalancer().getPort().equals(loadBalancerPort)){
-				showToast("Cannot use this Virtual IP. The same port cannot be used on multiple load balancers for a Shared Virtual IP.");
-			} else if(!vips[position].getLoadBalancer().getRegion().equals(loadBalancerRegion)){
-				showToast("Cannot use this Virtual IP. The Shared Virtual IP must come the same region as the new load balancer.");
-			} else {
-				Intent viewIntent = new Intent();
-				selectedVip = vips[position];
-				viewIntent.putExtra("selectedVip", vips[position]);
-				setResult(RESULT_OK, viewIntent);
-				//the redisplay will color the users selection white
-				setLoadBalancersList(new ArrayList<VirtualIp>(Arrays.asList(vips)));
-			}
-		}
-	}
-	
-	// * Adapter/
-	class VirtualIpAdapter extends ArrayAdapter<VirtualIp> {
 
-		VirtualIpAdapter() {
-			super(SharedVipActivity.this,
-					R.layout.sharedvipcell, vips);
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			VirtualIp virtualIp = vips[position];
-			LayoutInflater inflater = getLayoutInflater();
-			View row = inflater.inflate(R.layout.sharedvipcell,
-					parent, false);
-
-			TextView vipAddress = (TextView) row.findViewById(R.id.vip_address);
-			vipAddress.setText(virtualIp.getAddress());
-			
-			TextView type = (TextView) row.findViewById(R.id.vip_type);
-			type.setText(virtualIp.getType());
-			
-			TextView name = (TextView) row.findViewById(R.id.load_balancer_name);
-			name.setText(virtualIp.getLoadBalancer().getName());
-			
-			TextView protocol = (TextView) row.findViewById(R.id.vip_protocol);
-			protocol.setText(virtualIp.getLoadBalancer().getProtocol() 
-					+ "(" + virtualIp.getLoadBalancer().getPort() + ")");
-			
-			//Set the text of the selected vip (if there is one)
-			//to white so the user knows what they picked
-			boolean isSelected = selectedVip != null && selectedVip.getAddress().equals(vips[position].getAddress());
-			if(isSelected){
-				vipAddress.setTextColor(Color.WHITE);
-				type.setTextColor(Color.WHITE);
-				name.setTextColor(Color.WHITE);
-				protocol.setTextColor(Color.WHITE);
-				protocol.setTextColor(Color.WHITE);
-			}
-			return (row);
-		}
+	private void loadVirtualIps() {
+		new LoadVirtualIpsTask().execute((Void[]) null);
 	}
-	
-	private void loadLoadBalancers() {
-		new LoadLoadBalancersTask().execute((Void[]) null);
-	}
-	
-	private class LoadLoadBalancersTask extends AsyncTask<Void, Void, ArrayList<LoadBalancer>> {
+
+	private class LoadVirtualIpsTask extends AsyncTask<Void, Void, ArrayList<LoadBalancer>> {
 		private LoadBalancersException exception;
-	
+
 		@Override
 		protected void onPreExecute(){
 			showDialog();
 		}
-		
+
 		@Override
 		protected ArrayList<LoadBalancer> doInBackground(Void... arg0) {
 			ArrayList<LoadBalancer> loadBalancers = null;
@@ -175,7 +176,7 @@ public class SharedVipActivity extends CloudListActivity {
 			}
 			return loadBalancers;
 		}
-	
+
 		@Override
 		protected void onPostExecute(ArrayList<LoadBalancer> result) {
 			hideDialog();
@@ -186,7 +187,7 @@ public class SharedVipActivity extends CloudListActivity {
 			setLoadBalancersList(vipList);
 		}
 	}
-	
+
 	private ArrayList<VirtualIp> getVipList(ArrayList<LoadBalancer> result){
 		ArrayList<VirtualIp> vips = new ArrayList<VirtualIp>();
 		for(LoadBalancer lb : result){
@@ -197,5 +198,5 @@ public class SharedVipActivity extends CloudListActivity {
 		}
 		return vips;
 	}
-	
+
 }
