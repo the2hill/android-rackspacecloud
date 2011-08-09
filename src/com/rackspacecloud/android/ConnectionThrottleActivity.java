@@ -43,13 +43,14 @@ public class ConnectionThrottleActivity extends CloudActivity{
 		outState.putSerializable("loadBalancer", loadBalancer);
 	}
 
-	
+
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
 
 		if(state != null && state.containsKey("loadBalancer")){
 			loadBalancer = (LoadBalancer)state.getSerializable("loadBalancer");
 		}
+		connectionThrottle = loadBalancer.getConnectionThrottle();
 		minCons = (EditText)findViewById(R.id.min_connections_text);
 		maxCons = (EditText)findViewById(R.id.max_connections_text);
 		maxConRate = (EditText)findViewById(R.id.max_connection_rate);
@@ -76,7 +77,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 					connectionThrottle.setMaxConnections("100");
 					connectionThrottle.setMaxConnectionRate("25");
 					connectionThrottle.setRateInterval("5");
-					
+
 					loadBalancer.setConnectionThrottle(connectionThrottle);
 					//Turn on EditTexts
 					minCons.setEnabled(true);			
@@ -115,13 +116,7 @@ public class ConnectionThrottleActivity extends CloudActivity{
 						new UpdateConnectionThrottleTask().execute();
 					}
 				} else {
-					//if there was no connection throttle before
-					//then no need to delete it
-					if(loadBalancer.getConnectionThrottle() != null){
-						new DeleteConnectionThrottleTask().execute();
-					} else {
-						finish();
-					}
+					new DeleteConnectionThrottleTask().execute();
 				}
 			}
 		}); 
@@ -165,7 +160,6 @@ public class ConnectionThrottleActivity extends CloudActivity{
 		} else {
 			try {
 				int value = Integer.parseInt(result);
-				Log.d("info", min + " <= " + value + " <= " + max);
 				if(value >= min && value <= max){
 					return true;
 				} else {

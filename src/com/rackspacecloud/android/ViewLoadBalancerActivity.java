@@ -47,12 +47,16 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 	private LoadBalancer loadBalancer;
 	private PollLoadBalancerTask pollLoadBalancerTask;
+	private AndroidCloudApplication app;
+	private LoggingListenerTask loggingListenerTask;
+	private SessionPersistenceListenerTask sessionPersistenceListenerTask;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
 		setContentView(R.layout.view_loadbalancer);
+		app = (AndroidCloudApplication)this.getApplication();
 		restoreState(savedInstanceState);
 	}
 
@@ -64,7 +68,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 	protected void restoreState(Bundle state) {
 		super.restoreState(state);
-
+		
 		if (state != null && state.containsKey("loadBalancer") && state.getSerializable("loadBalancer") != null) {
 			loadBalancer = (LoadBalancer) state.getSerializable("loadBalancer");
 			loadLoadBalancerData();
@@ -72,6 +76,19 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		}
 		else{
 			new LoadLoadBalancerTask().execute((Void[]) null);
+		}
+		
+		/*
+		 * if is setting logs we need another listener
+		 */
+		if(app.isSettingLogs()){
+			loggingListenerTask = new LoggingListenerTask();
+			loggingListenerTask.execute();
+		}
+		
+		if(app.isSettingSessionPersistence()){
+			sessionPersistenceListenerTask = new SessionPersistenceListenerTask();
+			sessionPersistenceListenerTask.execute();
 		}
 	}
 
@@ -86,6 +103,23 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		}
 	}
 
+	@Override
+	protected void onStop(){
+		super.onStop();
+
+		/*
+		 * Need to stop running listener task
+		 * if we exit
+		 */
+		if(loggingListenerTask != null){
+			loggingListenerTask.cancel(true);
+		}
+		
+		if(sessionPersistenceListenerTask != null){
+			sessionPersistenceListenerTask.cancel(true);
+		}
+	}
+	
 	private void setupButton(int resourceId, OnClickListener onClickListener) {
 		Button button = (Button) findViewById(resourceId);
 		button.setOnClickListener(onClickListener);
@@ -275,45 +309,47 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 	//Need to show different message depending on the state
 	//of connection_logs/session_persistence
 	protected void onPrepareDialog(int id, Dialog dialog){
-		switch (id) {
-		case R.id.connection_log_button:
-			String logTitle;
-			String logMessage;
-			String logButton;
-			if(loadBalancer.getIsConnectionLoggingEnabled().equals("true")){
-				logTitle = "Disable Logs";
-				logMessage = "Are you sure you want to disable logs for this Load Balancer?";
-				logButton = "Disable";
-			} else {
-				logTitle = "Enable Logs";
-				logMessage = "Log files will be processed every hour and stored in your Cloud Files account. " +
-				"Standard Cloud Files storage and transfer fees will be accessed for the use of this feature." +
-				"\n\nAre you sure you want to enable logs for this Load Balancer?";
-				logButton = "Enable";
+		if(loadBalancer != null){
+			switch (id) {
+			case R.id.connection_log_button:
+				String logTitle;
+				String logMessage;
+				String logButton;
+				if(loadBalancer.getIsConnectionLoggingEnabled().equals("true")){
+					logTitle = "Disable Logs";
+					logMessage = "Are you sure you want to disable logs for this Load Balancer?";
+					logButton = "Disable";
+				} else {
+					logTitle = "Enable Logs";
+					logMessage = "Log files will be processed every hour and stored in your Cloud Files account. " +
+					"Standard Cloud Files storage and transfer fees will be accessed for the use of this feature." +
+					"\n\nAre you sure you want to enable logs for this Load Balancer?";
+					logButton = "Enable";
+				}
+				((AlertDialog)dialog).setTitle(logTitle);
+				((AlertDialog)dialog).setMessage(logMessage);
+				Button sessionLogButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
+				sessionLogButton.setText(logButton);
+				sessionLogButton.invalidate();
+				break;
+			case R.id.session_persistence_button:
+				String sessionMessage;
+				String sessionButton;
+				if(loadBalancer.getSessionPersistence() != null){
+					Log.d("info", "in sessionpersistence != null");
+					sessionMessage = "Are you sure you want to disable session persistence for this Load Balancer?";
+					sessionButton = "Disable";
+				} else {
+					Log.d("info", "in sessionpersistence == null");
+					sessionMessage = "Are you sure you want to enable session persistence for this Load Balancer?";
+					sessionButton = "Enable";
+				}
+				((AlertDialog)dialog).setMessage(sessionMessage);
+				Button sessionPersistButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
+				sessionPersistButton.setText(sessionButton);
+				sessionPersistButton.invalidate();
+				break;
 			}
-			((AlertDialog)dialog).setTitle(logTitle);
-			((AlertDialog)dialog).setMessage(logMessage);
-			Button sessionLogButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
-			sessionLogButton.setText(logButton);
-			sessionLogButton.invalidate();
-			break;
-		case R.id.session_persistence_button:
-			String sessionMessage;
-			String sessionButton;
-			if(loadBalancer.getSessionPersistence() != null){
-				Log.d("info", "in sessionpersistence != null");
-				sessionMessage = "Are you sure you want to disable session persistence for this Load Balancer?";
-				sessionButton = "Disable";
-			} else {
-				Log.d("info", "in sessionpersistence == null");
-				sessionMessage = "Are you sure you want to enable session persistence for this Load Balancer?";
-				sessionButton = "Enable";
-			}
-			((AlertDialog)dialog).setMessage(sessionMessage);
-			Button sessionPersistButton = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON1);
-			sessionPersistButton.setText(sessionButton);
-			sessionPersistButton.invalidate();
-			break;
 		}
 	}
 
@@ -596,7 +632,10 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 		@Override
 		protected void onPreExecute(){
-			showDialog();
+			//showDialog();
+			app.setIsSettingLogs(true);
+			loggingListenerTask = new LoggingListenerTask();
+			loggingListenerTask.execute();
 		}
 
 		@Override
@@ -612,13 +651,17 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
-			hideDialog();
+			//hideDialog();
+			app.setIsSettingLogs(false);
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();			
 				if (statusCode == 202 || statusCode == 204) {
-					pollLoadBalancerTask = new PollLoadBalancerTask();
-					pollLoadBalancerTask.execute((Void[]) null);
+					if(Boolean.valueOf(loadBalancer.getIsConnectionLoggingEnabled())){
+						showToast("Logging has been disabled");
+					} else {
+						showToast("Logging has been enabled");
+					}
 				} else {					
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
@@ -635,13 +678,47 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		}
 	}
 
+	/*
+	 * listens for the application to change isSettingLogs
+	 * listens so activity knows when it should display
+	 * the new settings
+	 */
+	private class LoggingListenerTask extends
+	AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg1) {
+
+			while(app.isSettingLogs()){
+				// wait for process to finish
+				// or have it be canceled
+				if(loggingListenerTask.isCancelled()){
+					return null;
+				}
+			}
+			return null;
+		}
+
+		/*
+		 * when no longer processing, time to load
+		 * the new files
+		 */
+		@Override
+		protected void onPostExecute(Void arg1) {
+			pollLoadBalancerTask = new PollLoadBalancerTask();
+			pollLoadBalancerTask.execute((Void[]) null);
+		}
+	}
+	
 	private class SessionPersistenceTask extends AsyncTask<Void, Void, HttpBundle> {
 
 		private CloudServersException exception;
-
+		
 		@Override
 		protected void onPreExecute(){
-			showDialog();
+			app.setSettingSessionPersistence(true);
+			sessionPersistenceListenerTask = new SessionPersistenceListenerTask();
+			sessionPersistenceListenerTask.execute();
 		}
 
 		@Override
@@ -659,14 +736,20 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			}
 			return bundle;
 		}
-
+		
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
-			hideDialog();
+			//hideDialog();
+			app.setSettingSessionPersistence(false);
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();			
 				if (statusCode == 202 || statusCode == 200) {
+					if(loadBalancer.getSessionPersistence() != null){
+						showToast("Session Persistence has been disabled");
+					} else {
+						showToast("Session Persistence has been enabled");
+					}
 					pollLoadBalancerTask = new PollLoadBalancerTask();
 					pollLoadBalancerTask.execute((Void[]) null);
 				} else {					
@@ -682,6 +765,38 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 
 			}
 
+		}
+	}
+	
+	/*
+	 * listens for the application to change isSettingSessionPersistence
+	 * listens so activity knows when it should display
+	 * the new settings
+	 */
+	private class SessionPersistenceListenerTask extends
+	AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg1) {
+
+			while(app.isSettingSessionPersistence()){
+				// wait for process to finish
+				// or have it be canceled
+				if(sessionPersistenceListenerTask.isCancelled()){
+					return null;
+				}
+			}
+			return null;
+		}
+
+		/*
+		 * when no longer processing, time to load
+		 * the new files
+		 */
+		@Override
+		protected void onPostExecute(Void arg1) {
+			pollLoadBalancerTask = new PollLoadBalancerTask();
+			pollLoadBalancerTask.execute((Void[]) null);
 		}
 	}
 

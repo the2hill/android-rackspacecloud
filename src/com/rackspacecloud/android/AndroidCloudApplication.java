@@ -20,6 +20,8 @@ public class AndroidCloudApplication extends Application {
 	private boolean deletingObjectProcessing;
 	private boolean deletingContainerProcessing;
 	private boolean downloadingObject;
+	private boolean isSettingLogs;
+	private boolean isSettingSessionPersistence;
 	private HttpEntity downloadedObject;
 	private ArrayList<ContainerObjects> curDirFiles;
 	
@@ -81,5 +83,21 @@ public class AndroidCloudApplication extends Application {
 	
 	public boolean isLoggingIn(){
 		return isLoggingIn;
+	}
+	
+	public void setIsSettingLogs(Boolean logging){
+		isSettingLogs = logging;
+	}
+	
+	public boolean isSettingLogs(){
+		return isSettingLogs;
+	}
+	
+	public void setSettingSessionPersistence(Boolean setting){
+		isSettingSessionPersistence = setting;
+	}
+	
+	public boolean isSettingSessionPersistence(){
+		return isSettingSessionPersistence;
 	}
 }

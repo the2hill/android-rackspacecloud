@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
@@ -160,6 +161,7 @@ public class CloudListActivity extends GaListActivity{
 
 	protected final void hideDialog() {
 		if(pDialog != null){
+			Log.d("info", "dialog hide");
 			isLoading = false;
 			pDialog.dismiss();
 		}
@@ -167,6 +169,7 @@ public class CloudListActivity extends GaListActivity{
 
 	protected final void showDialog() {
 		if(pDialog == null || !pDialog.isShowing()){
+			Log.d("info", "dialog created");
 			isLoading = true;
 			pDialog = new ProgressDialog(this);
 			pDialog.setProgressStyle(R.style.NewDialog);

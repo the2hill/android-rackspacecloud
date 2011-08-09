@@ -85,7 +85,7 @@
 					android:text="Seconds"></TextView>
 			</LinearLayout>
 		</LinearLayout>
-		<LinearLayout android:layout_width="fill_parent" android:id="@+id/linearLayout3" android:gravity="center" android:layout_height="wrap_content" android:layout_marginTop="10dip">
+		<LinearLayout android:layout_width="fill_parent" android:id="@+id/linearLayout3" android:gravity="center" android:layout_height="wrap_content" android:layout_marginTop="10dip" android:layout_marginBottom="10dip">
 			<Button android:layout_height="wrap_content" android:layout_gravity="center" android:layout_width="120dip" android:layout_marginRight="5dip" android:id="@+id/enable_throttle_button" android:text="Disable Throttle" android:lines="2"></Button>
 			<Button android:id="@+id/save_throttle_button" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_width="120dip" android:layout_marginLeft="5dip" android:text="Save Throttle Settings"></Button>
 		</LinearLayout>

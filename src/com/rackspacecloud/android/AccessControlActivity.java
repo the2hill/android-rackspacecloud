@@ -136,6 +136,15 @@ public class AccessControlActivity extends CloudListActivity {
 			setListAdapter(new NetworkItemAdapter());
 		}
 	}
+	
+	 private void displayLoadingCell() {
+	    	String a[] = new String[1];
+	    	a[0] = "Loading...";
+	        setListAdapter(new ArrayAdapter<String>(this, R.layout.loadingcell, R.id.loading_label, a));
+	        getListView().setTextFilterEnabled(true);
+	        getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
+	        getListView().setItemsCanFocus(false);
+	    }
 
 	private void displayNoRulesCell() {
 		String a[] = new String[1];
@@ -147,6 +156,7 @@ public class AccessControlActivity extends CloudListActivity {
 	}
 
 	private void loadNetworkItems() {
+		displayLoadingCell();
 		new LoadNetworkItemsTask().execute((Void[]) null);
 	}
 
@@ -187,7 +197,8 @@ public class AccessControlActivity extends CloudListActivity {
 
 		@Override
 		protected void onPreExecute(){
-			showDialog();
+			//set to null so will reload on config changes
+			networkItems = null;
 		}
 
 		@Override
@@ -203,7 +214,6 @@ public class AccessControlActivity extends CloudListActivity {
 
 		@Override
 		protected void onPostExecute(ArrayList<NetworkItem> result) {
-			hideDialog();
 			if (exception != null) {
 				showAlert("Error", exception.getMessage());
 			}
@@ -214,17 +224,21 @@ public class AccessControlActivity extends CloudListActivity {
 	private class DeleteNetworkItemTask extends AsyncTask<Void, Void, HttpBundle> {
 
 			private CloudServersException exception;
+			private NetworkItem networkItem;
 
 			@Override
 			//let user know their process has started
 			protected void onPreExecute(){
-				showDialog();
+				networkItem = networkItems.get(lastSelectedRulePosition);
+				displayLoadingCell();
+				//set to null so will reload on config change
+				networkItems = null;
 			}
 			@Override
 			protected HttpBundle doInBackground(Void... arg0) {
 				HttpBundle bundle = null;
 				try {
-					bundle = new NetworkItemManager(getContext()).delete(loadBalancer, networkItems.get(lastSelectedRulePosition));
+					bundle = new NetworkItemManager(getContext()).delete(loadBalancer, networkItem);
 				} catch (CloudServersException e) {
 					exception = e;
 				}
@@ -233,7 +247,6 @@ public class AccessControlActivity extends CloudListActivity {
 
 			@Override
 			protected void onPostExecute(HttpBundle bundle) {
-				hideDialog();
 				HttpResponse response = bundle.getResponse();
 				if (response != null) {
 					int statusCode = response.getStatusLine().getStatusCode();
