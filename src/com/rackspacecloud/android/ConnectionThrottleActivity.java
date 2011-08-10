@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -113,9 +112,11 @@ public class ConnectionThrottleActivity extends CloudActivity{
 
 				if(enable.getText().toString().equals(DISABLE)){	
 					if(validText()){
+						//trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_LB_SESSION_PERSISTENCE, "", -1);
 						new UpdateConnectionThrottleTask().execute();
 					}
 				} else {
+					//trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_LB_SESSION_PERSISTENCE, "", -1);
 					new DeleteConnectionThrottleTask().execute();
 				}
 			}

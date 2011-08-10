@@ -22,7 +22,7 @@ public class PasswordServerActivity extends CloudActivity implements OnClickList
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_PASSCODE);
+        trackPageView(GoogleAnalytics.PAGE_PASSCODE);
         setContentView(R.layout.viewchangepassword); 
         server = (Server) this.getIntent().getExtras().get("server");
     }
@@ -42,7 +42,7 @@ public class PasswordServerActivity extends CloudActivity implements OnClickList
 		String password = ((EditText)findViewById(R.id.password_edittext)).getText().toString();
 		String confirm = ((EditText)findViewById(R.id.password_confirm_edittext)).getText().toString();
 		if(password.equals(confirm)){
-			trackEvent(CATEGORY_SERVER, EVENT_PASSWORD, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_PASSWORD, "", -1);
 			modifiedPassword = password;
 			new PasswordServerTask().execute((Void[]) null);	
 		}

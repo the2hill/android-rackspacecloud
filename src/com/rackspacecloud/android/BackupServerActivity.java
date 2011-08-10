@@ -109,7 +109,7 @@ public class BackupServerActivity extends CloudActivity implements OnItemSelecte
 			showAlert("Error", "Server is busy.");
 		}
 		else{
-			trackEvent(CATEGORY_SERVER, EVENT_BACKUP, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_BACKUP, "", -1);
 			new BackupServerTask().execute((Void[]) null);
 		}
 	}

@@ -35,7 +35,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_CONTAINER_DETAILS);
+		trackPageView(GoogleAnalytics.PAGE_CONTAINER_DETAILS);
 		setContentView(R.layout.enable_cdn_container);
 		containerName = (String) this.getIntent().getExtras().get("Cname");
 		restoreState(savedInstanceState);
@@ -128,7 +128,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
 									// User clicked OK so do some stuff
-									trackEvent(CATEGORY_CONTAINER, EVENT_UPDATED, "", -1);
+									trackEvent(GoogleAnalytics.CATEGORY_CONTAINER, GoogleAnalytics.EVENT_UPDATED, "", -1);
 									new EnableCDNTask().execute((Void[]) null);
 								}
 							})
@@ -150,7 +150,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
 									// User clicked OK so do some stuff
-									trackEvent(CATEGORY_CONTAINER, EVENT_UPDATED, "", -1);
+									trackEvent(GoogleAnalytics.CATEGORY_CONTAINER, GoogleAnalytics.EVENT_UPDATED, "", -1);
 									new ChangeAttributesCDNTask().execute((Void[]) null);
 								}
 							})

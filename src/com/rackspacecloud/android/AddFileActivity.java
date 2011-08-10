@@ -25,7 +25,7 @@ public class AddFileActivity extends CloudActivity implements OnClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_ADD_OBJECT);
+		trackPageView(GoogleAnalytics.PAGE_ADD_OBJECT);
 		setContentView(R.layout.addtextfile);
 		restoreState(savedInstanceState);
 	}
@@ -53,7 +53,7 @@ public class AddFileActivity extends CloudActivity implements OnClickListener{
 		if ("".equals(fileName.getText().toString())) {
 			showAlert("Required Fields Missing", " File name is required.");
 		} else {
-			trackEvent(CATEGORY_FILE, EVENT_CREATE, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_FILE, GoogleAnalytics.EVENT_CREATE, "", -1);
 			new SaveFileTask().execute((Void[]) null);
 		}
 	}

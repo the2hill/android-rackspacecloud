@@ -45,7 +45,7 @@ public class ListContainerActivity extends GaListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_CONTAINERS);
+		trackPageView(GoogleAnalytics.PAGE_CONTAINERS);
 		context = getApplicationContext();
 		restoreState(savedInstanceState);
 	}

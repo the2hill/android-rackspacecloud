@@ -25,7 +25,7 @@ public class AddAccountActivity extends CloudActivity implements OnClickListener
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_PROVIDERS);
+        trackPageView(GoogleAnalytics.PAGE_PROVIDERS);
         setContentView(R.layout.createaccount);
         usernameText = (EditText) findViewById(R.id.username);
         apiKeyText = (EditText) findViewById(R.id.addaccount_apikey);

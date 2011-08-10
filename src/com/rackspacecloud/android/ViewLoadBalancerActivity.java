@@ -54,6 +54,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		trackPageView(GoogleAnalytics.PAGE_LOADBALANCER);
 		loadBalancer = (LoadBalancer) this.getIntent().getExtras().get("loadBalancer");
 		setContentView(R.layout.view_loadbalancer);
 		app = (AndroidCloudApplication)this.getApplication();
@@ -260,6 +261,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			.setMessage("Are you sure you want to delete the load balancer?")
 			.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_DELETE, "", -1);
 					new DeleteLoadBalancerTask().execute((Void[]) null);
 				}
 			})
@@ -276,6 +278,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			.setMessage("Are you sure you want to disable logs for this Load Balancer?")
 			.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_LB_CONNECTION_LOGGING, "", -1);
 					new SetLoggingTask().execute();	
 				}
 			})
@@ -292,6 +295,7 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 			.setMessage("Are you sure you want to disable session persistence for this Load Balancer?")
 			.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
+					//trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_LB_SESSION_PERSISTENCE, "", -1);
 					new SessionPersistenceTask().execute();
 				}
 			})

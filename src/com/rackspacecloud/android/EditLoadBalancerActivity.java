@@ -106,6 +106,7 @@ public class EditLoadBalancerActivity extends CloudActivity implements OnItemSel
 				selectedPort = portText.getText().toString();
 				
 				if(validPort()) {
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_UPDATED, "", -1);
 					new UpdateLoadBalancerTask().execute();
 				} else {
 					showAlert("Error", "Must have a protocol port number that is between 1 and 65535.");

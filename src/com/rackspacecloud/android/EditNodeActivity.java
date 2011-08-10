@@ -39,6 +39,7 @@ public class EditNodeActivity extends CloudActivity{
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		trackPageView(GoogleAnalytics.PAGE_LB_NODE);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.editnode);
 		node = (Node) this.getIntent().getExtras().get("node");
@@ -60,6 +61,7 @@ public class EditNodeActivity extends CloudActivity{
 			public void onClick(View v) {
 				selectedWeight = weightText.getText().toString();
 				if(weightText.getVisibility() == View.GONE || (weightText.getVisibility() != View.GONE && validWeight(selectedWeight))){
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_UPDATED_NODE, "", -1);
 					new ModifyNodeTask().execute();
 				}
 				else{
@@ -89,6 +91,7 @@ public class EditNodeActivity extends CloudActivity{
 				.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// User clicked OK so do some stuff
+						trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_DELETE_NODE, "", -1);
 						new DeleteNodeTask().execute((Void[]) null);
 					}
 				})

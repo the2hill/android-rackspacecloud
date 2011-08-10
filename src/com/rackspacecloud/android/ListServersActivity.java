@@ -39,7 +39,7 @@ public class ListServersActivity extends GaListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_SERVERS);
+        trackPageView(GoogleAnalytics.PAGE_SERVERS);
         context = getApplicationContext();
         restoreState(savedInstanceState);
     }

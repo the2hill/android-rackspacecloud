@@ -60,7 +60,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_FOLDER);
+		trackPageView(GoogleAnalytics.PAGE_FOLDER);
 		container = (Container) this.getIntent().getExtras().get("container");
 		if (container.isCdnEnabled() == true) {
 			cdnEnabledIs = "true";
@@ -402,7 +402,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 					public void onClick(DialogInterface dialog,
 							int whichButton) {
 						// User clicked OK so do some stuff
-						trackEvent(CATEGORY_CONTAINER, EVENT_DELETE, "", -1);
+						trackEvent(GoogleAnalytics.CATEGORY_CONTAINER, GoogleAnalytics.EVENT_DELETE, "", -1);
 						new DeleteContainerTask()
 						.execute(currentPath);
 					}

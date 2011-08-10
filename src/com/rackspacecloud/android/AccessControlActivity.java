@@ -36,7 +36,7 @@ public class AccessControlActivity extends CloudListActivity {
 	private LoadBalancer loadBalancer;
 	private ArrayList<NetworkItem> networkItems;
 	private int lastSelectedRulePosition;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -100,7 +100,6 @@ public class AccessControlActivity extends CloudListActivity {
 			.setMessage("Would you like to remove this rule?")
 			.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
-					//trackEvent(CATEGORY_SERVER, EVENT_DELETE, "", -1);
 					new DeleteNetworkItemTask().execute((Void[]) null);
 				}
 			})

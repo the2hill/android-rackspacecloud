@@ -57,7 +57,7 @@ public class ViewServerActivity extends CloudActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_SERVER);
+		trackPageView(GoogleAnalytics.PAGE_SERVER);
 		server = (Server) this.getIntent().getExtras().get("server");
 		setContentView(R.layout.viewserver);
 		restoreState(savedInstanceState);
@@ -289,7 +289,7 @@ public class ViewServerActivity extends CloudActivity {
 
 		setupButton(R.id.view_server_ping_button, new OnClickListener() {
 			public void onClick(View v) {
-				trackEvent(CATEGORY_SERVER, EVENT_PING, "", -1);
+				trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_PING, "", -1);
 
 				//ping the first public ip
 				Intent viewIntent = new Intent(v.getContext(), PingServerActivity.class);
@@ -358,7 +358,7 @@ public class ViewServerActivity extends CloudActivity {
 				.setMessage("Are you sure you want to perform a soft reboot?")
 				.setPositiveButton("Reboot Server", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						trackEvent(CATEGORY_SERVER, EVENT_REBOOT, "", -1);
+						trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_REBOOT, "", -1);
 						new SoftRebootServerTask().execute((Void[]) null);
 					}
 				})
@@ -375,7 +375,7 @@ public class ViewServerActivity extends CloudActivity {
 				.setMessage("Are you sure you want to perform a hard reboot?")
 				.setPositiveButton("Reboot Server", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						trackEvent(CATEGORY_SERVER, EVENT_REBOOT, "", -1);
+						trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_REBOOT, "", -1);
 						new HardRebootServerTask().execute((Void[]) null);
 					}
 				})
@@ -403,7 +403,7 @@ public class ViewServerActivity extends CloudActivity {
 				.setMessage("Are you sure you want to delete this server?  This operation cannot be undone and all backups will be deleted.")
 				.setPositiveButton("Delete Server", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						trackEvent(CATEGORY_SERVER, EVENT_DELETE, "", -1);
+						trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_DELETE, "", -1);
 						new DeleteServerTask().execute((Void[]) null);
 					}
 				})
@@ -423,7 +423,7 @@ public class ViewServerActivity extends CloudActivity {
 				.setMessage("Enter new name for server: ")        	         
 				.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						trackEvent(CATEGORY_SERVER, EVENT_RENAME, "", -1);
+						trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_RENAME, "", -1);
 						modifiedServerName = input.getText().toString();
 						new RenameServerTask().execute((Void[]) null);
 					}
@@ -462,7 +462,7 @@ public class ViewServerActivity extends CloudActivity {
 	private class ResizeClickListener implements android.content.DialogInterface.OnClickListener {
 
 		public void onClick(DialogInterface dialog, int which) {
-			trackEvent(CATEGORY_SERVER, EVENT_RESIZE, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_RESIZE, "", -1);
 			selectedFlavorId = which + 1 + "";
 			new ResizeServerTask().execute((Void[]) null);
 		}
@@ -472,7 +472,7 @@ public class ViewServerActivity extends CloudActivity {
 	private class RebuildClickListener implements android.content.DialogInterface.OnClickListener {
 
 		public void onClick(DialogInterface dialog, int which) {
-			trackEvent(CATEGORY_SERVER, EVENT_REBUILD, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_REBUILD, "", -1);
 			selectedImageId = images[which].getId() + "";
 			new RebuildServerTask().execute((Void[]) null);
 		}

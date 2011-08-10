@@ -63,6 +63,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		trackPageView(GoogleAnalytics.PAGE_ADD_LOADBALANCER);
 		setContentView(R.layout.view_add_loadbalancer);
 		restoreState(savedInstanceState);
 	}
@@ -196,6 +197,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 						vips.add(selectedVip);
 						loadBalancer.setVirtualIps(vips);
 					}
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_CREATE, "", -1);
 					new AddLoadBalancerTask().execute();
 				}
 			}

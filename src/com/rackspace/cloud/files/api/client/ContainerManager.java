@@ -145,7 +145,8 @@ public class ContainerManager extends EntityManager {
 		put.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
 		put.addHeader("X-TTL", ttl);
 		put.addHeader("X-Log-Retention", logRet);
-		Log.v("cdn manager", ttl + container + logRet);
+		Log.d("info cdn", url);
+		Log.v("info cdn", ttl + container + logRet);
 		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
 
 		HttpBundle bundle = new HttpBundle();

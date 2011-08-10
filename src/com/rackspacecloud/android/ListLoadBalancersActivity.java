@@ -3,7 +3,6 @@ package com.rackspacecloud.android;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,7 +23,7 @@ import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
-public class ListLoadBalancersActivity extends ListActivity {
+public class ListLoadBalancersActivity extends GaListActivity {
 
 	private final int ADD_LOAD_BALANCER_CODE = 22;
 	private LoadBalancer[] loadBalancers;
@@ -33,6 +32,7 @@ public class ListLoadBalancersActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		trackPageView(GoogleAnalytics.PAGE_LOADBALANCERS);
 		context = getApplicationContext();
 		restoreState(savedInstanceState);
 	}

@@ -26,7 +26,7 @@ public class AddContainerActivity extends CloudActivity implements OnClickListen
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_ADD_CONTAINER);
+		trackPageView(GoogleAnalytics.PAGE_ADD_CONTAINER);
 		setContentView(R.layout.createcontainer);
 		restoreState(savedInstanceState);
 	}
@@ -41,7 +41,7 @@ public class AddContainerActivity extends CloudActivity implements OnClickListen
 		if ("".equals(containerName.getText().toString())) {
 			showAlert("Required Fields Missing", " Container name is required.");
 		} else {
-			trackEvent(CATEGORY_CONTAINER, EVENT_CREATE, "", -1);
+			trackEvent(GoogleAnalytics.CATEGORY_CONTAINER, GoogleAnalytics.EVENT_CREATE, "", -1);
 			new CreateContainerTask().execute((Void[]) null);
 		}
 	}

@@ -63,7 +63,7 @@ public class ContainerObjectDetails extends CloudActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_STORAGE_OBJECT);
+		trackPageView(GoogleAnalytics.PAGE_STORAGE_OBJECT);
 
 		objects = (ContainerObjects) this.getIntent().getExtras().get("container");
 		containerNames =  (String) this.getIntent().getExtras().get("containerNames");
@@ -237,7 +237,7 @@ public class ContainerObjectDetails extends CloudActivity {
 			.setPositiveButton("Delete File", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					// User clicked OK so do some stuff
-					trackEvent(CATEGORY_FILE, EVENT_DELETE, "", -1);
+					trackEvent(GoogleAnalytics.CATEGORY_FILE, GoogleAnalytics.EVENT_DELETE, "", -1);
 					new ContainerObjectDeleteTask().execute((Void[]) null);
 				}
 			})

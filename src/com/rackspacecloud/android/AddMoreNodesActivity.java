@@ -118,6 +118,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 				if(nodesToAdd.size() == 0){
 					finish();
 				} else {
+					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_ADD_LB_NODES, "", -1);
 					new AddNodesTask().execute();
 				}
 			}

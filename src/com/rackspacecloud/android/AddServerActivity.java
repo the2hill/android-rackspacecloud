@@ -49,7 +49,7 @@ public class AddServerActivity extends CloudActivity implements OnItemSelectedLi
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_ADD_SERVER);	
+		trackPageView(GoogleAnalytics.PAGE_ADD_SERVER);	
 		setContentView(R.layout.createserver);
 		restoreState(savedInstanceState);
 	}
@@ -175,7 +175,7 @@ public class AddServerActivity extends CloudActivity implements OnItemSelectedLi
 		if ("".equals(serverName.getText().toString())) {
 			showAlert("Required Fields Missing", "Server name is required.");
 		} else {
-			trackEvent(CATEGORY_SERVER, EVENT_CREATE, "", numberBar.getProgress()+1);
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_CREATE, "", numberBar.getProgress()+1);
 			server = new Server();
 			server.setName(serverName.getText().toString()); 
 			server.setImageId(selectedImageId);
