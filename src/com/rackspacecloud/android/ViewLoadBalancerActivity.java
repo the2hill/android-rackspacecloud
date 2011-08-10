@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -439,16 +438,13 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 		if(virtualIps != null){
 			for (int i = 0; i < virtualIps.size(); i++) {
 				TextView tv = new TextView(this.getBaseContext());
-				//tv.setLayoutParams(((TextView)findViewById(R.id.view_port)).getLayoutParams()); // easy quick styling! :)
+				tv.setLayoutParams(((TextView)findViewById(R.id.view_port)).getLayoutParams()); // easy quick styling! :)
 				tv.setTypeface(tv.getTypeface(), 1); // 1 == bold
 				tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 				tv.setTextColor(Color.WHITE);
 				tv.setText(virtualIps.get(i).getAddress());
-				HorizontalScrollView scroll = new HorizontalScrollView(this.getBaseContext());
-				scroll.setLayoutParams(((TextView)findViewById(R.id.view_port)).getLayoutParams()); // easy quick styling! :)
-				scroll.setScrollbarFadingEnabled(true);
-				scroll.addView(tv);
-				layout.addView(scroll, layoutIndex++);
+				tv.setGravity(((TextView)findViewById(R.id.view_port)).getGravity());
+				layout.addView(tv, layoutIndex++);
 			}
 		}
 
@@ -485,11 +481,8 @@ public class ViewLoadBalancerActivity extends CloudActivity {
 				tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 				tv.setTextColor(Color.WHITE);
 				tv.setText(addresses.get(i));
-				HorizontalScrollView scroll = new HorizontalScrollView(this.getBaseContext());
-				scroll.setLayoutParams(((TextView)findViewById(R.id.view_port)).getLayoutParams()); // easy quick styling! :)
-				scroll.setScrollbarFadingEnabled(true);
-				scroll.addView(tv);
-				layout.addView(scroll, layoutIndex++);
+				tv.setGravity(((TextView)findViewById(R.id.view_port)).getGravity()); 
+				layout.addView(tv, layoutIndex++);
 			}
 		}
 	}

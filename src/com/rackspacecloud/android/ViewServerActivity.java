@@ -170,6 +170,7 @@ public class ViewServerActivity extends CloudActivity {
 					tv.setLayoutParams(os.getLayoutParams()); // easy quick styling! :)
 					tv.setTypeface(tv.getTypeface(), 1); // 1 == bold
 					tv.setTextSize(os.getTextSize());
+					tv.setGravity(os.getGravity());
 					tv.setTextColor(Color.WHITE);
 					tv.setText(publicIps[i]);
 					layout.addView(tv, layoutIndex++);
@@ -183,6 +184,7 @@ public class ViewServerActivity extends CloudActivity {
 					tv.setLayoutParams(os.getLayoutParams()); // easy quick styling! :)
 					tv.setTypeface(tv.getTypeface(), 1); // 1 == bold
 					tv.setTextSize(os.getTextSize());
+					tv.setGravity(os.getGravity());
 					tv.setTextColor(Color.WHITE);
 					tv.setText(privateIps[i]);
 					layout.addView(tv, layoutIndex++);

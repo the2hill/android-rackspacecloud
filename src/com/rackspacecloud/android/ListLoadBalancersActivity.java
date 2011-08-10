@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -140,9 +141,13 @@ public class ListLoadBalancersActivity extends GaListActivity {
 			View row = inflater.inflate(R.layout.list_loadbalancer_item,
 					parent, false);
 			
+			Log.d("info", "name: " + loadBalancer.getName() + " status: " + loadBalancer.getStatus());
+			
 			ImageView status = (ImageView) row.findViewById(R.id.load_balancer_status);
 			if(loadBalancer.getStatus().equals("DELETED") || loadBalancer.getStatus().equals("PENDING_DELETE")){
 				status.setImageResource(R.drawable.deny_rule);
+			} else if(loadBalancer.getStatus().equals("ERROR")){
+				status.setImageResource(R.drawable.error_icon);
 			} else {
 				status.setImageResource(R.drawable.allow_rule);
 			}
