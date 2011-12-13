@@ -163,6 +163,9 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 			public void onClick(View v) {
 				Intent viewIntent = new Intent(getApplicationContext(), AddNodesActivity.class);
 				viewIntent.putExtra("nodes", nodes);
+				if(validPort(selectedPort)){
+					viewIntent.putExtra("loadBalancerPort", selectedPort);
+				}
 				viewIntent.putExtra("possibleNodes", possibleNodes);
 				startActivityForResult(viewIntent, ADD_NODES_ACTIVITY_CODE);
 			}
@@ -199,6 +202,7 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 					}
 					trackEvent(GoogleAnalytics.CATEGORY_LOAD_BALANCER, GoogleAnalytics.EVENT_CREATE, "", -1);
 					new AddLoadBalancerTask().execute();
+					Log.d("info", "the port is " + selectedPort);
 				}
 			}
 		});
@@ -303,15 +307,21 @@ public class AddLoadBalancerActivity extends CloudActivity implements OnItemSele
 		String protocolNames[] = new String[Protocol.getProtocols().size() + 1]; 
 		protocols = new Protocol[Protocol.getProtocols().size()];
 
+		int httpIndex = 0;
 		for(int i = 0; i < Protocol.getProtocols().size(); i++){
 			protocols[i] = Protocol.getProtocols().get(i);
 			protocolNames[i] = Protocol.getProtocols().get(i).getName() + " (" + Protocol.getProtocols().get(i).getDefaultPort() + ")";
+			if(Protocol.getProtocols().get(i).getName().equals("HTTP")){
+				httpIndex = i;
+			}
 		}
 		protocolNames[protocolNames.length - 1] = "Custom";
 
 		ArrayAdapter<String> protocolAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, protocolNames);
 		protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		protocolSpinner.setAdapter(protocolAdapter);
+		protocolSpinner.setSelection(httpIndex);
+
 	}
 
 	/*

@@ -130,7 +130,9 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			@Override
 			public void onClick(View v) {
 				positionOfNode = -1;
+				lastCheckedPos = -1;
 				Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
+				viewIntent.putExtra("loadBalancerPort", loadBalancer.getPort());
 				viewIntent.putExtra("weighted", loadBalancer.getAlgorithm().toLowerCase().contains("weighted"));
 				startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
 			}
@@ -213,7 +215,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 	private void displayNoServersCell() {
 		String a[] = new String[1];
 		a[0] = "No Servers";
-		setListAdapter(new ArrayAdapter<String>(this, R.layout.noserverscell, R.id.no_servers_label, a));
+		setListAdapter(new ArrayAdapter<String>(this, R.layout.noserverscell2, R.id.no_servers_label, a));
 		getListView().setTextFilterEnabled(true);
 		getListView().setDividerHeight(0); // hide the dividers so it won't look like a list row
 		getListView().setItemsCanFocus(false);
@@ -350,6 +352,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 						Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
 						viewIntent.putExtra("ipAddresses", ipAddresses);
 						viewIntent.putExtra("name", server.getName());
+						viewIntent.putExtra("loadBalancerPort", loadBalancer.getPort());
 						viewIntent.putExtra("weighted", loadBalancer.getAlgorithm().contains("WEIGHTED"));
 						startActivityForResult(viewIntent, ADD_NODE_CODE);
 					}
@@ -493,7 +496,7 @@ public class AddMoreNodesActivity extends CloudListActivity {
 
 	private boolean ipInList(String address){
 		for(Server s : possibleNodes){
-			if(serverHasIp(s, address)){
+			if(serverHasIp(s, address) && !s.getName().equals("External Node")){
 				return true;
 			}
 		}
@@ -571,11 +574,23 @@ public class AddMoreNodesActivity extends CloudListActivity {
 			node.setWeight(data.getStringExtra("nodeWeight"));
 
 			/*
-			 * If the ip is from a cloud server, alert to user
+			 * If the ip is from a cloud server or already added, alert to user
 			 * so they can select it from there
 			 */	
-			if(!ipInList(node.getAddress())){
-
+			String nodeIP = node.getAddress();
+			ArrayList<Node> lbNodes = loadBalancer.getNodes();
+			boolean nodeIpExists = false;
+			for(int i = 0; i < lbNodes.size(); i++){
+				if(nodeIP.equals(lbNodes.get(i).getAddress())){
+					nodeIpExists = true;
+				}
+			}
+			if(nodeIpExists){
+					showAlert("Error", "This IP has already been added as an external node, please edit " +
+					"it from the list.");
+			} else if(!ipInList(node.getAddress())){
+				
+				
 				if(positionOfNode >= 0){
 					nodesToAdd.remove(positionOfNode);
 				}
@@ -586,12 +601,15 @@ public class AddMoreNodesActivity extends CloudListActivity {
 				server.setName("External Node");
 				String[] ip = {data.getStringExtra("nodeIp")};
 				server.setPrivateIpAddresses(ip);
+				if(pos != -1){
+					possibleNodes.remove(pos);
+				}
 				possibleNodes.add(server);
 				setServerList(possibleNodes);
 			} else {
 				String name = getNameFromIp(node.getAddress());
 				if(name.equals("External Node")){
-					showAlert("Error", "This IP has already been added as an external node, please edit" +
+					showAlert("Error", "This IP has already been added as an external node, please edit " +
 					"it from the list.");
 				} else {
 					showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 

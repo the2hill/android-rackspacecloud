@@ -38,12 +38,15 @@ public class AddNodesActivity extends CloudListActivity {
 	private int lastCheckedPos;
 	//the location in nodes of the last node that was clicked
 	private int positionOfNode;
+	//tracking the selected port of load balancer
+	private String selectedPort;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		nodes = (ArrayList<Node>) this.getIntent().getExtras().get("nodes");
+		selectedPort = (String) this.getIntent().getExtras().get("loadBalancerPort");
 		//possibleNodes = (ArrayList<Server>) this.getIntent().getExtras().get("possibleNodes");
 		setContentView(R.layout.addnodes);
 		restoreState(savedInstanceState);
@@ -56,6 +59,7 @@ public class AddNodesActivity extends CloudListActivity {
 		outState.putSerializable("possibleNodes", possibleNodes);
 		outState.putInt("lastCheckedPos", lastCheckedPos);
 		outState.putInt("positionOfNode", positionOfNode);
+		outState.putString("loadBalancerPort", selectedPort);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -76,6 +80,10 @@ public class AddNodesActivity extends CloudListActivity {
 		if (state != null && state.containsKey("positionOfNode")){
 			positionOfNode = (Integer) state.getSerializable("positionOfNode");
 		}
+		
+		if (state != null && state.containsKey("loadBalancerPort")){
+			//selectedPort = (String) state.getSerializable("loadBalancerPort");
+		}
 
 		if (state != null && state.containsKey("possibleNodes") && state.getSerializable("possibleNodes") != null) {
 			possibleNodes = (ArrayList<Server>) state.getSerializable("possibleNodes");
@@ -88,6 +96,7 @@ public class AddNodesActivity extends CloudListActivity {
 		} else {
 			loadServers();
 		}
+		
 
 		Button submitNodes = (Button) findViewById(R.id.submit_nodes_button);
 		submitNodes.setOnClickListener(new OnClickListener() {
@@ -108,11 +117,13 @@ public class AddNodesActivity extends CloudListActivity {
 
 			@Override
 			public void onClick(View v) {
+				lastCheckedPos = -1;
 				positionOfNode = -1;
 				Intent viewIntent = new Intent(getContext(), AddExternalNodeActivity.class);
 				//when first creating a load balancer
 				//weighting nodes in not an option
 				viewIntent.putExtra("weighted", false);
+				viewIntent.putExtra("loadBalancerPort", selectedPort);
 				startActivityForResult(viewIntent, ADD_EXTERNAL_NODE_CODE);
 			}
 		});
@@ -269,6 +280,7 @@ public class AddNodesActivity extends CloudListActivity {
 						positionOfNode = -1;
 						lastCheckedPos = pos;
 						Intent viewIntent = new Intent(getContext(), AddNodeActivity.class);
+						viewIntent.putExtra("loadBalancerPort", selectedPort);
 						viewIntent.putExtra("ipAddresses", ipAddresses);
 						viewIntent.putExtra("name", server.getName());
 						//weighted is false, because on initial node add
@@ -429,7 +441,7 @@ public class AddNodesActivity extends CloudListActivity {
 	}
 
 	//removes a node with ip of address from nodes
-	//if one doesnt exists doesn nothing
+	//if one doesnt exists does nothing
 	/*
 	private void removeNodeWithIp(String address){
 		for(int i = 0; i < nodes.size(); i++){
@@ -470,10 +482,7 @@ public class AddNodesActivity extends CloudListActivity {
 			//uncheck the node at lastCheckedPos
 			LinearLayout linear = (LinearLayout) findViewById(R.id.nodes_linear_layout); 
 			ListView serversList = (ListView) linear.findViewById(android.R.id.list);
-			Log.d("info", "number of items in serverList " + serversList.getChildCount());
-			Log.d("info", "lastCheckedPos is " + Integer.toString(pos));
 			View row = serversList.getChildAt(pos);
-			Log.d("info", ("is row null? " + Boolean.toString(row == null)));
 			CheckBox checkBox = (CheckBox)row.findViewById(R.id.add_node_checkbox);
 			checkBox.setChecked(false);
 		}
@@ -502,12 +511,17 @@ public class AddNodesActivity extends CloudListActivity {
 				server.setName("External Node");
 				String[] ip = {data.getStringExtra("nodeIp")};
 				server.setPrivateIpAddresses(ip);
+				
+				//remove the old node and replace it with the updated one
+				if(pos != -1){
+					possibleNodes.remove(pos);
+				}
 				possibleNodes.add(server);
 				setServerList(possibleNodes);
 			} else {
 				String name = getNameFromIp(node.getAddress());
 				if(name.equals("External Node")){
-					showAlert("Error", "This IP has already been added as an external node, please edit" +
+					showAlert("Error", "This IP has already been added as an external node, please edit " +
 					"it from the list.");
 				} else {
 					showAlert("Error", "This IP belongs to a cloud server: \"" + getNameFromIp(node.getAddress()) 

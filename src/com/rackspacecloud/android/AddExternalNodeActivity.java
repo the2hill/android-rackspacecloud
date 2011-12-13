@@ -7,6 +7,7 @@ import com.rackspace.cloud.loadbalancer.api.client.Node;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -37,6 +38,7 @@ public class AddExternalNodeActivity extends CloudActivity {
 		setContentView(R.layout.addexternalnode);
 		weighted = (Boolean) this.getIntent().getExtras().get("weighted");
 		node = (Node) this.getIntent().getExtras().get("node");
+		selectedPort = (String) this.getIntent().getExtras().get("loadBalancerPort");
 		restoreState(savedInstanceState);
 	} 
 
@@ -66,6 +68,9 @@ public class AddExternalNodeActivity extends CloudActivity {
 			weightText.setText(node.getWeight());
 			((EditText)findViewById(R.id.node_port_text)).setText(node.getPort());
 			conditionSpinner.setSelection(getLocation(CONDITIONS, node.getCondition()));
+		} else {
+			Log.d("info", "node was null");
+			((EditText)findViewById(R.id.node_port_text)).setText(selectedPort);
 		}
 	}
 	
@@ -84,17 +89,17 @@ public class AddExternalNodeActivity extends CloudActivity {
 
 			@Override
 			public void onClick(View v) {
-				selectedIp = ipAddress.getText().toString();
-				selectedPort = ((EditText)findViewById(R.id.node_port_text)).getText().toString();
-				selectedWeight = weightText.getText().toString();
+				selectedIp = ipAddress.getText().toString().trim();
+				selectedPort = ((EditText)findViewById(R.id.node_port_text)).getText().toString().trim();
+				selectedWeight = weightText.getText().toString().trim();
 				if(!validPort(selectedPort)){
 					showAlert("Error", "Must have a protocol port number that is between 1 and 65535.");
 				} else if(!(weightText.getVisibility() == View.GONE || (weightText.getVisibility() != View.GONE && validWeight(selectedWeight)))){
 					showAlert("Error", "Weight must be between 1 and 100.");
-				} else if(ipAddress.getText().toString().equals("")){
+				} else if(selectedIp.equals("")){
 					//TODO use regex to validate the ip for IPV4 and IPV6
 					showAlert("Error", "Enter an IP Address");
-				} else if(!validIp(ipAddress.getText().toString())) {
+				} else if(!validIp(selectedIp)) {
 					showAlert("Error", "Enter a valid IP Address");
 				} else {
 					Intent data = new Intent();

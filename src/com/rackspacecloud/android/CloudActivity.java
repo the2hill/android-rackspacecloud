@@ -2,6 +2,7 @@ package com.rackspacecloud.android;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Calendar;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +21,7 @@ import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,8 +29,12 @@ import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -41,14 +47,19 @@ import android.widget.Toast;
  */
 public abstract class CloudActivity extends GaActivity{
 
+	private final int PASSWORD_PROMPT = 123;
 	private Context context;
 	private boolean isLoading;
 	private ProgressDialog pDialog;
+	protected AndroidCloudApplication app;
+	//need to store if the user has successfully logged in
+	private boolean loggedIn;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		
+		app = (AndroidCloudApplication)this.getApplication();
+
 		//So keyboard doesn't open till user clicks
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); 
 	}
@@ -58,6 +69,7 @@ public abstract class CloudActivity extends GaActivity{
 		super.onSaveInstanceState(outState);
 
 		outState.putBoolean("isLoading", isLoading);
+		outState.putBoolean("loggedIn", loggedIn);
 		
 		if(pDialog != null && pDialog.isShowing()){
 			hideDialog();
@@ -67,6 +79,12 @@ public abstract class CloudActivity extends GaActivity{
 
 	protected void restoreState(Bundle state) {
 		context = getApplicationContext();
+		if (state != null && state.containsKey("loggedIn")){
+			loggedIn = state.getBoolean("loggedIn");
+		}
+		else{
+			loggedIn = false;
+		}
 		
 		/*
 		 * need to restore the pDialog is was shown before
@@ -95,6 +113,74 @@ public abstract class CloudActivity extends GaActivity{
 		if(isLoading){
 			hideDialog();
 			isLoading = true;
+		}
+	}
+	
+	@Override
+	protected void onPause(){
+		super.onPause();
+		Calendar cal = Calendar.getInstance();
+		AndroidCloudApplication.lastPause = cal.getTimeInMillis();
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		Calendar cal = Calendar.getInstance();
+		long curTime = cal.getTimeInMillis();
+		if(curTime - AndroidCloudApplication.lastPause > 5000){
+			verifyPassword();
+		}
+	}
+	
+	/*
+	 * if the application is password protected,
+	 * the user must provide the password before
+	 * gaining access
+	 */
+	private void verifyPassword(){
+		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
+				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
+		if(pwManager.hasPassword() && !loggedIn){
+			createCustomDialog(PASSWORD_PROMPT);
+		}
+	}
+
+	private boolean rightPassword(String password){
+		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
+				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
+		return pwManager.verifyEnteredPassword(password);
+	}
+
+
+	/*
+	 * forces the user to enter a correct password
+	 * before they gain access to application data
+	 */
+	private void createCustomDialog(int id) {
+		final Dialog dialog = new Dialog(CloudActivity.this);
+		switch (id) {
+		case PASSWORD_PROMPT:
+			dialog.setContentView(R.layout.passworddialog);
+			dialog.setTitle("Enter your password:");
+			dialog.setCancelable(false);
+			Button button = (Button) dialog.findViewById(R.id.submit_password);
+			button.setOnClickListener(new OnClickListener() {
+				public void onClick(View v){
+					EditText passwordText = ((EditText)dialog.findViewById(R.id.submit_password_text));
+					if(!rightPassword(passwordText.getText().toString())){
+						passwordText.setText("");
+						showToast("Password was incorrect.");
+						loggedIn = false;
+					}
+					else{
+						dialog.dismiss();
+						loggedIn = true;
+					}
+				}
+
+			});
+			dialog.show();
 		}
 	}
 	
@@ -161,7 +247,6 @@ public abstract class CloudActivity extends GaActivity{
 
 	protected final void hideDialog() {
 		if(pDialog != null){
-			Log.d("info", "dialog hide");
 			isLoading = false;
 			pDialog.dismiss();
 		}
@@ -169,7 +254,6 @@ public abstract class CloudActivity extends GaActivity{
 
 	protected final void showDialog() {
 		if(pDialog == null || !pDialog.isShowing()){
-			Log.d("info", "dialog created");
 			isLoading = true;
 			pDialog = new ProgressDialog(this);
 			pDialog.setProgressStyle(R.style.NewDialog);

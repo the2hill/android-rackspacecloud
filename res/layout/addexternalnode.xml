@@ -17,7 +17,6 @@
 		<EditText android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:inputType="number"
 			android:layout_marginLeft="20dip" android:layout_marginRight="30dip" android:id="@+id/node_port_text">
-			<requestFocus></requestFocus>
 		</EditText>
 		<TextView android:layout_width="wrap_content" android:id="@+id/TextView01"
 			android:layout_marginLeft="10dip" android:layout_height="wrap_content"

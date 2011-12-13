@@ -53,9 +53,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 //
-public class ListAccountsActivity extends GaListActivity{
+public class ListAccountsActivity extends CloudListActivity{
 
-	private final int PASSWORD_PROMPT = 123;
 	private final String FILENAME = "accounts.data";
 	private static final String PAGE_ROOT = "/Root";
 	
@@ -64,13 +63,9 @@ public class ListAccountsActivity extends GaListActivity{
 	private Intent tabViewIntent;
 	private ProgressDialog dialog;
 	private Context context;
-	private AndroidCloudApplication app;
 	//used to track the current asynctask
 	@SuppressWarnings("rawtypes")
 	private AsyncTask task;
-
-	//need to store if the user has successfully logged in
-	private boolean loggedIn;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,20 +74,18 @@ public class ListAccountsActivity extends GaListActivity{
 		registerForContextMenu(getListView());
 		context = getApplicationContext();
 		tabViewIntent = new Intent(this, TabViewActivity.class);
-		verifyPassword();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("authenticating", authenticating);
-		outState.putBoolean("loggedIn", loggedIn);
 		outState.putSerializable("accounts", accounts);
 
 		//need to set authenticating back to true because it is set to false
-		//in hideDialog()
+		//in hideAccountDialog()
 		if(authenticating){
-			hideDialog();
+			hideAccountDialog();
 			authenticating = true;
 		}
 		writeAccounts();
@@ -106,19 +99,12 @@ public class ListAccountsActivity extends GaListActivity{
 		 * need reference to the app so you can access
 		 * isLoggingIn
 		 */
-		app = (AndroidCloudApplication)this.getApplication();
-		
-		if (state != null && state.containsKey("loggedIn")){
-			loggedIn = state.getBoolean("loggedIn");
-		}
-		else{
-			loggedIn = false;
-		}
+
 
 		if (state != null && state.containsKey("authenticating") && state.getBoolean("authenticating")) {
-			showDialog();
+			showAccountDialog();
 		} else {
-			hideDialog();
+			hideAccountDialog();
 		}
 		if (state != null && state.containsKey("accounts")) {
 			accounts = (ArrayList<Account>)state.getSerializable("accounts");
@@ -137,7 +123,7 @@ public class ListAccountsActivity extends GaListActivity{
 	protected void onStart(){
 		super.onStart();
 		if(authenticating){
-			showDialog();
+			showAccountDialog();
 		}
 	}
 
@@ -145,59 +131,8 @@ public class ListAccountsActivity extends GaListActivity{
 	protected void onStop(){
 		super.onStop();
 		if(authenticating){
-			hideDialog();
+			hideAccountDialog();
 			authenticating = true;
-		}
-	}
-
-	/*
-	 * if the application is password protected,
-	 * the user must provide the password before
-	 * gaining access
-	 */
-	private void verifyPassword(){
-		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
-				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
-		if(pwManager.hasPassword() && !loggedIn){
-			createCustomDialog(PASSWORD_PROMPT);
-		}
-	}
-
-	private boolean rightPassword(String password){
-		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
-				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
-		return pwManager.verifyEnteredPassword(password);
-	}
-
-
-	/*
-	 * forces the user to enter a correct password
-	 * before they gain access to application data
-	 */
-	private void createCustomDialog(int id) {
-		final Dialog dialog = new Dialog(ListAccountsActivity.this);
-		switch (id) {
-		case PASSWORD_PROMPT:
-			dialog.setContentView(R.layout.passworddialog);
-			dialog.setTitle("Enter your password:");
-			dialog.setCancelable(false);
-			Button button = (Button) dialog.findViewById(R.id.submit_password);
-			button.setOnClickListener(new OnClickListener() {
-				public void onClick(View v){
-					EditText passwordText = ((EditText)dialog.findViewById(R.id.submit_password_text));
-					if(!rightPassword(passwordText.getText().toString())){
-						passwordText.setText("");
-						showToast("Password was incorrect.");
-						loggedIn = false;
-					}
-					else{
-						dialog.dismiss();
-						loggedIn = true;
-					}
-				}
-
-			});
-			dialog.show();
 		}
 	}
 
@@ -215,7 +150,6 @@ public class ListAccountsActivity extends GaListActivity{
 	}
 
 	private void setAccountList() {
-
 		if (accounts.size() == 0) {
 			displayNoAccountsCell();
 		} else {
@@ -392,7 +326,7 @@ public class ListAccountsActivity extends GaListActivity{
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if(requestCode == 187){
-			hideDialog(); 
+			hideAccountDialog(); 
 		}
 
 		if (resultCode == RESULT_OK && requestCode == 78) {	  
@@ -407,7 +341,7 @@ public class ListAccountsActivity extends GaListActivity{
 		}
 	}	
 
-	private void showDialog() {
+	private void showAccountDialog() {
 		app.setIsLoggingIn(true);
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
@@ -420,7 +354,7 @@ public class ListAccountsActivity extends GaListActivity{
 					app.setIsLoggingIn(false);
 					//need to cancel the old task or we may get a double login
 					task.cancel(true);
-					hideDialog();
+					hideAccountDialog();
 				}
 			});
 			dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
@@ -431,7 +365,7 @@ public class ListAccountsActivity extends GaListActivity{
 		
 	}
 
-	private void hideDialog() {
+	private void hideAccountDialog() {
 		if(dialog != null){
 			dialog.dismiss();
 		}
@@ -444,7 +378,7 @@ public class ListAccountsActivity extends GaListActivity{
 		protected void onPreExecute(){
 			Log.d("info", "Starting authenticate");
 			task = this;
-			showDialog();
+			showAccountDialog();
 		}
 
 		@Override
@@ -459,10 +393,10 @@ public class ListAccountsActivity extends GaListActivity{
 				if(app.isLoggingIn()){
 					new LoadImagesTask().execute((Void[]) null);
 				} else {
-					hideDialog();
+					hideAccountDialog();
 				}
 			} else {
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
 				}
@@ -495,10 +429,10 @@ public class ListAccountsActivity extends GaListActivity{
 				if(app.isLoggingIn()){
 					new LoadProtocolsTask().execute((Void[]) null); 
 				} else {
-					hideDialog();
+					hideAccountDialog();
 				}
 			} else {
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
 				}
@@ -526,10 +460,10 @@ public class ListAccountsActivity extends GaListActivity{
 				if(app.isLoggingIn()){
 					new LoadAlgorithmsTask().execute((Void[]) null);
 				} else {
-					hideDialog();
+					hideAccountDialog();
 				}
 			} else {
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
 				}
@@ -556,10 +490,10 @@ public class ListAccountsActivity extends GaListActivity{
 				if(app.isLoggingIn()){
 					new LoadFlavorsTask().execute((Void[]) null);
 				} else {
-					hideDialog();
+					hideAccountDialog();
 				}
 			} else {
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
 				}
@@ -588,12 +522,12 @@ public class ListAccountsActivity extends GaListActivity{
 					flavorMap.put(flavor.getId(), flavor);
 				}
 				Flavor.setFlavors(flavorMap);
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					startActivityForResult(tabViewIntent, 187);
 				}
 			} else {
-				hideDialog();
+				hideAccountDialog();
 				if(app.isLoggingIn()){
 					showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
 				}
@@ -601,24 +535,6 @@ public class ListAccountsActivity extends GaListActivity{
 		}
 	}
 
-
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
-	}
-
-	private void showToast(String message) {
-		Context context = getApplicationContext();
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
-	}
 
 
 

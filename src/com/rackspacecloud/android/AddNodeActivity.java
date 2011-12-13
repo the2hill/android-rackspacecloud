@@ -4,6 +4,7 @@ import com.rackspace.cloud.loadbalancer.api.client.Node;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -38,6 +39,8 @@ public class AddNodeActivity extends CloudActivity{
 		name = (String) this.getIntent().getExtras().get("name");
 		weighted = (Boolean) this.getIntent().getExtras().get("weighted");
 		node = (Node) this.getIntent().getExtras().get("node");
+		selectedPort = (String) this.getIntent().getExtras().get("loadBalancerPort");
+		Log.d("info", "add node recieved port " + selectedPort);
 		restoreState(savedInstanceState);
 	} 
 
@@ -60,6 +63,7 @@ public class AddNodeActivity extends CloudActivity{
 			if(state.containsKey("selectedCondition")){
 				selectedCondition = (String) state.getString("selectedCondition");
 			}
+
 		}
 		
 		setupInputs();
@@ -75,6 +79,7 @@ public class AddNodeActivity extends CloudActivity{
 	}
 
 	private void setupInputs(){
+		((TextView)findViewById(R.id.node_port_text)).setText(selectedPort);
 		setupWeightedText();
 		loadConditionSpinner();
 		loadIpSpinner();

@@ -24,6 +24,7 @@ public class AndroidCloudApplication extends Application {
 	private boolean isSettingSessionPersistence;
 	private HttpEntity downloadedObject;
 	private ArrayList<ContainerObjects> curDirFiles;
+	public static long lastPause;
 	
 	public void setAddingObject(boolean processing){
 		taskProcessing = processing;
