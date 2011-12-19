@@ -20,8 +20,10 @@ public class Account implements java.io.Serializable{
 	private static final long serialVersionUID = 2180740077014156769L;
 	private String username;
 	private String apiKey;
+	private String password;
 	private String accountId;
 	private String authServer;
+	private String authServerV2;
 	private String loadBalancerUKUrl;
 	private String[] loadBalancerRegions;
 	private static String loadBalancerDFWUrl;
@@ -131,6 +133,33 @@ public class Account implements java.io.Serializable{
 		}
 	}
 	
+	/**
+	 * @return the authToken
+	 */
+	public String getAuthServerV2() {
+		return authServerV2;
+	}
+
+	/**
+	 * @param authToken the authToken to set
+	 */
+	public void setAuthServerV2(String authServerV2) {
+		this.authServerV2 = authServerV2;
+		
+		/*
+		 * the auth server used determines which regions
+		 * can be used for load balancers, so set available
+		 * regions here.
+		 */
+		if(authServerV2.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
+			setLoadBalancerRegions(Preferences.UK_REGIONS);
+		} else if (authServerV2.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)){
+			setLoadBalancerRegions(Preferences.US_REGIONS);
+		} else {
+			setLoadBalancerRegions(new String[0]);
+		}
+	}
+	
 	//auth v1.1 should return loadbalancer endpoints and return account id ....
 	public String getAccountId() {
 		String delemiter = "v1.0/";
@@ -221,11 +250,26 @@ public class Account implements java.io.Serializable{
 	}
 	
 	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+	
+	/**
 	 * @param apiKey the apiKey to set
 	 */
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
 	}
+	
    /**
     */
 	public void setStorageToken(String storageToken) {

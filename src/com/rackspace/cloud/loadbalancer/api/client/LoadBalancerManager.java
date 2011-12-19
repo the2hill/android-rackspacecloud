@@ -143,10 +143,13 @@ public class LoadBalancerManager extends EntityManager {
 	public ArrayList<LoadBalancer> createList() throws LoadBalancersException {
 
 		ArrayList<LoadBalancer> loadBalancers = new ArrayList<LoadBalancer>();
-
+		String authServer = Account.getAccount().getAuthServer();
+		if(authServer == null){
+			authServer = Account.getAccount().getAuthServerV2();
+		}
+		
 		// if US account
-		if (Account.getAccount().getAuthServer()
-				.equals(Preferences.COUNTRY_US_AUTH_SERVER)) {
+		if (authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)) {
 			loadBalancers
 					.addAll(createSublist(Account.getLoadBalancerORDUrl()));
 			for (LoadBalancer loadBalancer : loadBalancers) {
@@ -160,8 +163,7 @@ public class LoadBalancerManager extends EntityManager {
 			loadBalancers.addAll(DFWloadBalancers);
 		}
 		// if UK account
-		else if (Account.getAccount().getAuthServer()
-				.equals(Preferences.COUNTRY_UK_AUTH_SERVER)) {
+		else if (authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)) {
 			loadBalancers
 					.addAll(createSublist(Account.getLoadBalancerLONUrl()));
 			for (LoadBalancer loadBalancer : loadBalancers) {

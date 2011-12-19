@@ -11,11 +11,11 @@
 		</EditText>
 		<TextView android:layout_marginLeft="22dip" android:text="Username" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
 		<EditText android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:layout_width="fill_parent" android:singleLine="true" android:id="@+id/username"></EditText>
-		<TextView android:layout_marginLeft="22dip" android:text="API Key" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
+		<TextView android:layout_marginLeft="22dip" android:text="Password" android:layout_height="wrap_content" android:layout_width="fill_parent"></TextView>
 		<EditText android:layout_marginRight="30dip" android:layout_marginLeft="22dip" android:inputType="textNoSuggestions" android:scrollHorizontally="true" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:capitalize="none" android:gravity="fill_horizontal" android:password="true" android:autoText="false" android:layout_width="fill_parent" android:singleLine="true" android:imeOptions="actionGo" android:id="@+id/addaccount_apikey"></EditText>
 		<LinearLayout android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="wrap_content">
 			<Button android:id="@+id/submit_new_account" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:layout_width="100dip" android:text="Save"></Button>
-			<CheckBox android:text="Show API Key" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/show_clear"></CheckBox>
+			<CheckBox android:text="Show Password" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/show_clear"></CheckBox>
 		</LinearLayout>
 	</LinearLayout>
 </ScrollView>

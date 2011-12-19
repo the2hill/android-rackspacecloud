@@ -15,6 +15,7 @@ import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
 import com.rackspace.cloud.loadbalancer.api.client.Protocol;
 import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.FlavorManager;
 import com.rackspace.cloud.servers.api.client.Image;
@@ -217,6 +218,7 @@ public class ListAccountsActivity extends CloudListActivity{
 		if (accounts != null && accounts.size() > 0) {
 			//setActivityIndicatorsVisibility(View.VISIBLE, v);
 			Account.setAccount(accounts.get(position));
+			Log.d("info", "the server is " + Account.getAccount().getAuthServerV2());
 			login();
 		}		
 	}
@@ -297,11 +299,15 @@ public class ListAccountsActivity extends CloudListActivity{
 
 	public String getAccountServer(Account account){
 		String authServer = account.getAuthServer();
+		if(authServer == null){
+			authServer = account.getAuthServerV2();
+		}
 		String result;
-		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+				
+		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
 			result = "Rackspace Cloud (UK)";
 		}
-		else if(authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		else if(authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)){
 			result = "Rackspace Cloud (US)";
 		}
 		else{
@@ -313,8 +319,14 @@ public class ListAccountsActivity extends CloudListActivity{
 
 	//display rackspace logo for cloud accounts and openstack logo for others
 	private int setAccountIcon(Account account){
-		if(account.getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER) 
-				|| account.getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		String authServer = account.getAuthServer();
+		if(authServer == null){
+			authServer = account.getAuthServerV2();
+		}
+		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) 
+				|| authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER)
+				|| authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)
+						|| authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
 			return R.drawable.rackspacecloud_icon;
 		}
 		else{
@@ -332,9 +344,11 @@ public class ListAccountsActivity extends CloudListActivity{
 		if (resultCode == RESULT_OK && requestCode == 78) {	  
 			Account acc = new Account();
 			Bundle b = data.getBundleExtra("accountInfo");
-			acc.setApiKey(b.getString("apiKey"));
+			acc.setPassword(b.getString("apiKey"));
 			acc.setUsername(b.getString("username"));
-			acc.setAuthServer(b.getString("server"));
+			acc.setAuthServerV2(b.getString("server"));
+			Log.d("info", "the set server was " + b.getString("server"));
+			Log.d("info", "the server is " + acc.getAuthServerV2());
 			accounts.add(acc);
 			writeAccounts();
 			loadAccounts();
@@ -383,7 +397,12 @@ public class ListAccountsActivity extends CloudListActivity{
 
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			return new Boolean(Authentication.authenticate(context));
+			try {
+				return new Boolean(Authentication.authenticate(context));
+			} catch (CloudServersException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
 
 		@Override

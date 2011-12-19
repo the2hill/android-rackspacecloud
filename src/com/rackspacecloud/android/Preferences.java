@@ -28,6 +28,8 @@ public class Preferences extends PreferenceActivity{
     //Define auth server here
     public static final String COUNTRY_US_AUTH_SERVER = "https://auth.api.rackspacecloud.com/v1.0";
     public static final String COUNTRY_UK_AUTH_SERVER = "https://lon.auth.api.rackspacecloud.com/v1.0";
+    public static final String COUNTRY_US_AUTH_SERVER_V2 = "https://auth.api.rackspacecloud.com/v2.0";
+    public static final String COUNTRY_UK_AUTH_SERVER_V2 = "https://lon.auth.api.rackspacecloud.com/v2.0";
     
     //Regions
     public static final String[] US_REGIONS = {"ORD", "DFW"};

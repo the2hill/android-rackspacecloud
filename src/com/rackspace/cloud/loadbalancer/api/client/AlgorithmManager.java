@@ -33,9 +33,13 @@ public class AlgorithmManager extends EntityManager {
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 		
 		String url = "";
-		if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		String authServer = Account.getAccount().getAuthServer();
+		if(authServer == null){
+			authServer = Account.getAccount().getAuthServerV2();
+		}
+		if(authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)){
 			url = Account.getLoadBalancerDFWUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml";
-		} else if(Account.getAccount().getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+		} else if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
 			url = Account.getLoadBalancerLONUrl() + Account.getAccount().getAccountId() + "/loadbalancers/algorithms.xml";
 		}
 		HttpGet get = new HttpGet(url);
