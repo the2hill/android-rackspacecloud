@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.Image;
+import com.rackspace.cloud.servers.api.client.ImageManager;
 import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.ServerManager;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
@@ -52,6 +54,7 @@ public class ViewServerActivity extends CloudActivity {
 	private PollServerTask pollServerTask;
 	private boolean canPoll;
 	private boolean noAskForConfirm;
+	private Image image;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -59,6 +62,12 @@ public class ViewServerActivity extends CloudActivity {
 		super.onCreate(savedInstanceState);
 		trackPageView(GoogleAnalytics.PAGE_SERVER);
 		server = (Server) this.getIntent().getExtras().get("server");
+		//if an old image it wont be on the image list
+		//so you have to fetch it manually
+		if(server.getImage().getName() == null){
+			GetImageTask getImageTask = new GetImageTask();		
+			getImageTask.execute((Void[]) null);
+		} 
 		setContentView(R.layout.viewserver);
 		restoreState(savedInstanceState);
 	}
@@ -127,11 +136,18 @@ public class ViewServerActivity extends CloudActivity {
 
 	private void loadServerData() {
 		if(server != null){
+			
 			TextView name = (TextView) findViewById(R.id.view_server_name);
 			name.setText(server.getName());
 
 			TextView os = (TextView) findViewById(R.id.view_server_os);
-			os.setText(server.getImage().getName());
+			if(server.getImage().getName() == null){
+				if(image != null){
+					os.setText(image.getName());
+				}
+			} else {
+				os.setText(server.getImage().getName());
+			}
 
 			TextView memory = (TextView) findViewById(R.id.view_server_memory);
 			memory.setText(server.getFlavor().getRam() + " MB");
@@ -522,8 +538,29 @@ public class ViewServerActivity extends CloudActivity {
 		}
 
 	}
+	
+	private class GetImageTask extends AsyncTask<Void, Void, Image> {
 
+		private Image tempImage;
 
+		@Override
+		protected Image doInBackground(Void... arg0) {
+			try {
+				tempImage = (new ImageManager()).getImageDetails(Integer.parseInt(server.getImageId()), getContext());
+			} catch (NumberFormatException e) {
+				
+			}
+			return tempImage;
+		}
+
+		@Override
+		protected void onPostExecute(Image result) {
+			image = result;
+			loadServerData();
+		}
+
+	}
+	
 	private class SoftRebootServerTask extends AsyncTask<Void, Void, HttpBundle> {
 
 		private CloudServersException exception;
