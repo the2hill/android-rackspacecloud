@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/LinearLayout1" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+    <ScrollView android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:id="@+id/ScrollView1" android:layout_height="fill_parent" android:layout_width="fill_parent" android:layout_marginTop="10dip" android:fadeScrollbars="true" android:layout_above="@+id/select_vip_button">
+        <RadioGroup android:layout_height="fill_parent" android:id="@+id/vip_group" android:layout_width="fill_parent"></RadioGroup>
+    </ScrollView>
+    <Button android:layout_height="wrap_content" android:layout_centerHorizontal="true" android:layout_above="@+id/textView1" android:layout_width="130dip" android:layout_marginTop="5dip" android:text="Select Virtual Ip" android:id="@+id/select_vip_button"></Button>
+    <TextView android:layout_alignParentLeft="true" android:id="@+id/textView1" android:text="Based on the Protocol / Port you chose for this load balancer, some Virtual IPs may not be selectable in the list below. " android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_marginTop="5dip"></TextView>
+</RelativeLayout>
+
+  

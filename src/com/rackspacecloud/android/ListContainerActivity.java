@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,7 +45,7 @@ public class ListContainerActivity extends GaListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_CONTAINERS);
+		trackPageView(GoogleAnalytics.PAGE_CONTAINERS);
 		context = getApplicationContext();
 		restoreState(savedInstanceState);
 	}
@@ -112,7 +111,7 @@ public class ListContainerActivity extends GaListActivity {
 
 	private void displayNoServersCell() {
 		String a[] = new String[1];
-		a[0] = "No Files";
+		a[0] = "No Containers";
 		setListAdapter(new ArrayAdapter<String>(this,
 				R.layout.nocontainerscell, R.id.no_containers_label, a));
 		getListView().setTextFilterEnabled(true);

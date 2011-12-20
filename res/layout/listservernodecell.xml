@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/LinearLayout1" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+    <TextView android:textColor="#FFFFFF" android:id="@+id/label" android:layout_height="wrap_content" android:text="Server Name" android:textSize="24sp" android:lines="1" android:layout_width="wrap_content" android:layout_alignParentTop="true" android:layout_toRightOf="@+id/add_node_checkbox" android:layout_marginLeft="14dp" android:layout_marginTop="1dip"></TextView>
+    <CheckBox android:id="@+id/add_node_checkbox" android:layout_height="wrap_content" android:focusable="false" android:layout_width="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentLeft="true" android:layout_marginLeft="16dp"></CheckBox>
+    <TextView android:textColor="#FFFFFF" android:id="@+id/sublabel" android:layout_height="wrap_content" android:text="256 server - CentOS 5.3" android:textSize="12sp" android:layout_width="wrap_content" android:layout_below="@+id/label" android:layout_alignLeft="@+id/label" android:paddingBottom="5dip"></TextView>
+
+
+</RelativeLayout>

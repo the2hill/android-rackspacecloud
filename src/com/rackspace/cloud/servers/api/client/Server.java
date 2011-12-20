@@ -117,11 +117,12 @@ public class Server extends Entity {
 	 * @return the image
 	 */
 	public Image getImage() {
-		Image image = Image.getImages().get(imageId);
-		if (image == null) {
-			image = new Image();
+		Image tempImage = Image.getImages().get(imageId);
+		if (tempImage == null) {
+			tempImage = new Image();
 		}
-		return image;
+		return tempImage;
+
 	}
 	
 	public String toXML() {

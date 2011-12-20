@@ -39,6 +39,13 @@
                 android:transcriptMode="normal"
             />
             
+            <ListView android:id="@+id/tab3"
+                android:layout_width="fill_parent" 
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:stackFromBottom="true"
+                android:transcriptMode="normal"
+            />
             <!--
             <Button android:id="@+id/tab2"
                 android:layout_width="fill_parent"

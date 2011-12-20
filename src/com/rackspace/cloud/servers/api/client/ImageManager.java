@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
 import com.rackspace.cloud.servers.api.client.parsers.ImagesXMLParser;
@@ -65,5 +66,42 @@ public class ImageManager extends EntityManager {
 		}
 		
 		return images;
+	}
+	
+	public Image getImageDetails(int id, Context context){
+		
+		CustomHttpClient httpclient = new CustomHttpClient(context);
+		HttpGet get = new HttpGet(Account.getAccount().getServerUrl() + "/images/" + id + ".xml");
+		Image image = new Image();
+		
+		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+
+		try {		
+			HttpResponse resp = httpclient.execute(get);
+		    BasicResponseHandler responseHandler = new BasicResponseHandler();
+		    String body = responseHandler.handleResponse(resp);
+		    		    
+		    if (resp.getStatusLine().getStatusCode() == 200 || resp.getStatusLine().getStatusCode() == 203) {		    	
+		    	
+		    	ImagesXMLParser imagesXMLParser = new ImagesXMLParser();
+		    	SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+		    	XMLReader xmlReader = saxParser.getXMLReader();
+		    	xmlReader.setContentHandler(imagesXMLParser);
+		    	xmlReader.parse(new InputSource(new StringReader(body)));		    	
+		    	image = imagesXMLParser.getImage();		
+		    }
+		} catch (ClientProtocolException cpe) {
+			Log.d("info", "error " + cpe.toString());
+		} catch (IOException e) {
+			Log.d("info", "error " + e.toString());
+		} catch (ParserConfigurationException e) {
+			Log.d("info", "error " + e.toString());
+		} catch (SAXException e) {
+			Log.d("info", "error " + e.toString());
+		} catch (FactoryConfigurationError e) {
+			Log.d("info", "error " + e.toString());
+		}
+		
+		return image;
 	}
 }

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/view_loadbalncer_layout" android:orientation="vertical"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:layout_weight="1">
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/view_layout_layout" android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:id="@+id/view_loadbalancer_layout" android:orientation="vertical"
+				android:layout_width="fill_parent" android:paddingLeft="5dip" android:layout_height="wrap_content">
+
+				<!-- ID -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_lb_id_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="10dip">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="ID: " android:singleLine="false"
+						android:textStyle="bold" android:id="@+id/id_label"/>
+					<TextView android:layout_marginRight="30dip" android:layout_width="fill_parent" android:id="@+id/view_lb_id" android:layout_height="wrap_content" android:scrollHorizontally="true" android:layout_marginLeft="22dip" android:gravity="fill_horizontal" android:textColor="#fff" android:paddingLeft="5dip" android:textSize="20.0sp" android:textStyle="bold"></TextView>
+				</LinearLayout>
+				<!-- Name -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_name_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:singleLine="false"
+						android:textStyle="bold" android:text="Name: " android:typeface="normal"/>
+					<TextView android:id="@+id/view_name"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true"
+						android:gravity="fill_horizontal" android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+				<!-- Protocol -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_protocol_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="Protocol: "
+						android:singleLine="false" android:textStyle="bold"/>
+					<TextView android:id="@+id/view_protocol"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true"
+						android:gravity="fill_horizontal" android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+				<!-- Port -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_port_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="Port: "
+						android:singleLine="false" android:textStyle="bold"/>
+					<TextView android:id="@+id/view_port"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true"
+						android:gravity="fill_horizontal" android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+				<!-- Algorithm -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_algorithm_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="Algorithm: "
+						android:singleLine="false" android:textStyle="bold"/>
+					<TextView android:id="@+id/view_algorithm"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true"
+						android:gravity="fill_horizontal" android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+				<!-- Status -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_status_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="Status: "
+						android:singleLine="false" android:textStyle="bold"/>
+					<TextView android:id="@+id/view_status"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true"
+						android:gravity="fill_horizontal" android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+				<!-- ConnectionLogging -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_islogging_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_marginLeft="22dip"
+						android:paddingLeft="5dip" android:text="Connection Logging: "
+						android:singleLine="false" android:textStyle="bold"
+						android:id="@+id/connection_logging"/>
+					<TextView android:id="@+id/view_islogging"
+						android:layout_height="wrap_content" android:layout_width="fill_parent"
+						android:layout_marginRight="30dip" android:scrollHorizontally="true" android:gravity="fill_horizontal"
+						android:textColor="#fff" android:layout_marginLeft="22dip" android:textSize="20.0sp" android:textStyle="bold" android:paddingLeft="5dip"/>
+				</LinearLayout>
+			</LinearLayout>
+			<!-- VirtualIps -->
+			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:id="@+id/view_loadbalancer_layout" android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:paddingLeft="5dip">
+				<TextView android:singleLine="false" android:paddingLeft="5dip" android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:textStyle="bold" android:text="Virtual IPs"></TextView>
+				<!-- ID -->
+				<!-- Ip Address -->
+				<!-- IpVersion -->
+				<!-- Type -->
+				<LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/view_vip_layout" android:paddingLeft="5dip">
+					<LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/vip_addresses"></LinearLayout>
+				</LinearLayout>
+			</LinearLayout>
+			<!-- Nodes -->
+			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:id="@+id/view_loadbalancer_layout" android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:paddingLeft="5dip">
+				<TextView android:singleLine="false" android:paddingLeft="5dip" android:layout_width="wrap_content" android:layout_marginLeft="22dip" android:layout_height="wrap_content" android:textStyle="bold" android:text="Node IPs" android:id="@+id/TextView02"></TextView>
+				<!-- ID -->
+				<!-- Address -->
+				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					android:id="@+id/view_node_address_layout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="5dip">
+					<LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/node_addresses"></LinearLayout>
+				</LinearLayout>
+				<!-- Port -->
+				<!-- Condition -->
+				<!-- Status -->
+			</LinearLayout>
+			<LinearLayout android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="wrap_content" android:id="@+id/load_balancer_buttons1">
+				<Button android:text="Delete Load Balancer" android:id="@+id/delete_loadbalancer_button" android:layout_height="wrap_content" android:layout_gravity="left" android:layout_marginLeft="20dip" android:layout_marginTop="10dip" android:layout_width="130dip"></Button>
+				<Button android:text="Edit Load Balancer" android:id="@+id/edit_loadbalancer_button" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:layout_marginTop="10dip" android:layout_width="130dip" android:layout_gravity="left"></Button>
+			</LinearLayout>
+			<LinearLayout android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/load_balancer_buttons2">
+				<Button android:layout_gravity="left" android:layout_width="130dip" android:layout_marginLeft="20dip" android:layout_height="wrap_content" android:id="@+id/edit_nodes_button" android:text="Edit Nodes" android:layout_marginTop="10dip"></Button>
+				<Button android:layout_height="wrap_content" android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:layout_width="130dip" android:layout_gravity="left" android:text="Log Connections" android:id="@+id/connection_log_button"></Button>
+			</LinearLayout>
+			<LinearLayout android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/load_balancer_buttons3">
+				<Button android:layout_height="wrap_content" android:layout_marginLeft="20dip" android:layout_marginTop="10dip" android:layout_gravity="left" android:layout_width="130dip" android:id="@+id/session_persistence_button" android:text="Disable Session Persistence"></Button>
+				<Button android:layout_marginTop="10dip" android:layout_marginLeft="10dip" android:layout_height="wrap_content" android:layout_gravity="left" android:layout_width="130dip" android:text="Connection Throttle" android:id="@+id/connection_throttle_button"></Button>
+			</LinearLayout>
+			<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/load_balancer_buttons4">
+				<Button android:layout_marginLeft="20dip" android:layout_height="wrap_content" android:layout_gravity="left" android:layout_width="130dip" android:layout_marginTop="10dip" android:id="@+id/access_control_button" android:text="Access Control"></Button>
+			</LinearLayout>
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>

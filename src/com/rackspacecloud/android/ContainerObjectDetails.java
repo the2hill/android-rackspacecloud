@@ -5,34 +5,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.util.EntityUtils;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -45,7 +31,6 @@ import com.rackspace.cloud.files.api.client.ContainerObjectManager;
 import com.rackspace.cloud.files.api.client.ContainerObjects;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
 
 /** 
  * 
@@ -53,7 +38,7 @@ import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser
  *
  */
 
-public class ContainerObjectDetails extends GaActivity {
+public class ContainerObjectDetails extends CloudActivity {
 
 	private static final int deleteObject = 0;
 	private final String DOWNLOAD_DIRECTORY = "/RackspaceCloud";
@@ -69,9 +54,6 @@ public class ContainerObjectDetails extends GaActivity {
 	private double kiloBytes;
 	public Button previewButton;
 	public Button downloadButton;
-	public Context context;
-	private boolean displayDialog;
-	private ProgressDialog dialog;
 	private Boolean isDownloaded;
 	private AndroidCloudApplication app;
 	private DeleteObjectListenerTask deleteObjTask;
@@ -81,19 +63,15 @@ public class ContainerObjectDetails extends GaActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_STORAGE_OBJECT);
-		
-		context = getApplicationContext();
+		trackPageView(GoogleAnalytics.PAGE_STORAGE_OBJECT);
 
 		objects = (ContainerObjects) this.getIntent().getExtras().get("container");
 		containerNames =  (String) this.getIntent().getExtras().get("containerNames");
 		cdnURL = (String) this.getIntent().getExtras().get("cdnUrl");
 		cdnEnabled = (String) this.getIntent().getExtras().get("isCdnEnabled");
 
-
 		setContentView(R.layout.viewobject);       
 		restoreState(savedInstanceState);
-
 	}
 
 	@Override
@@ -101,28 +79,16 @@ public class ContainerObjectDetails extends GaActivity {
 		super.onSaveInstanceState(outState);
 		outState.putSerializable("container", objects);
 		outState.putBoolean("isDownloaded", isDownloaded);
-		outState.putBoolean("displayDialog", displayDialog);
-		
-		if(displayDialog){
-			hideDialog();
-			displayDialog = true;
-		}
 	}
 
-	private void restoreState(Bundle state) {
-		
+	protected void restoreState(Bundle state) {
+		super.restoreState(state);
 		/*
 		 * need reference to the app so you can access curDirFiles
 		 * as well as processing status
 		 */
 		app = (AndroidCloudApplication)this.getApplication();
 
-		if (state != null && state.containsKey("displayDialog") && state.getBoolean("displayDialog")) {
-    		showDialog();
-    	} else {
-    		hideDialog();
-    	}
-		
 		if (state != null && state.containsKey("container")) {
 			objects = (ContainerObjects) state.getSerializable("container");
 		}
@@ -160,24 +126,10 @@ public class ContainerObjectDetails extends GaActivity {
 			downloadObjTask.execute();
 		}
 	}
-	
-	@Override
-	protected void onStart(){
-		super.onStart();
-		if(displayDialog){
-			showDialog();
-		}
-	}
 
-	
 	@Override
 	protected void onStop(){
 		super.onStop();
-
-		if(displayDialog){
-			hideDialog();
-			displayDialog = true;
-		}
 
 		/*
 		 * Need to stop running listener task
@@ -219,25 +171,7 @@ public class ContainerObjectDetails extends GaActivity {
 		//Last Modification date
 		String strDate = objects.getLastMod();
 		strDate = strDate.substring(0, strDate.indexOf('T'));
-		/*
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.ssssss");
-		Date dateStr = null;
-		try {
-			dateStr = formatter.parse(strDate);
-		} catch (ParseException e1) {
-			e1.printStackTrace();
-		}
-		String formattedDate = formatter.format(dateStr);
 
-		Date date1 = null;
-		try {
-			date1 = formatter.parse(formattedDate);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}      
-		formatter = new SimpleDateFormat("MMM-dd-yyyy");
-		formattedDate = formatter.format(date1);
-		*/
 		TextView lastmod = (TextView) findViewById(R.id.view_file_modification);
 		lastmod.setText(strDate);    	  
 
@@ -270,16 +204,6 @@ public class ContainerObjectDetails extends GaActivity {
 		}
 	}
 
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
-	}
 	//Create the Menu options
 	@Override 
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -313,7 +237,7 @@ public class ContainerObjectDetails extends GaActivity {
 			.setPositiveButton("Delete File", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					// User clicked OK so do some stuff
-					trackEvent(CATEGORY_FILE, EVENT_DELETE, "", -1);
+					trackEvent(GoogleAnalytics.CATEGORY_FILE, GoogleAnalytics.EVENT_DELETE, "", -1);
 					new ContainerObjectDeleteTask().execute((Void[]) null);
 				}
 			})
@@ -431,64 +355,11 @@ public class ContainerObjectDetails extends GaActivity {
 
 	//Task's
 
-	private CloudServersException parseCloudServersException(HttpResponse response) {
-		CloudServersException cse = new CloudServersException();
-		try {
-			BasicResponseHandler responseHandler = new BasicResponseHandler();
-			String body = responseHandler.handleResponse(response);
-			CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-			xmlReader.setContentHandler(parser);
-			xmlReader.parse(new InputSource(new StringReader(body)));		    	
-			cse = parser.getException();		    	
-		} catch (ClientProtocolException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (IOException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (ParserConfigurationException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (SAXException e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		} catch (FactoryConfigurationError e) {
-			cse = new CloudServersException();
-			cse.setMessage(e.getLocalizedMessage());
-		}
-		return cse;
-	}
-
-	private void startFileError(String message, HttpBundle bundle){
-		Intent viewIntent = new Intent(getApplicationContext(), ServerErrorActivity.class);
-		viewIntent.putExtra("errorMessage", message);
-		viewIntent.putExtra("response", bundle.getResponseText());
-		viewIntent.putExtra("request", bundle.getCurlRequest());
-		startActivity(viewIntent);
-	}
-	
-	private void showDialog() {
-		if(dialog == null || !dialog.isShowing()){
-			displayDialog = true;
-			dialog = ProgressDialog.show(ContainerObjectDetails.this, "", "Loading...", true);
-		}
-    }
-    
-    private void hideDialog() {
-    	if(dialog != null){
-    		dialog.dismiss();
-    	}
-    	displayDialog = false;
-    }
-
 	private class ContainerObjectDeleteTask extends AsyncTask<Void, Void, HttpBundle> {
 
 		private CloudServersException exception;
 
 		protected void onPreExecute(){
-			//dialog = ProgressDialog.show(ContainerObjectDetails.this, "", "Deleting...", true);
 			showDialog();
 			app.setDeleteingObject(true);
 			deleteObjTask = new DeleteObjectListenerTask();
@@ -499,7 +370,7 @@ public class ContainerObjectDetails extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;	
 			try {
-				bundle = (new ContainerObjectManager(context)).deleteObject(containerNames, objects.getCName() );
+				bundle = (new ContainerObjectManager(getContext())).deleteObject(containerNames, objects.getCName() );
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -509,24 +380,23 @@ public class ContainerObjectDetails extends GaActivity {
 
 		@Override
 		protected void onPostExecute(HttpBundle bundle) {
-			//dialog.dismiss();
 			app.setDeleteingObject(false);
 			hideDialog();
 			HttpResponse response = bundle.getResponse();
 			if (response != null) {
 				int statusCode = response.getStatusLine().getStatusCode();
 				if (statusCode == 204) {
-					//handled by listner
+					//handled by listener
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startFileError("There was a problem deleting your File.", bundle);
+						showError("There was a problem deleting your File.", bundle);
 					} else {
-						startFileError("There was a problem deleting your file: " + cse.getMessage(), bundle);
+						showError("There was a problem deleting your file: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startFileError("There was a problem deleting your file: " + exception.getMessage(), bundle);				
+				showError("There was a problem deleting your file: " + exception.getMessage(), bundle);				
 			}			
 		}
 	}
@@ -547,7 +417,7 @@ public class ContainerObjectDetails extends GaActivity {
 		protected HttpBundle doInBackground(Void... arg0) {
 			HttpBundle bundle = null;	
 			try {
-				bundle = (new ContainerObjectManager(context)).getObject(containerNames, objects.getCName());
+				bundle = (new ContainerObjectManager(getContext())).getObject(containerNames, objects.getCName());
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -565,32 +435,16 @@ public class ContainerObjectDetails extends GaActivity {
 					setResult(Activity.RESULT_OK);
 					HttpEntity entity = response.getEntity();
 					app.setDownloadedEntity(entity);
-					/*
-					try {
-						if(writeFile(EntityUtils.toByteArray(entity))){
-							downloadButton.setText("Open File");
-							isDownloaded = true;
-						}
-						else{
-							showAlert("Error", "There was a problem downloading your file.");
-						}
-
-					} catch (IOException e) {
-						showAlert("Error", "There was a problem downloading your file.");
-						e.printStackTrace();
-					}
-					*/
-
 				} else {
 					CloudServersException cse = parseCloudServersException(response);
 					if ("".equals(cse.getMessage())) {
-						startFileError("There was a problem downloading your File.", bundle);
+						showError("There was a problem downloading your File.", bundle);
 					} else {
-						startFileError("There was a problem downloading your file: " + cse.getMessage(), bundle);
+						showError("There was a problem downloading your file: " + cse.getMessage(), bundle);
 					}
 				}
 			} else if (exception != null) {
-				startFileError("There was a problem downloading your file: " + exception.getMessage(), bundle);				
+				showError("There was a problem downloading your file: " + exception.getMessage(), bundle);				
 			}			
 		}
 	}
@@ -647,11 +501,9 @@ public class ContainerObjectDetails extends GaActivity {
 		protected void onPostExecute(Void arg1) {
 			hideDialog();
 			try {
-				Log.d("info", "captin starting to write");
 				if(writeFile(EntityUtils.toByteArray(app.getDownloadedEntity()))){
 					downloadButton.setText("Open File");
 					isDownloaded = true;
-					Log.d("info", "captin wrote");
 				}
 				else{
 					showAlert("Error", "There was a problem downloading your file.");

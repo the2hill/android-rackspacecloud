@@ -1,12 +1,10 @@
 package com.rackspacecloud.android;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -16,21 +14,22 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class AddAccountActivity extends GaActivity implements OnClickListener{
+public class AddAccountActivity extends CloudActivity implements OnClickListener{
 	
-	EditText usernameText;
-	EditText apiKeyText;
-	EditText customServer;
-	Spinner providerSpinner;
-	String authServer;
+	private final String[] PROVIDERS = {"Rackspace Cloud (US)", "Rackspace Cloud (UK)", "Custom"};
+	private EditText usernameText;
+	private EditText passwordText;
+	private EditText customServer;
+	private Spinner providerSpinner;
+	private String authServer;
 	boolean isHidden;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_PROVIDERS);
+        trackPageView(GoogleAnalytics.PAGE_PROVIDERS);
         setContentView(R.layout.createaccount);
         usernameText = (EditText) findViewById(R.id.username);
-        apiKeyText = (EditText) findViewById(R.id.addaccount_apikey);
+        passwordText = (EditText) findViewById(R.id.addaccount_apikey);
         customServer = (EditText) findViewById(R.id.custom_auth_server_edit);
         ((Button) findViewById(R.id.submit_new_account)).setOnClickListener(this);
         isHidden = true;
@@ -53,10 +52,10 @@ public class AddAccountActivity extends GaActivity implements OnClickListener{
         if(state != null)
         	isHidden = state.containsKey("isHidden") && state.getBoolean("isHidden");
 		if(isHidden){
-        	apiKeyText.setTransformationMethod(new PasswordTransformationMethod());
+        	passwordText.setTransformationMethod(new PasswordTransformationMethod());
 		}
 		else{
-        	apiKeyText.setTransformationMethod(new SingleLineTransformationMethod());
+			passwordText.setTransformationMethod(new SingleLineTransformationMethod());
 		}
 	}
 	
@@ -67,33 +66,32 @@ public class AddAccountActivity extends GaActivity implements OnClickListener{
         	@Override 
 			public void onClick(View v) {
 		        if (((CheckBox) v).isChecked()) {
-		        	apiKeyText.setTransformationMethod(new SingleLineTransformationMethod());
+		        	passwordText.setTransformationMethod(new SingleLineTransformationMethod());
 		        	isHidden = false;
 		        } else {
-		        	apiKeyText.setTransformationMethod(new PasswordTransformationMethod());
+		        	passwordText.setTransformationMethod(new PasswordTransformationMethod());
 		        	isHidden = true;
 		        }
-		        apiKeyText.requestFocus();
+		        passwordText.requestFocus();
 		    }	
 		});
 	}
 	
 	private void loadProviderSpinner(){
 		//set the auth server default to us
-		authServer = "https://auth.api.rackspacecloud.com/v1.0";
+		authServer = "https://auth.api.rackspacecloud.com/v2.0";
 		providerSpinner = (Spinner) findViewById(R.id.provider_spinner);
-		String[] providers = {"Rackspace Cloud (US)", "Rackspace Cloud (UK)", "Custom"};
-		ArrayAdapter<String> imageAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, providers);
+		ArrayAdapter<String> imageAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, PROVIDERS);
 		imageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		providerSpinner.setAdapter(imageAdapter);
 		providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 		    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 		    	if(pos == 0){
-					authServer = Preferences.COUNTRY_US_AUTH_SERVER;
+					authServer = Preferences.COUNTRY_US_AUTH_SERVER_V2;
 			        customServer.setEnabled(false);
 				}
 				else if(pos == 1){
-					authServer = Preferences.COUNTRY_UK_AUTH_SERVER;
+					authServer = Preferences.COUNTRY_UK_AUTH_SERVER_V2;
 			        customServer.setEnabled(false);
 				}
 				else{
@@ -112,7 +110,7 @@ public class AddAccountActivity extends GaActivity implements OnClickListener{
 			Intent result = new Intent();
 			Bundle b = new Bundle();
 			b.putString("username", usernameText.getText().toString());
-			b.putString("apiKey", apiKeyText.getText().toString());
+			b.putString("apiKey", passwordText.getText().toString());
 			b.putString("server", getAuthServer());
 			result.putExtra("accountInfo", b);
 			setResult(RESULT_OK, result);
@@ -130,24 +128,9 @@ public class AddAccountActivity extends GaActivity implements OnClickListener{
 		return authServer;
 	}
 	
-	private void showAlert(String title, String message) {
-    	try {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-	      public void onClick(DialogInterface dialog, int which) {
-	        return;
-	    } }); 
-		alert.show();
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    }
-	
 	private boolean hasValidInput() {
     	String username = usernameText.getText().toString();
-    	String apiKey = apiKeyText.getText().toString();
+    	String apiKey = passwordText.getText().toString();
     	return !"".equals(username) && !"".equals(apiKey);
     }
 

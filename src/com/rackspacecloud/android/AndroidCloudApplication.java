@@ -10,12 +10,21 @@ import android.app.Application;
 
 public class AndroidCloudApplication extends Application {
 
+	/*
+	 * these fields act as global fields for the application
+	 * they are used for some async tasks that need this
+	 * data but may lose reference to them on a rotation
+	 */
+	private boolean isLoggingIn;
 	private boolean taskProcessing;
 	private boolean deletingObjectProcessing;
 	private boolean deletingContainerProcessing;
 	private boolean downloadingObject;
+	private boolean isSettingLogs;
+	private boolean isSettingSessionPersistence;
 	private HttpEntity downloadedObject;
 	private ArrayList<ContainerObjects> curDirFiles;
+	public static long lastPause;
 	
 	public void setAddingObject(boolean processing){
 		taskProcessing = processing;
@@ -67,5 +76,29 @@ public class AndroidCloudApplication extends Application {
 			curDirFiles.add(obj);
 		}
 			
+	}
+	
+	public void setIsLoggingIn(boolean logginIn){
+		isLoggingIn = logginIn;
+	}
+	
+	public boolean isLoggingIn(){
+		return isLoggingIn;
+	}
+	
+	public void setIsSettingLogs(Boolean logging){
+		isSettingLogs = logging;
+	}
+	
+	public boolean isSettingLogs(){
+		return isSettingLogs;
+	}
+	
+	public void setSettingSessionPersistence(Boolean setting){
+		isSettingSessionPersistence = setting;
+	}
+	
+	public boolean isSettingSessionPersistence(){
+		return isSettingSessionPersistence;
 	}
 }

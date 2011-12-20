@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent" android:paddingTop="2.5dip" android:paddingBottom="2.5dip" android:layout_height="64dip" android:orientation="horizontal">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout2" android:orientation="vertical">
+        <HorizontalScrollView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/ip_row" android:layout_marginLeft="5dip">
+            <TextView android:scrollbars="vertical" android:id="@+id/vip_address" android:layout_width="fill_parent" android:maxLines="1" android:layout_height="wrap_content" android:text="2001:4801:7901:0000:0704:cf69:0000:0005"></TextView>
+        </HorizontalScrollView>
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
+            <TextView android:id="@+id/load_balancer_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5dip" android:text="test"></TextView>
+            <TextView android:id="@+id/vip_protocol" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:text="HTTP(80)"></TextView>
+        </LinearLayout>
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/type_row">
+            <TextView android:id="@+id/vip_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5dip" android:text="Type"></TextView>
+        </LinearLayout>
+    </LinearLayout>
+    
+</LinearLayout>

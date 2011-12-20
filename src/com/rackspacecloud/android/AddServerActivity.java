@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -34,7 +31,7 @@ import com.rackspace.cloud.servers.api.client.ServerManager;
  * @author Mike Mayo - mike.mayo@rackspace.com - twitter.com/greenisus
  *
  */
-public class AddServerActivity extends GaActivity implements OnItemSelectedListener, OnClickListener {
+public class AddServerActivity extends CloudActivity implements OnItemSelectedListener, OnClickListener {
 
 	private Image[] images;
 	private Flavor[] flavors;
@@ -46,25 +43,36 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 	private Server server;
 	private SeekBar numberBar;
 	private TextView numberDisplay;
+	private String extension;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		trackPageView(PAGE_ADD_SERVER);	
+		trackPageView(GoogleAnalytics.PAGE_ADD_SERVER);	
 		setContentView(R.layout.createserver);
+		restoreState(savedInstanceState);
+	}
+
+	protected void restoreState(Bundle state){
+		super.restoreState(state);
 		serverName = (EditText) findViewById(R.id.server_name);
 		((Button) findViewById(R.id.save_button)).setOnClickListener(this);
+		((TextView)findViewById(R.id.names_number)).setText("        ");
+		setUpNameText();
 		loadImageSpinner();
 		loadFlavorSpinner();
 		loadServerCount();
+	}
+	
+	private void setUpNameText(){
+		serverName = (EditText) findViewById(R.id.server_name);
 	}
 
 	private void loadServerCount(){
 		numberDisplay = (TextView)findViewById(R.id.server_count_text);
 		numberBar = (SeekBar)findViewById(R.id.number_of_servers);
 		numberBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub
@@ -82,13 +90,16 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 					boolean fromUser) {
 				// TODO Auto-generated method stub
 				numberDisplay.setText(getCountText(progress));
-				TextView number = (TextView)findViewById(R.id.server_name_number);
 				if(progress == 0){
-					number.setText("");
+					extension = "        ";
+				}
+				else if(progress == 9){
+					extension = "[1.." + (progress + 1) + "]";
 				}
 				else{
-					number.setText("[1.." + (progress+1) + "]");
+					extension = "[1.." + (progress + 1) + "] ";
 				}
+				((TextView)findViewById(R.id.names_number)).setText(extension);
 			}
 
 			private String getCountText(int i){
@@ -164,8 +175,7 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 		if ("".equals(serverName.getText().toString())) {
 			showAlert("Required Fields Missing", "Server name is required.");
 		} else {
-			trackEvent(CATEGORY_SERVER, EVENT_CREATE, "", numberBar.getProgress()+1);
-			showActivityIndicators();
+			trackEvent(GoogleAnalytics.CATEGORY_SERVER, GoogleAnalytics.EVENT_CREATE, "", numberBar.getProgress()+1);
 			server = new Server();
 			server.setName(serverName.getText().toString()); 
 			server.setImageId(selectedImageId);
@@ -174,47 +184,25 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 		}
 	}
 
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
-		hideActivityIndicators();
-	}
-
-	private void setActivityIndicatorsVisibility(int visibility) {
-		ProgressBar pb = (ProgressBar) findViewById(R.id.save_server_progress_bar);
-		TextView tv = (TextView) findViewById(R.id.saving_server_label);
-		pb.setVisibility(visibility);
-		tv.setVisibility(visibility);
-	}
-
-	private void showActivityIndicators() {
-		setActivityIndicatorsVisibility(View.VISIBLE);
-	}
-
-	private void hideActivityIndicators() {
-		setActivityIndicatorsVisibility(View.INVISIBLE);
-	}
-
 	private class SaveServerTask extends AsyncTask<Void, Void, Server> {
 
 		private CloudServersException exception;
 
 		@Override
+		protected void onPreExecute(){
+			showDialog();
+		}
+		
+		@Override
 		protected Server doInBackground(Void... arg0) {
 			try {
 				if(numberBar.getProgress() == 0){
-					(new ServerManager()).create(server, getApplicationContext());
+					(new ServerManager()).create(server, getContext());
 				}
 				else{
 					for(int i = 0; i < numberBar.getProgress() + 1; i++){
 						server.setName(serverName.getText().toString() + Integer.toString(i+1));
-						(new ServerManager()).create(server, getApplicationContext());
+						(new ServerManager()).create(server, getContext());
 					}
 				}
 			} catch (CloudServersException e) {
@@ -225,10 +213,10 @@ public class AddServerActivity extends GaActivity implements OnItemSelectedListe
 
 		@Override
 		protected void onPostExecute(Server result) {
+			hideDialog();
 			if (exception != null) {
 				showAlert("Error", "There was a problem creating your server: " + exception.getMessage());
 			} else {
-				hideActivityIndicators();
 				setResult(Activity.RESULT_OK);
 				finish();
 			}

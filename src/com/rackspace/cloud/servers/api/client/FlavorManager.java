@@ -37,6 +37,7 @@ public class FlavorManager extends EntityManager {
 		ArrayList<Flavor> flavors = new ArrayList<Flavor>();
 		
 		get.addHeader("X-Auth-Token", Account.getAccount().getAuthToken());
+
 		try {			
 			HttpResponse resp = httpclient.execute(get);
 		    BasicResponseHandler responseHandler = new BasicResponseHandler();

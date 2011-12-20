@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,7 +40,7 @@ public class ListServersActivity extends GaListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_SERVERS);
+        trackPageView(GoogleAnalytics.PAGE_SERVERS);
         context = getApplicationContext();
         restoreState(savedInstanceState);
     }
@@ -196,8 +197,8 @@ public class ListServersActivity extends GaListActivity {
 			TextView label = (TextView) row.findViewById(R.id.label);
 			label.setText(server.getName());
 			
-			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);
-			sublabel.setText(server.getFlavor().getName() + " - " + server.getImage().getName());
+			TextView sublabel = (TextView) row.findViewById(R.id.sublabel);			
+			sublabel.setText(server.getPublicIpAddresses()[0]);
 			
 			ImageView icon = (ImageView) row.findViewById(R.id.icon);
 			icon.setImageResource(server.getImage().iconResourceId());

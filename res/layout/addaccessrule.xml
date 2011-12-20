@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:id="@+id/linearLayout1"
+		android:orientation="vertical">
+		<TextView android:layout_height="wrap_content" android:id="@+id/textView1"
+			android:layout_marginTop="5dip" android:text="Action"
+			android:layout_width="wrap_content" android:layout_marginLeft="5dip"></TextView>
+		<Spinner android:layout_height="wrap_content"
+			android:layout_width="fill_parent" android:layout_marginLeft="22dip"
+			android:layout_marginRight="30dip" android:id="@+id/rule_action_spinner"></Spinner>
+		<TextView android:layout_height="wrap_content" android:id="@+id/textView2"
+			android:layout_marginTop="10dip" android:layout_width="wrap_content"
+			android:layout_marginLeft="5dip" android:text="IP Addresses / Networks"></TextView>
+		<EditText android:layout_width="fill_parent" android:layout_above="@+id/add_text_file_buttons"
+			android:layout_below="@+id/file_contents_view"
+			android:layout_marginLeft="22dip" android:layout_marginRight="30dip"
+			android:gravity="top" android:layout_height="100dip" android:id="@+id/rule_address"></EditText>
+		<TextView android:layout_height="wrap_content" android:id="@+id/textView3"
+			android:layout_marginRight="30dip" android:textSize="11dip"
+			android:layout_width="wrap_content" android:layout_marginLeft="22dip" android:text="Enter IP addresses or networks in CIDR notation; separate multiple entries with commas. The network 0.0.0.0/0 can be used to create a rule for all traffic."></TextView>
+		<Button android:layout_height="wrap_content"
+			android:layout_gravity="center" android:layout_marginTop="10dip"
+			android:text="Add Rule" android:layout_width="120dip" android:id="@+id/add_rule_button"></Button>
+	</LinearLayout>
+
+</ScrollView>

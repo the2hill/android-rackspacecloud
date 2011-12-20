@@ -18,7 +18,7 @@ public class ContactActivity extends GaActivity{
 		
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackPageView(PAGE_CONTACT);
+        trackPageView(GoogleAnalytics.PAGE_CONTACT);
         setContentView(R.layout.contactrackspace);
         setUpButtons();
     }

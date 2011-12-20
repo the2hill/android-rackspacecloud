@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="80dip">
+    <LinearLayout android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:orientation="vertical" android:layout_gravity="center_vertical">
+        <LinearLayout android:id="@+id/ip_address_layout" android:layout_height="wrap_content" android:layout_width="fill_parent">
+            <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="IP Address: "></TextView>
+            <TextView android:id="@+id/ip_address_text" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/condition_layout" android:layout_height="wrap_content" android:layout_width="fill_parent">
+            <TextView android:id="@+id/TextView02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Condition: "></TextView>
+            <TextView android:id="@+id/condition_text" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/port_layout" android:layout_height="wrap_content" android:layout_width="fill_parent">
+            <TextView android:id="@+id/TextView03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Port: "></TextView>
+            <TextView android:id="@+id/port_text" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+        </LinearLayout>
+        <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/weight_layout">
+            <TextView android:id="@+id/TextView04" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Weight: "></TextView>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/weight_text"></TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

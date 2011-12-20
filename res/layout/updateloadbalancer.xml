@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/view_loadbalncer_layout" android:orientation="vertical"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		<TableLayout android:layout_width="fill_parent" android:paddingBottom="30dip"
+			android:id="@+id/view_loadbalancer_layout" android:paddingLeft="5dip" android:layout_height="fill_parent">
+			<TableRow android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/edit_lb_name_layout"
+				android:orientation="horizontal" android:layout_marginTop="10dip">
+				<TextView android:layout_marginLeft="22dip"
+					android:textStyle="bold" android:singleLine="false"
+					android:layout_height="wrap_content" android:paddingLeft="5dip"
+					android:layout_gravity="center_vertical" android:text="Name"
+					android:layout_width="wrap_content"></TextView>
+				<EditText android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginRight="20dip"
+					android:layout_width="wrap_content" android:id="@+id/edit_lb_name_text" android:lines="1" android:scrollHorizontally="true">
+					<requestFocus></requestFocus>
+				</EditText>
+			</TableRow>
+			<TableRow android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/edit_protocol_layout"
+				android:orientation="horizontal">
+				<TextView android:layout_marginLeft="22dip"
+					android:textStyle="bold" android:singleLine="false"
+					android:layout_height="wrap_content" android:paddingLeft="5dip"
+					android:layout_gravity="center_vertical" android:text="Protocol"
+					android:layout_width="wrap_content"></TextView>
+				<Spinner android:id="@+id/edit_protocol_spinner"
+					android:layout_weight="1" android:layout_height="wrap_content"
+					android:layout_marginRight="20dip" android:layout_width="wrap_content"></Spinner>
+			</TableRow>
+			<TableRow android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/edit_port_layout"
+				android:orientation="horizontal">
+				<TextView android:layout_marginLeft="22dip"
+					android:textStyle="bold" android:singleLine="false"
+					android:layout_height="wrap_content" android:paddingLeft="5dip"
+					android:layout_gravity="center_vertical" android:text="Port"
+					android:layout_width="wrap_content"></TextView>
+				<EditText android:inputType="number" android:layout_height="wrap_content"
+					android:id="@+id/edit_port_text" android:layout_weight="1"
+					android:layout_marginRight="20dip" android:layout_width="fill_parent"></EditText>
+			</TableRow>
+			<TableRow android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/edit_algorithm_layout"
+				android:orientation="horizontal">
+				<TextView android:layout_marginLeft="22dip"
+					android:textStyle="bold" android:singleLine="false"
+					android:layout_height="wrap_content" android:paddingLeft="5dip"
+					android:layout_gravity="center_vertical" android:text="Algorithm"
+					android:layout_width="wrap_content"></TextView>
+				<Spinner android:layout_weight="1" android:layout_height="wrap_content"
+					android:layout_marginRight="20dip" android:layout_width="wrap_content" android:id="@+id/edit_algorithm_spinner"></Spinner>
+			</TableRow>
+			<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="center" android:layout_marginTop="10dip" android:layout_marginRight="30dip" android:layout_marginLeft="30dip" android:text="Update Load Balancer" android:id="@+id/update_lb_button"></Button>
+		</TableLayout>
+	</ScrollView>
+</LinearLayout>

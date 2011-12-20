@@ -10,7 +10,12 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
 import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.FlavorManager;
 import com.rackspace.cloud.servers.api.client.Image;
@@ -22,6 +27,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,7 +39,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
@@ -41,22 +49,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ListAccountsActivity extends GaListActivity{
+//
+public class ListAccountsActivity extends CloudListActivity{
 
-	private final int PASSWORD_PROMPT = 123;
 	private final String FILENAME = "accounts.data";
 	private static final String PAGE_ROOT = "/Root";
-
+	
 	private boolean authenticating;
 	private ArrayList<Account> accounts;
 	private Intent tabViewIntent;
 	private ProgressDialog dialog;
 	private Context context;
-	//need to store if the user has successfully logged in
-	private boolean loggedIn;
+	//used to track the current asynctask
+	@SuppressWarnings("rawtypes")
+	private AsyncTask task;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,40 +75,40 @@ public class ListAccountsActivity extends GaListActivity{
 		registerForContextMenu(getListView());
 		context = getApplicationContext();
 		tabViewIntent = new Intent(this, TabViewActivity.class);
-		verifyPassword();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("authenticating", authenticating);
-		outState.putBoolean("loggedIn", loggedIn);
+		outState.putSerializable("accounts", accounts);
 
 		//need to set authenticating back to true because it is set to false
-		//in hideDialog()
+		//in hideAccountDialog()
 		if(authenticating){
-			hideDialog();
+			hideAccountDialog();
 			authenticating = true;
 		}
 		writeAccounts();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected void onRestoreInstanceState(Bundle state) {		
-		if (state != null && state.containsKey("loggedIn")){
-			loggedIn = state.getBoolean("loggedIn");
-		}
-		else{
-			loggedIn = false;
-		}
+	protected void onRestoreInstanceState(Bundle state) {
+
+		/*
+		 * need reference to the app so you can access
+		 * isLoggingIn
+		 */
+
+
 		if (state != null && state.containsKey("authenticating") && state.getBoolean("authenticating")) {
-			Log.d("info", "captin on restore show");
-			showDialog();
+			showAccountDialog();
 		} else {
-			hideDialog();
+			hideAccountDialog();
 		}
 		if (state != null && state.containsKey("accounts")) {
-			accounts = readAccounts();
+			accounts = (ArrayList<Account>)state.getSerializable("accounts");
 			if (accounts.size() == 0) {
 				displayNoAccountsCell();
 			} else {
@@ -114,7 +124,7 @@ public class ListAccountsActivity extends GaListActivity{
 	protected void onStart(){
 		super.onStart();
 		if(authenticating){
-			showDialog();
+			showAccountDialog();
 		}
 	}
 
@@ -122,61 +132,8 @@ public class ListAccountsActivity extends GaListActivity{
 	protected void onStop(){
 		super.onStop();
 		if(authenticating){
-			Log.d("info", "captin onstop called");
-			hideDialog();
+			hideAccountDialog();
 			authenticating = true;
-		}
-	}
-
-
-	/*
-	 * if the application is password protected,
-	 * the user must provide the password before
-	 * gaining access
-	 */
-	private void verifyPassword(){
-		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
-				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
-		if(pwManager.hasPassword() && !loggedIn){
-			createCustomDialog(PASSWORD_PROMPT);
-		}
-	}
-
-	private boolean rightPassword(String password){
-		PasswordManager pwManager = new PasswordManager(getSharedPreferences(
-				Preferences.SHARED_PREFERENCES_NAME, MODE_PRIVATE));
-		return pwManager.verifyEnteredPassword(password);
-	}
-
-
-	/*
-	 * forces the user to enter a correct password
-	 * before they gain access to application data
-	 */
-	private void createCustomDialog(int id) {
-		final Dialog dialog = new Dialog(ListAccountsActivity.this);
-		switch (id) {
-		case PASSWORD_PROMPT:
-			dialog.setContentView(R.layout.passworddialog);
-			dialog.setTitle("Enter your password:");
-			dialog.setCancelable(false);
-			Button button = (Button) dialog.findViewById(R.id.submit_password);
-			button.setOnClickListener(new OnClickListener() {
-				public void onClick(View v){
-					EditText passwordText = ((EditText)dialog.findViewById(R.id.submit_password_text));
-					if(!rightPassword(passwordText.getText().toString())){
-						passwordText.setText("");
-						showToast("Password was incorrect.");
-						loggedIn = false;
-					}
-					else{
-						dialog.dismiss();
-						loggedIn = true;
-					}
-				}
-
-			});
-			dialog.show();
 		}
 	}
 
@@ -194,7 +151,6 @@ public class ListAccountsActivity extends GaListActivity{
 	}
 
 	private void setAccountList() {
-
 		if (accounts.size() == 0) {
 			displayNoAccountsCell();
 		} else {
@@ -230,7 +186,7 @@ public class ListAccountsActivity extends GaListActivity{
 			@SuppressWarnings("unchecked")
 			ArrayList<Account> file = (ArrayList<Account>)in.readObject();
 			in.close();
-			return file;
+			return file; 
 		} catch (FileNotFoundException e) {
 			//showAlert("Error", "Could not load accounts.");
 			e.printStackTrace();
@@ -262,6 +218,7 @@ public class ListAccountsActivity extends GaListActivity{
 		if (accounts != null && accounts.size() > 0) {
 			//setActivityIndicatorsVisibility(View.VISIBLE, v);
 			Account.setAccount(accounts.get(position));
+			Log.d("info", "the server is " + Account.getAccount().getAuthServerV2());
 			login();
 		}		
 	}
@@ -347,11 +304,15 @@ public class ListAccountsActivity extends GaListActivity{
 
 	public String getAccountServer(Account account){
 		String authServer = account.getAuthServer();
+		if(authServer == null){
+			authServer = account.getAuthServerV2();
+		}
 		String result;
-		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER)){
+				
+		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
 			result = "Rackspace Cloud (UK)";
 		}
-		else if(authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		else if(authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER) || authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)){
 			result = "Rackspace Cloud (US)";
 		}
 		else{
@@ -363,8 +324,14 @@ public class ListAccountsActivity extends GaListActivity{
 
 	//display rackspace logo for cloud accounts and openstack logo for others
 	private int setAccountIcon(Account account){
-		if(account.getAuthServer().equals(Preferences.COUNTRY_UK_AUTH_SERVER) 
-				|| account.getAuthServer().equals(Preferences.COUNTRY_US_AUTH_SERVER)){
+		String authServer = account.getAuthServer();
+		if(authServer == null){
+			authServer = account.getAuthServerV2();
+		}
+		if(authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER) 
+				|| authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER)
+				|| authServer.equals(Preferences.COUNTRY_US_AUTH_SERVER_V2)
+						|| authServer.equals(Preferences.COUNTRY_UK_AUTH_SERVER_V2)){
 			return R.drawable.rackspacecloud_icon;
 		}
 		else{
@@ -376,106 +343,99 @@ public class ListAccountsActivity extends GaListActivity{
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if(requestCode == 187){
-			hideDialog(); 
+			hideAccountDialog(); 
 		}
 
 		if (resultCode == RESULT_OK && requestCode == 78) {	  
 			Account acc = new Account();
 			Bundle b = data.getBundleExtra("accountInfo");
-			acc.setApiKey(b.getString("apiKey"));
+			acc.setPassword(b.getString("apiKey"));
 			acc.setUsername(b.getString("username"));
-			acc.setAuthServer(b.getString("server"));
+			acc.setAuthServerV2(b.getString("server"));
+			Log.d("info", "the set server was " + b.getString("server"));
+			Log.d("info", "the server is " + acc.getAuthServerV2());
 			accounts.add(acc);
 			writeAccounts();
 			loadAccounts();
 		}
 	}	
-	/*
-	private void setActivityIndicatorsVisibility(int visibility) {
-		//FINISH THIS TO LET USER KNOW PROGRAM IS STILL WORKING
 
-        //ProgressBar pb = new ProgressBar();
-    	//TextView tv = (TextView) findViewById(R.id.login_authenticating_label);
-        //pb.setVisibility(visibility);
-        //tv.setVisibility(visibility);
-    }
-
-	private void setActivityIndicatorsVisibility(int visibility, View v) {
-		//FINISH THIS TO LET USER KNOW PROGRAM IS STILL WORKING
-
-        //ProgressBar pb = new ProgressBar();
-    	//TextView tv = (TextView) findViewById(R.id.login_authenticating_label);
-        //pb.setVisibility(visibility);
-        //tv.setVisibility(visibility);
-    }
-	 */
-
-	private void showDialog() {
+	private void showAccountDialog() {
+		app.setIsLoggingIn(true);
 		authenticating = true;
 		if(dialog == null || !dialog.isShowing()){
-			dialog = ProgressDialog.show(ListAccountsActivity.this, "", "Authenticating...", true);
+			dialog = new ProgressDialog(this);
+			dialog.setProgressStyle(R.style.NewDialog);
+			dialog.setOnCancelListener(new OnCancelListener() {
+
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					app.setIsLoggingIn(false);
+					//need to cancel the old task or we may get a double login
+					task.cancel(true);
+					hideAccountDialog();
+				}
+			});
+			dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+			dialog.show();
+			dialog.setContentView(new ProgressBar(this), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		}
-    }
-    
-    private void hideDialog() {
-    	if(dialog != null){
-    		dialog.dismiss();
-    	}
-    	authenticating = false;
-    }
+
+		
+	}
+
+	private void hideAccountDialog() {
+		if(dialog != null){
+			dialog.dismiss();
+		}
+		authenticating = false;
+	}
 
 	private class AuthenticateTask extends AsyncTask<Void, Void, Boolean> {
 
 		@Override
 		protected void onPreExecute(){
-			showDialog();
+			Log.d("info", "Starting authenticate");
+			task = this;
+			showAccountDialog();
 		}
 
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			return new Boolean(Authentication.authenticate(context));
-			//return true;
+			try {
+				return new Boolean(Authentication.authenticate(context));
+			} catch (CloudServersException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
 
 		@Override
 		protected void onPostExecute(Boolean result) {
 			if (result.booleanValue()) {
 				//startActivity(tabViewIntent);
-				new LoadImagesTask().execute((Void[]) null);
-			} else {
-				hideDialog();
-				showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
-			}
-		}
-	}
-
-	private class LoadFlavorsTask extends AsyncTask<Void, Void, ArrayList<Flavor>> {
-
-		@Override
-		protected ArrayList<Flavor> doInBackground(Void... arg0) {
-			return (new FlavorManager()).createList(true, context);
-		}
-
-		@Override
-		protected void onPostExecute(ArrayList<Flavor> result) {
-			if (result != null && result.size() > 0) {
-				TreeMap<String, Flavor> flavorMap = new TreeMap<String, Flavor>();
-				for (int i = 0; i < result.size(); i++) {
-					Flavor flavor = result.get(i);
-					flavorMap.put(flavor.getId(), flavor);
+				if(app.isLoggingIn()){
+					new LoadImagesTask().execute((Void[]) null);
+				} else {
+					hideAccountDialog();
 				}
-				Flavor.setFlavors(flavorMap);
-				hideDialog();
-				startActivityForResult(tabViewIntent, 187);
 			} else {
-				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "Authentication failed.  Please check your User Name and API Key.");
+				}
 			}
 		}
 	}
 
 	private class LoadImagesTask extends AsyncTask<Void, Void, ArrayList<Image>> {
-
+ 
+		@Override
+		protected void onPreExecute(){
+			Log.d("info", "Starting Images");
+			task = this;
+		}
+		
 		@Override
 		protected ArrayList<Image> doInBackground(Void... arg0) {
 			return (new ImageManager()).createList(true, context);
@@ -490,32 +450,115 @@ public class ListAccountsActivity extends GaListActivity{
 					imageMap.put(image.getId(), image);
 				}
 				Image.setImages(imageMap);
-				new LoadFlavorsTask().execute((Void[]) null);
-				//startActivity(tabViewIntent);
+				if(app.isLoggingIn()){
+					new LoadProtocolsTask().execute((Void[]) null); 
+				} else {
+					hideAccountDialog();
+				}
 			} else {
-				hideDialog();
-				showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading server images.  Please try again.");
+				}
 			}
 		}
 	}
 
-	private void showAlert(String title, String message) {
-		AlertDialog alert = new AlertDialog.Builder(this).create();
-		alert.setTitle(title);
-		alert.setMessage(message);
-		alert.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			} }); 
-		alert.show();
+	private class LoadProtocolsTask extends AsyncTask<Void, Void, ArrayList<Protocol>> {
+
+		@Override
+		protected void onPreExecute(){
+			Log.d("info", "Starting protcols");
+			task = this;
+		}
+		
+		@Override
+		protected ArrayList<Protocol> doInBackground(Void... arg0) {
+			return (new ProtocolManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Protocol> result) {
+			if (result != null && result.size() > 0) {
+				Protocol.setProtocols(result);
+				if(app.isLoggingIn()){
+					new LoadAlgorithmsTask().execute((Void[]) null);
+				} else {
+					hideAccountDialog();
+				}
+			} else {
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading load balancer protocols.  Please try again.");
+				}
+			}
+		}
 	}
 
-	private void showToast(String message) {
-		Context context = getApplicationContext();
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
+	private class LoadAlgorithmsTask extends AsyncTask<Void, Void, ArrayList<Algorithm>> {
+
+		protected void onPreExecute(){
+			Log.d("info", "Starting algorithms");
+			task = this;
+		}
+		
+		@Override
+		protected ArrayList<Algorithm> doInBackground(Void... arg0) {
+			return (new AlgorithmManager()).createList(context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Algorithm> result) {
+			if (result != null && result.size() > 0) {
+				Algorithm.setAlgorithms(result);
+				if(app.isLoggingIn()){
+					new LoadFlavorsTask().execute((Void[]) null);
+				} else {
+					hideAccountDialog();
+				}
+			} else {
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading load balancer algorithms.  Please try again.");
+				}
+			}
+		}
 	}
+
+	private class LoadFlavorsTask extends AsyncTask<Void, Void, ArrayList<Flavor>> {
+
+		protected void onPreExecute(){
+			Log.d("info", "Starting flavors");
+			task = this;
+		}
+		
+		@Override
+		protected ArrayList<Flavor> doInBackground(Void... arg0) {
+			return (new FlavorManager()).createList(true, context);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Flavor> result) {
+			if (result != null && result.size() > 0) {
+				TreeMap<String, Flavor> flavorMap = new TreeMap<String, Flavor>();
+				for (int i = 0; i < result.size(); i++) {
+					Flavor flavor = result.get(i);
+					flavorMap.put(flavor.getId(), flavor);
+				}
+				Flavor.setFlavors(flavorMap);
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					startActivityForResult(tabViewIntent, 187);
+				}
+			} else {
+				hideAccountDialog();
+				if(app.isLoggingIn()){
+					showAlert("Login Failure", "There was a problem loading server flavors.  Please try again.");
+				}
+			}
+		}
+	}
+
 
 
 
