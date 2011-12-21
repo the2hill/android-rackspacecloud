@@ -2,17 +2,18 @@ package com.rackspacecloud.android;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.Server;
-import com.rackspace.cloud.servers.api.client.ServerManager;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Server;
+import com.rackspace.cloud.servers.api.client.ServerManager;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class ConfirmResizeActivity extends CloudActivity {
 

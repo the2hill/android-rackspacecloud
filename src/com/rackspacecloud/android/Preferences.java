@@ -3,6 +3,8 @@ package com.rackspacecloud.android;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+import com.rackspace.cloud.android.R;
+
 public class Preferences extends PreferenceActivity{
     // The name of the SharedPreferences file we'll store preferences in.
     public static final String SHARED_PREFERENCES_NAME = "Preferences";

@@ -4,14 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.Server;
-import com.rackspace.cloud.servers.api.client.ServerManager;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -25,10 +17,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
+import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Server;
+import com.rackspace.cloud.servers.api.client.ServerManager;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class AddMoreNodesActivity extends CloudListActivity {
 

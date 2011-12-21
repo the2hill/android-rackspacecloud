@@ -3,21 +3,22 @@ package com.rackspacecloud.android;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemSelectedListener;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
 
 public class AddExternalNodeActivity extends CloudActivity {
 

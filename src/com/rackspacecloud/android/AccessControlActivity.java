@@ -4,13 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.NetworkItem;
-import com.rackspace.cloud.loadbalancer.api.client.NetworkItemManager;
-import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +20,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.NetworkItem;
+import com.rackspace.cloud.loadbalancer.api.client.NetworkItemManager;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class AccessControlActivity extends CloudListActivity {
 

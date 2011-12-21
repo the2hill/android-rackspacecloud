@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.rackspace.cloud.android.R;
+
 public class CreatePasswordActivity extends CloudActivity {
 
 	private PasswordManager pwManager;

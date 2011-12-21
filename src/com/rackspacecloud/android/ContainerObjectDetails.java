@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.files.api.client.ContainerObjectManager;
 import com.rackspace.cloud.files.api.client.ContainerObjects;
 import com.rackspace.cloud.servers.api.client.CloudServersException;

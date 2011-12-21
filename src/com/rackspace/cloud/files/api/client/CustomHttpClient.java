@@ -10,7 +10,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 
-import com.rackspacecloud.android.R;
+import com.rackspace.cloud.android.R;
 
 import java.io.InputStream;
 import java.security.KeyStore;

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.rackspacecloud.android" android:versionCode="1"
-	android:versionName="1.0">
+	android:versionCode="3" android:versionName="1.2" package="com.rackspace.cloud.android">
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 	<application android:name="AndroidCloudApplication" android:icon="@drawable/rackspace60"
