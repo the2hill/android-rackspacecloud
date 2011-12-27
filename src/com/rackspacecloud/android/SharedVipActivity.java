@@ -14,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;

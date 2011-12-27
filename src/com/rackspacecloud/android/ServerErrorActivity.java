@@ -9,6 +9,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
+
 
 public class ServerErrorActivity extends Activity {
 

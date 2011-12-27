@@ -1,7 +1,5 @@
 package com.rackspacecloud.android;
 
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,9 +10,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
 
 public class AddNodeActivity extends CloudActivity{
 

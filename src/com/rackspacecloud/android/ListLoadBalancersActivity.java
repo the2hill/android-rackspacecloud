@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;

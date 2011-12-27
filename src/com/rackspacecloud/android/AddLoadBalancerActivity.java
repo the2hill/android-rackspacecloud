@@ -4,17 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-import com.rackspace.cloud.loadbalancer.api.client.Protocol;
-import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;
-import com.rackspace.cloud.servers.api.client.Account;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.Server;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -30,7 +19,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TableRow;;
+import android.widget.TableRow;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.VirtualIp;
+import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Server;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class AddLoadBalancerActivity extends CloudActivity implements OnItemSelectedListener {
 

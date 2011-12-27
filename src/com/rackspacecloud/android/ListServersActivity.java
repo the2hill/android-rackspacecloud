@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Server;
 import com.rackspace.cloud.servers.api.client.ServerManager;

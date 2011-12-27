@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import com.rackspace.cloud.android.R;
+
 public class PingServerActivity extends Activity{
 	
 	private WebView pingSiteView;

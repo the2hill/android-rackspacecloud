@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
+
 public class ErrorDetailsActivity extends Activity {
 		
 	public void onCreate(Bundle savedInstanceState) {

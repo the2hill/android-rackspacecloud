@@ -5,7 +5,7 @@ package com.rackspace.cloud.servers.api.client;
 
 import java.util.TreeMap;
 
-import com.rackspacecloud.android.R;
+import com.rackspace.cloud.android.R;
 
 /**
  * @author Mike Mayo - mike.mayo@rackspace.com - twitter.com/greenisus

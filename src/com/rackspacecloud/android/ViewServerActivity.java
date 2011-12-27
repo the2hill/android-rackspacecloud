@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.Image;

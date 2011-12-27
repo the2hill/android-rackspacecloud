@@ -2,11 +2,6 @@ package com.rackspacecloud.android;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,6 +19,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
+import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class EditNodeActivity extends CloudActivity{
 

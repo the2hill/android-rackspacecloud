@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.loadbalancer.api.client.ConnectionThrottle;
 import com.rackspace.cloud.loadbalancer.api.client.ConnectionThrottleManager;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;

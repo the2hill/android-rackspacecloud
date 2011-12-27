@@ -2,13 +2,6 @@ package com.rackspacecloud.android;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.servers.api.client.Backup;
-import com.rackspace.cloud.servers.api.client.BackupManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.Server;
-import com.rackspace.cloud.servers.api.client.ServerManager;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.servers.api.client.Backup;
+import com.rackspace.cloud.servers.api.client.BackupManager;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Server;
+import com.rackspace.cloud.servers.api.client.ServerManager;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class BackupServerActivity extends CloudActivity implements OnItemSelectedListener, OnClickListener {
 

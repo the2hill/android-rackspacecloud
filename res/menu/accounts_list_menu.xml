@@ -4,6 +4,4 @@
 	<item android:id="@+id/add_password" android:title="Password Lock"
 		android:icon="@drawable/ic_menu_login"></item>
 	<item android:id="@+id/contact_rackspace" android:icon="@drawable/ic_menu_help" android:title="Fanatical Support"></item>
-
-
 </menu>

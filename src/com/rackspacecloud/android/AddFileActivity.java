@@ -2,10 +2,6 @@ package com.rackspacecloud.android;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.files.api.client.ContainerObjectManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +9,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.ContainerObjectManager;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class AddFileActivity extends CloudActivity implements OnClickListener{
 

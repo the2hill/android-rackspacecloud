@@ -10,20 +10,6 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
-import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
-import com.rackspace.cloud.loadbalancer.api.client.Protocol;
-import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
-import com.rackspace.cloud.servers.api.client.Account;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.Flavor;
-import com.rackspace.cloud.servers.api.client.FlavorManager;
-import com.rackspace.cloud.servers.api.client.Image;
-import com.rackspace.cloud.servers.api.client.ImageManager;
-import com.rackspace.cloud.servers.api.client.http.Authentication;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,19 +25,28 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.AlgorithmManager;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.loadbalancer.api.client.ProtocolManager;
+import com.rackspace.cloud.servers.api.client.Account;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.Flavor;
+import com.rackspace.cloud.servers.api.client.FlavorManager;
+import com.rackspace.cloud.servers.api.client.Image;
+import com.rackspace.cloud.servers.api.client.ImageManager;
+import com.rackspace.cloud.servers.api.client.http.Authentication;
 
 //
 public class ListAccountsActivity extends CloudListActivity{
@@ -266,11 +261,16 @@ public class ListAccountsActivity extends CloudListActivity{
 
 	//removes the selected account from account list if remove is clicked
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		accounts.remove(info.position);
-		writeAccounts();
-		loadAccounts();
-		return true;
+		if (accounts.size() == 0) {
+			displayNoAccountsCell();
+			return true;
+		} else {
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+			accounts.remove(info.position);
+			writeAccounts();
+			loadAccounts();
+			return true;
+		}
 	}
 
 	class AccountAdapter extends ArrayAdapter<Account> {

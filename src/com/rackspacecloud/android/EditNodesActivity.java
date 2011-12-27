@@ -2,11 +2,6 @@ package com.rackspacecloud.android;
 
 import java.util.ArrayList;
 
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.Node;
-import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
-import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +13,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.Node;
+import com.rackspace.cloud.loadbalancer.api.client.NodeManager;
+import com.rackspace.cloud.loadbalancer.api.client.http.LoadBalancersException;
 
 public class EditNodesActivity extends CloudListActivity {
 

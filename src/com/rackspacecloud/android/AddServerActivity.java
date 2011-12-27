@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,8 +20,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.Flavor;
 import com.rackspace.cloud.servers.api.client.Image;

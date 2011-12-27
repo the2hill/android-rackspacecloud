@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
 import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
 import com.rackspace.cloud.loadbalancer.api.client.Node;

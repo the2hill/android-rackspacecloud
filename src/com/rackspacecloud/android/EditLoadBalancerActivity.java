@@ -2,24 +2,25 @@ package com.rackspacecloud.android;
 
 import org.apache.http.HttpResponse;
 
-import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
-import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
-import com.rackspace.cloud.loadbalancer.api.client.Protocol;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
-import com.rackspace.cloud.servers.api.client.http.HttpBundle;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.AdapterView.OnItemSelectedListener;
+
+import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.loadbalancer.api.client.Algorithm;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancer;
+import com.rackspace.cloud.loadbalancer.api.client.LoadBalancerManager;
+import com.rackspace.cloud.loadbalancer.api.client.Protocol;
+import com.rackspace.cloud.servers.api.client.CloudServersException;
+import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 
 public class EditLoadBalancerActivity extends CloudActivity implements OnItemSelectedListener {
 

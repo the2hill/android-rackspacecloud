@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.rackspace.cloud.android.R;
 import com.rackspace.cloud.files.api.client.Container;
 import com.rackspace.cloud.files.api.client.ContainerManager;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
