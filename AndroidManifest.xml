@@ -3,69 +3,56 @@
 	android:versionCode="3" android:versionName="1.2" package="com.rackspace.cloud.android">
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-	<application android:name="AndroidCloudApplication" android:icon="@drawable/rackspace60"
-		android:label="@string/app_name" android:debuggable="true">
-		<activity android:name=".RackspaceCloudActivity"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.APPLICATION" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".TabViewActivity" android:label="@string/app_name">
+	<application android:name="com.rackspacecloud.android.AndroidCloudApplication" android:icon="@drawable/rackspace60"
+		android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.TabViewActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ListServersActivity" android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.ListServersActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".AddServerActivity" android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.AddServerActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".AddContainerActivity" android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.AddContainerActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ViewServerActivity" android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.ViewServerActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".ViewServerActivity" android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.APPLICATION" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".ContainerObjectsActivity"
+		<activity android:name="com.rackspacecloud.android.ContainerObjectsActivity"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".ListContainerActivity"
+		<activity android:name="com.rackspacecloud.android.ListContainerActivity"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".ContainerObjectDetails"
+		<activity android:name="com.rackspacecloud.android.ContainerObjectDetails"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -73,34 +60,20 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".EnableCDNActivity" android:label="@string/app_name">
+		<activity android:name="com.rackspacecloud.android.EnableCDNActivity" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-
-		<activity android:name=".ActivityChooser" android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.APPLICATION" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".LoadBalancersActivity"
+		<activity android:name="com.rackspacecloud.android.ListLoadBalancersActivity"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.APPLICATION" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".ListLoadBalancersActivity"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.APPLICATION" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".ViewLoadBalancerActivity"
+		<activity android:name="com.rackspacecloud.android.ViewLoadBalancerActivity"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -109,39 +82,38 @@
 		</activity>
 
 
-		<activity android:name=".Preferences" android:label="@string/preference_name" />
-		<activity android:name=".BackupServerActivity"></activity>
-		<activity android:name=".PasswordServerActivity"></activity>
-		<activity android:name=".PingServerActivity"></activity>
-		<activity android:name=".ListAccountsActivity">
+		<activity android:name="com.rackspacecloud.android.Preferences" android:label="@string/preference_name" />
+		<activity android:name="com.rackspacecloud.android.BackupServerActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.PasswordServerActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.PingServerActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.ListAccountsActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".AddAccountActivity"></activity>
-		<activity android:name=".ContactActivity"></activity>
-		<activity android:name=".CreatePasswordActivity"></activity>
-		<activity android:name=".AddFileActivity"></activity>
-		<activity android:name=".ServerErrorActivity" android:theme="@android:style/Theme.Dialog"
+		<activity android:name="com.rackspacecloud.android.AddAccountActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.ContactActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddFileActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.ServerErrorActivity" android:theme="@android:style/Theme.Dialog"
 			android:noHistory="true"></activity>
-		<activity android:name=".ErrorDetailsActivity"></activity>
-		<activity android:name=".ConfirmResizeActivity"
+		<activity android:name="com.rackspacecloud.android.ErrorDetailsActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.ConfirmResizeActivity"
 			android:theme="@android:style/Theme.Dialog"></activity>
-		<activity android:name=".AddLoadBalancerActivity"></activity>
-		<activity android:name=".AddNodesActivity"></activity>
-		<activity android:name=".AddNodeActivity"></activity>
-		<activity android:name=".EditNodeActivity" android:theme="@android:style/Theme.Dialog"></activity>
-		<activity android:name=".EditNodesActivity"></activity>
-		<activity android:name=".EditLoadBalancerActivity"></activity>
-		<activity android:name=".AddMoreNodesActivity"></activity>
-		<activity android:name=".AddExternalNodeActivity"></activity>
-		<activity android:name=".SharedVipActivity"></activity>
-		<activity android:name=".ConnectionThrottleActivity"></activity>
-		<activity android:name=".AccessControlActivity"></activity>
-		<activity android:name=".AddAccessRuleActivity"></activity>
-
+		<activity android:name="com.rackspacecloud.android.AddLoadBalancerActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddNodesActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddNodeActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.EditNodeActivity" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name="com.rackspacecloud.android.EditNodesActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.EditLoadBalancerActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddMoreNodesActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddExternalNodeActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.SharedVipActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.ConnectionThrottleActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AccessControlActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.AddAccessRuleActivity"></activity>
+		<activity android:name="com.rackspacecloud.android.CreatePasswordActivity"></activity>
 
 
 	</application>
