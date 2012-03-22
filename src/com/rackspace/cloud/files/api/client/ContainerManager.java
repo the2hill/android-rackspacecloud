@@ -19,6 +19,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,7 +49,7 @@ public class ContainerManager extends EntityManager {
 
 	public HttpBundle create(Editable editable) throws CloudServersException {
 		HttpResponse resp = null;
-		CustomHttpClient httpclient = new CustomHttpClient(context);
+		DefaultHttpClient httpclient = new CustomHttpClient(context);
 		
 		String url = getSafeURL(Account.getAccount().getStorageUrl(), editable.toString());
 		HttpPut put = new HttpPut(url);
@@ -80,7 +81,7 @@ public class ContainerManager extends EntityManager {
 
 	public ArrayList<Container> createCDNList(boolean detail) throws CloudServersException {
 		
-		CustomHttpClient httpclient = new CustomHttpClient(context);
+		DefaultHttpClient httpclient = new CustomHttpClient(context);
 		HttpGet get = new HttpGet(Account.getAccount().getCdnManagementUrl()+"?format=xml");
 		ArrayList<Container> cdnContainers = new ArrayList<Container>();
 		
@@ -215,7 +216,7 @@ public class ContainerManager extends EntityManager {
 		httpclient.removeRequestInterceptorByClass(RequestExpectContinue.class);
 
 		HttpBundle bundle = new HttpBundle();
-		bundle.setCurlRequest(put);
+		bundle.setCurlRequest(put); 
 		
 		try {
 			resp = httpclient.execute(put);
@@ -236,10 +237,12 @@ public class ContainerManager extends EntityManager {
 		return bundle;
 	}
 
-	public ArrayList<Container> createList(boolean detail)
+	public ArrayList<Container> createList(boolean detail, Context context)
 			throws CloudServersException {
 
-		CustomHttpClient httpclient = new CustomHttpClient(context);
+		DefaultHttpClient httpclient = new CustomHttpClient(context);
+		String storageUrl = Account.getAccount().getStorageUrl();
+
 		HttpGet get = new HttpGet(Account.getAccount().getStorageUrl() + "?format=xml");
 		ArrayList<Container> containers = new ArrayList<Container>();
 

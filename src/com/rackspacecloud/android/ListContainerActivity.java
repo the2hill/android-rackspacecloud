@@ -31,7 +31,7 @@ import com.rackspace.cloud.servers.api.client.CloudServersException;
 public class ListContainerActivity extends GaListActivity {
 
 	protected static final int DELETE_ID = 0;
-	
+
 	private Container[] containers;
 	public Container container;
 	public Container cdnContainer;
@@ -42,7 +42,7 @@ public class ListContainerActivity extends GaListActivity {
 	public int kbConver = 1024;
 	private Context context;
 	private boolean loading;
-		
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,11 +59,12 @@ public class ListContainerActivity extends GaListActivity {
 	}
 
 	private void restoreState(Bundle state) {
-		if(state != null && state.containsKey("loading") && state.getBoolean("loading")){
+		if (state != null && state.containsKey("loading")
+				&& state.getBoolean("loading")) {
 			loadContainers();
 			registerForContextMenu(getListView());
-		}
-		else if (state != null && state.containsKey("container") && state.getSerializable("container") != null) {
+		} else if (state != null && state.containsKey("container")
+				&& state.getSerializable("container") != null) {
 			containers = (Container[]) state.getSerializable("container");
 			if (containers.length == 0) {
 				displayNoServersCell();
@@ -139,24 +140,24 @@ public class ListContainerActivity extends GaListActivity {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	private class LoadContainersTask extends
 			AsyncTask<Void, Void, ArrayList<Container>> {
 
 		private CloudServersException exception;
 
 		@Override
-		protected void onPreExecute(){
+		protected void onPreExecute() {
 			loading = true;
 		}
-			
+
 		@Override
 		protected ArrayList<Container> doInBackground(Void... arg0) {
 			ArrayList<Container> containers = null;
 
 			try {
-				containers = (new ContainerManager(context)).createList(true);
+				containers = (new ContainerManager(context)).createList(true,
+						context);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -189,16 +190,17 @@ public class ListContainerActivity extends GaListActivity {
 		private CloudServersException exception;
 
 		@Override
-		protected void onPreExecute(){
+		protected void onPreExecute() {
 			loading = true;
 		}
-		
+
 		@Override
 		protected ArrayList<Container> doInBackground(Void... arg0) {
 			ArrayList<Container> cdnContainers = null;
 
 			try {
-				cdnContainers = (new ContainerManager(context)).createCDNList(true);
+				cdnContainers = (new ContainerManager(context))
+						.createCDNList(true);
 			} catch (CloudServersException e) {
 				exception = e;
 			}
@@ -213,18 +215,23 @@ public class ListContainerActivity extends GaListActivity {
 
 			ArrayList<Container> cdnContainers = result;
 
-			for (int i = 0; i < containers.length; i++) {
-				Container container = containers[i];
-				for (int t = 0; t < cdnContainers.size(); t++) {
-					Container cdnContainer = cdnContainers.get(t);
-					if (container.getName().equals(cdnContainer.getName())) {
-						container.setCdnEnabled(cdnContainer.isCdnEnabled());
-						container.setCdnUrl(cdnContainer.getCdnUrl());
-						container.setTtl(cdnContainer.getTtl());
+			if (containers != null && cdnContainers != null) {
+				for (int i = 0; i < containers.length; i++) {
+					Container container = containers[i];
+					for (int t = 0; t < cdnContainers.size(); t++) {
+						Container cdnContainer = cdnContainers.get(t);
+						if (container.getName().equals(cdnContainer.getName())) {
+							container
+									.setCdnEnabled(cdnContainer.isCdnEnabled());
+							container.setCdnUrl(cdnContainer.getCdnUrl());
+							container.setTtl(cdnContainer.getTtl());
+						}
 					}
 				}
+				setContainerList();
+			} else {
+				showAlert("ERROR", "There was an error processing the request, please try again...");
 			}
-			setContainerList();
 			loading = false;
 		}
 	}
@@ -242,7 +249,11 @@ public class ListContainerActivity extends GaListActivity {
 		switch (item.getItemId()) {
 		case R.id.add_container:
 			startActivityForResult(
-					new Intent(this, AddContainerActivity.class), 56); // arbitrary number never used again
+					new Intent(this, AddContainerActivity.class), 56); // arbitrary
+																		// number
+																		// never
+																		// used
+																		// again
 			return true;
 		case R.id.refresh:
 			containers = null;
@@ -288,11 +299,11 @@ public class ListContainerActivity extends GaListActivity {
 			return (row);
 		}
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		
+
 		if (resultCode == RESULT_OK) {
 			// a sub-activity kicked back, so we want to refresh the server list
 			loadContainers();

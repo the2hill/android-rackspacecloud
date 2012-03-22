@@ -27,6 +27,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.rackspace.cloud.files.api.client.CustomHttpClient;
+import com.rackspace.cloud.files.api.client.CustomHttpClientAuth;
 import com.rackspace.cloud.files.api.client.parsers.ContainerXMLParser;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
