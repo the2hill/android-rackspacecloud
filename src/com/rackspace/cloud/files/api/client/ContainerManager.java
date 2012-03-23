@@ -29,6 +29,7 @@ import android.content.Context;
 import android.text.Editable;
 import android.util.Log;
 
+import com.rackspace.cloud.files.api.client.parsers.CloudFilesFaultXMLParser;
 import com.rackspace.cloud.files.api.client.parsers.ContainerXMLParser;
 import com.rackspace.cloud.servers.api.client.Account;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
@@ -47,7 +48,7 @@ public class ContainerManager extends EntityManager {
 		this.context = context;
 	}
 
-	public HttpBundle create(Editable editable) throws CloudServersException {
+	public HttpBundle create(Editable editable) throws CloudFilesException {
 		HttpResponse resp = null;
 		DefaultHttpClient httpclient = new CustomHttpClient(context);
 		
@@ -64,22 +65,22 @@ public class ContainerManager extends EntityManager {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
 		return bundle;
 	}
 
-	public ArrayList<Container> createCDNList(boolean detail) throws CloudServersException {
+	public ArrayList<Container> createCDNList(boolean detail) throws CloudFilesException {
 		
 		DefaultHttpClient httpclient = new CustomHttpClient(context);
 		HttpGet get = new HttpGet(Account.getAccount().getCdnManagementUrl()+"?format=xml");
@@ -101,32 +102,32 @@ public class ContainerManager extends EntityManager {
 		    	xmlReader.parse(new InputSource(new StringReader(body)));
 		    	cdnContainers = cdnContainerXMLParser.getContainers();		    	
 		    } else {
-		    	CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
+		    	CloudFilesFaultXMLParser parser = new CloudFilesFaultXMLParser();
 		    	SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 		    	XMLReader xmlReader = saxParser.getXMLReader();
 		    	xmlReader.setContentHandler(parser);
 		    	xmlReader.parse(new InputSource(new StringReader(body)));		    	
-		    	CloudServersException cse = parser.getException();		    	
+		    	CloudFilesException cse = parser.getException();		    	
 		    	throw cse;
 		    }
 		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (ParserConfigurationException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (SAXException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
@@ -137,7 +138,7 @@ public class ContainerManager extends EntityManager {
 
 	
 	public HttpBundle enable(String container, String ttl, String logRet)
-			throws CloudServersException {
+			throws CloudFilesException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 		String url = getSafeURL(Account.getAccount().getCdnManagementUrl(), container);
@@ -157,22 +158,22 @@ public class ContainerManager extends EntityManager {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
 		return bundle;
 	}
 	public HttpBundle disable(String container, String cdn, String ttl, String logRet)
-	throws CloudServersException {
+	throws CloudFilesException {
        HttpResponse resp = null;
  	    CustomHttpClient httpclient = new CustomHttpClient(context);
  	   String url = getSafeURL(Account.getAccount().getCdnManagementUrl(), container);
@@ -191,22 +192,22 @@ public class ContainerManager extends EntityManager {
        			resp = httpclient.execute(post);
        			bundle.setHttpResponse(resp);
        		} catch (ClientProtocolException e) {
-       			CloudServersException cse = new CloudServersException();
+       			CloudFilesException cse = new CloudFilesException();
        			cse.setMessage(e.getLocalizedMessage());
        			throw cse;
        		} catch (IOException e) {
-       			CloudServersException cse = new CloudServersException();
+       			CloudFilesException cse = new CloudFilesException();
        			cse.setMessage(e.getLocalizedMessage());
        			throw cse;
        		} catch (FactoryConfigurationError e) {
-       			CloudServersException cse = new CloudServersException();
+       			CloudFilesException cse = new CloudFilesException();
        			cse.setMessage(e.getLocalizedMessage());
        			throw cse;
        		}
        		return bundle;
 	}
 
-	public HttpBundle delete(String string) throws CloudServersException {
+	public HttpBundle delete(String string) throws CloudFilesException {
 		HttpResponse resp = null;
 		CustomHttpClient httpclient = new CustomHttpClient(context);
 		String url = getSafeURL(Account.getAccount().getStorageUrl(), string);
@@ -222,15 +223,15 @@ public class ContainerManager extends EntityManager {
 			resp = httpclient.execute(put);
 			bundle.setHttpResponse(resp);
 		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}
@@ -238,7 +239,7 @@ public class ContainerManager extends EntityManager {
 	}
 
 	public ArrayList<Container> createList(boolean detail, Context context)
-			throws CloudServersException {
+			throws CloudFilesException {
 
 		DefaultHttpClient httpclient = new CustomHttpClient(context);
 		String storageUrl = Account.getAccount().getStorageUrl();
@@ -265,33 +266,33 @@ public class ContainerManager extends EntityManager {
 				xmlReader.parse(new InputSource(new StringReader(body)));
 				containers = containerXMLParser.getContainers();
 			} else {
-				CloudServersFaultXMLParser parser = new CloudServersFaultXMLParser();
+				CloudFilesFaultXMLParser parser = new CloudFilesFaultXMLParser();
 				SAXParser saxParser = SAXParserFactory.newInstance()
 						.newSAXParser();
 				XMLReader xmlReader = saxParser.getXMLReader();
 				xmlReader.setContentHandler(parser);
 				xmlReader.parse(new InputSource(new StringReader(body)));
-				CloudServersException cse = parser.getException();
+				CloudFilesException cse = parser.getException();
 				throw cse;
 			}
 		} catch (ClientProtocolException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (IOException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (ParserConfigurationException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (SAXException e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		} catch (FactoryConfigurationError e) {
-			CloudServersException cse = new CloudServersException();
+			CloudFilesException cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 			throw cse;
 		}

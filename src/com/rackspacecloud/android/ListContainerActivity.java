@@ -19,9 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.CloudFilesException;
 import com.rackspace.cloud.files.api.client.Container;
 import com.rackspace.cloud.files.api.client.ContainerManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
 
 /**
  * 
@@ -144,7 +144,7 @@ public class ListContainerActivity extends GaListActivity {
 	private class LoadContainersTask extends
 			AsyncTask<Void, Void, ArrayList<Container>> {
 
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		@Override
 		protected void onPreExecute() {
@@ -158,7 +158,7 @@ public class ListContainerActivity extends GaListActivity {
 			try {
 				containers = (new ContainerManager(context)).createList(true,
 						context);
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return containers;
@@ -187,7 +187,7 @@ public class ListContainerActivity extends GaListActivity {
 	private class LoadCDNContainersTask extends
 			AsyncTask<Void, Void, ArrayList<Container>> {
 
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		@Override
 		protected void onPreExecute() {
@@ -201,7 +201,7 @@ public class ListContainerActivity extends GaListActivity {
 			try {
 				cdnContainers = (new ContainerManager(context))
 						.createCDNList(true);
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return cdnContainers;
@@ -248,12 +248,7 @@ public class ListContainerActivity extends GaListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.add_container:
-			startActivityForResult(
-					new Intent(this, AddContainerActivity.class), 56); // arbitrary
-																		// number
-																		// never
-																		// used
-																		// again
+			startActivityForResult(new Intent(this, AddContainerActivity.class), 56); 
 			return true;
 		case R.id.refresh:
 			containers = null;
