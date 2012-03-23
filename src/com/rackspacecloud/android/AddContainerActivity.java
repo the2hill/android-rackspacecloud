@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.CloudFilesException;
 import com.rackspace.cloud.files.api.client.ContainerManager;
-import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 /** 
  * 
@@ -48,7 +48,7 @@ public class AddContainerActivity extends CloudActivity implements OnClickListen
 	}
 	
 	private class CreateContainerTask extends AsyncTask<Void, Void, HttpBundle> {
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		protected void onPreExecute(){
 			showDialog();
@@ -59,7 +59,7 @@ public class AddContainerActivity extends CloudActivity implements OnClickListen
 			HttpBundle bundle = null;
 			try {
 				bundle = (new ContainerManager(getContext())).create(containerName.getText());
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return bundle;
@@ -75,7 +75,7 @@ public class AddContainerActivity extends CloudActivity implements OnClickListen
 					setResult(Activity.RESULT_OK);
 					finish();
 				} else {
-					CloudServersException cse = parseCloudServersException(response);
+					CloudFilesException cse = parseCloudFilesException(response);
 					if ("".equals(cse.getMessage())) {
 						showError("There was a problem creating your container.", bundle);
 					} else {

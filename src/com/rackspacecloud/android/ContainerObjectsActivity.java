@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.CloudFilesException;
 import com.rackspace.cloud.files.api.client.Container;
 import com.rackspace.cloud.files.api.client.ContainerManager;
 import com.rackspace.cloud.files.api.client.ContainerObjectManager;
@@ -690,7 +691,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 	private class DeleteContainerTask extends
 	AsyncTask<String, Void, HttpBundle> {
 
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		@Override
 		protected void onPreExecute(){ 
@@ -705,7 +706,7 @@ public class ContainerObjectsActivity extends CloudListActivity {
 			HttpBundle bundle = null;
 			try {
 				bundle = (new ContainerManager(getContext())).delete(container.getName());
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return bundle;

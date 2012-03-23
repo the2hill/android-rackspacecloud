@@ -34,6 +34,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.CloudFilesException;
+import com.rackspace.cloud.files.api.client.parsers.CloudFilesFaultXMLParser;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
 import com.rackspace.cloud.servers.api.client.parsers.CloudServersFaultXMLParser;
@@ -240,6 +242,36 @@ public abstract class CloudActivity extends GaActivity{
 			cse.setMessage(e.getLocalizedMessage());
 		} catch (FactoryConfigurationError e) {
 			cse = new CloudServersException();
+			cse.setMessage(e.getLocalizedMessage());
+		}
+		return cse;
+	}
+	
+	protected final CloudFilesException parseCloudFilesException(HttpResponse response) {
+		CloudFilesException cse = new CloudFilesException();
+		try {
+		    BasicResponseHandler responseHandler = new BasicResponseHandler();
+		    String body = responseHandler.handleResponse(response);
+	    	CloudFilesFaultXMLParser parser = new CloudFilesFaultXMLParser();
+	    	SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+	    	XMLReader xmlReader = saxParser.getXMLReader();
+	    	xmlReader.setContentHandler(parser);
+	    	xmlReader.parse(new InputSource(new StringReader(body)));		    	
+	    	cse = parser.getException();		    	
+		} catch (ClientProtocolException e) {
+			cse = new CloudFilesException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (IOException e) {
+			cse = new CloudFilesException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (ParserConfigurationException e) {
+			cse = new CloudFilesException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (SAXException e) {
+			cse = new CloudFilesException();
+			cse.setMessage(e.getLocalizedMessage());
+		} catch (FactoryConfigurationError e) {
+			cse = new CloudFilesException();
 			cse.setMessage(e.getLocalizedMessage());
 		}
 		return cse;

@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.rackspace.cloud.android.R;
+import com.rackspace.cloud.files.api.client.CloudFilesException;
 import com.rackspace.cloud.files.api.client.ContainerManager;
 import com.rackspace.cloud.servers.api.client.CloudServersException;
 import com.rackspace.cloud.servers.api.client.http.HttpBundle;
@@ -167,7 +168,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 	}
 	
 	public class EnableCDNTask extends AsyncTask<Void, Void, HttpBundle> {
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		@Override
 		protected HttpBundle doInBackground(Void... arg0) {
@@ -175,7 +176,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 			try {
 				bundle = (new ContainerManager(getContext())).enable(containerName,
 						selectedTtlId, selectedLogRetId);
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return bundle;
@@ -211,7 +212,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 	}
 
 	public class ChangeAttributesCDNTask extends AsyncTask<Void, Void, HttpBundle> {
-		private CloudServersException exception;
+		private CloudFilesException exception;
 
 		@Override
 		protected HttpBundle doInBackground(Void... arg0) {
@@ -219,7 +220,7 @@ public class EnableCDNActivity extends CloudActivity implements OnClickListener,
 			try {
 				bundle = (new ContainerManager(getContext())).disable(containerName,
 						selectedCdnId, selectedTtlId, selectedLogRetId);
-			} catch (CloudServersException e) {
+			} catch (CloudFilesException e) {
 				exception = e;
 			}
 			return bundle;
